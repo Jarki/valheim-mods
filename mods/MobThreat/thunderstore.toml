@@ -1,0 +1,37 @@
+[config]
+schemaVersion = "0.0.1"
+
+[package]
+namespace = "Jarki"
+name = "MobThreat"
+versionNumber = "1.0.1"
+description = "Client-only overhead estimates of how many unblocked enemy attacks could defeat you at your current health."
+websiteUrl = "https://github.com/Jarki/valheim-mods"
+containsNsfwContent = false
+
+[package.dependencies]
+denikson-BepInExPack_Valheim = "5.4.2351"
+
+[build]
+icon = "package/icon.png"
+readme = "package/README.md"
+outdir = "../../dist"
+
+[[build.copy]]
+source = "bin/Release/netstandard2.1/MobThreat.dll"
+target = "plugins/MobThreat/MobThreat.dll"
+
+[[build.copy]]
+source = "package/CHANGELOG.md"
+target = "CHANGELOG.md"
+
+[[build.copy]]
+source = "../../LICENSE"
+target = "LICENSE"
+
+[publish]
+repository = "https://thunderstore.io"
+communities = ["valheim"]
+
+[publish.categories]
+valheim = ["mods", "ai-generated", "client-side", "utility"]

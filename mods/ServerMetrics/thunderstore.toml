@@ -1,0 +1,37 @@
+[config]
+schemaVersion = "0.0.1"
+
+[package]
+namespace = "Jarki"
+name = "Server_Metrics"
+versionNumber = "1.4.0"
+description = "Server-only Prometheus exporter for connections, saves, backups and persistent character playtime and deaths."
+websiteUrl = "https://github.com/Jarki/valheim-mods/tree/main/mods/ServerMetrics"
+containsNsfwContent = false
+
+[package.dependencies]
+denikson-BepInExPack_Valheim = "5.4.2351"
+
+[build]
+icon = "package/icon.png"
+readme = "package/README.md"
+outdir = "../../dist"
+
+[[build.copy]]
+source = "bin/Release/netstandard2.1/ServerMetrics.dll"
+target = "plugins/ServerMetrics/ServerMetrics.dll"
+
+[[build.copy]]
+source = "package/CHANGELOG.md"
+target = "CHANGELOG.md"
+
+[[build.copy]]
+source = "../../LICENSE"
+target = "LICENSE"
+
+[publish]
+repository = "https://thunderstore.io"
+communities = ["valheim"]
+
+[publish.categories]
+valheim = ["mods", "ai-generated", "server-side", "utility"]

@@ -1,5 +1,9 @@
 # Valheim Server Metrics
 
+**Paused by the owner (2026-11-05): no further development or publication for
+now.** Source/tests and the historical notes below are preserved. This pause
+does not authorize changing an existing server deployment or its monitoring.
+
 Server-only BepInEx 5 plugin exposing Prometheus metrics at `/metrics`.
 Original implementation; no Valheim Stats code or dependency. Playtime/deaths are server-only.
 **No inferred gameplay statistics:** connected playtime and vanilla death

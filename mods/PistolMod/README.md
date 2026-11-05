@@ -1,5 +1,9 @@
 # Firearm Arsenal — development build
 
+**Paused by the owner (2026-11-05): no further development or publication for
+now.** Source/assets/tests and the historical notes below are preserved. Resume
+only on an explicit owner decision; MobThreat is the sole active release target.
+
 Expands the original 9mm Pistol plugin with an AKM-style rifle and RPG-style
 launcher. **Release build, asset validation, seven standalone regression groups,
 and 142 native-client integration checks pass.** Verification details are below

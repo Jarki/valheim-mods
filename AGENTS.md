@@ -1,12 +1,21 @@
 # Valheim mod development
 
-Read `README.md` for development context. For server management, deployment, client-profile operations, or connection troubleshooting, switch to the sibling `../valheim-server` repository and read `../valheim-server/.agents/skills/server-management/SKILL.md` plus its state reference before acting.
+Read `README.md` for the package overview and `docs/DEVELOPMENT.md` for development context. For server management, deployment, client-profile operations, or connection troubleshooting, switch to the sibling `../valheim-server` repository and read `../valheim-server/.agents/skills/server-management/SKILL.md` plus its state reference before acting.
 
 ## Universal Modder
 
-The 11 upstream mod-development skills, including their bundled references and scripts, are vendored under `.agents/skills/`. For mod development, start with `.agents/skills/mod-any-game/SKILL.md`, then read the task-specific skills and the Unity engine reference. Run the project-local CLI with `uv run um` from this repository (or `.venv/bin/um`); do not install it as a user-wide `uv tool`. Bare `um` and `bin/um` commands in upstream skills must be invoked through `uv run um` here.
+The upstream mod-development skills, including their bundled references and scripts, are vendored under `.agents/skills/`. For mod development, start with `.agents/skills/mod-any-game/SKILL.md`, then read the task-specific skills and the Unity engine reference. Run the project-local CLI with `uv run um` from this repository (or `.venv/bin/um`); do not install it as a user-wide `uv tool`. Bare `um` and `bin/um` commands in upstream skills must be invoked through `uv run um` here.
 
-Search prior work with `uv run um kb search "valheim"`. Skill references to upstream-root `knowledge/`, `examples/`, or `um/` paths refer to https://github.com/rehan-remade/universal-modder, not local project files. Use `uv run um kb show` for knowledge-base notes; retrieve other upstream references at the revision recorded in `README.md`.
+Search prior work with `uv run um kb search "valheim"`. Skill references to upstream-root `knowledge/`, `examples/`, or `um/` paths refer to https://github.com/rehan-remade/universal-modder, not local project files. Use `uv run um kb show` for knowledge-base notes; retrieve other upstream references at the revision recorded in `docs/DEVELOPMENT.md`.
+
+## Thunderstore release work
+
+Read `docs/RELEASING.md` and the publishing skill before release preparation. Each mod has its own `thunderstore.toml` and public `package/` files; retain existing plugin IDs, DLL names and save keys. Use the pinned local `dotnet tcli` via `tools/release.py`, not a global CLI or ad-hoc directory zips.
+
+Run `uv run python tools/release.py check MobThreat` before packaging. Build only with read-only owned game/loader references, and verify each candidate ZIP. Do not bundle dependencies, test plugins, development state, saves or credentials. Original code/assets are MIT; preserve separate third-party audio terms and attribution. CI validates MobThreat metadata and standalone behavior only, never downloads game assemblies or uploads packages. The confirmed team is `Jarki`; every actual upload still needs separate explicit approval.
+
+MobThreat is the only active development/publication target. The owner paused Firearm Arsenal (`PistolMod`), Startup Helper (including server joining), and Server Metrics. Preserve their source, tests, assets and historical package definitions; do not develop, build, test, deploy or publish them unless the owner explicitly resumes the relevant project. Historical plans and old build-all instructions do not override this pause.
+
 
 ## Boundaries
 

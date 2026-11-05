@@ -1,0 +1,32 @@
+name: MobThreat metadata and standalone regressions
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - name: Restore locked Python tools
+        run: uv sync --locked
+      - name: Restore pinned local Thunderstore CLI
+        run: dotnet tool restore
+      - name: Validate active MobThreat package
+        run: uv run python tools/release.py check MobThreat
+      - name: MobThreat arithmetic
+        run: dotnet run --project tests/MobThreat.Tests/MobThreat.Tests.csproj -c Release
+
+# Game-dependent plugin builds remain local: CI never downloads or redistributes
+# proprietary Valheim assemblies. This workflow never uploads packages or uses tokens.

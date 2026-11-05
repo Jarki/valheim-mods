@@ -1,5 +1,9 @@
 # Firearm mod — requested next changes
 
+**Paused by the owner (2026-11-05).** No further firearm development, testing or
+publication is planned. The requests below are historical, not active next steps.
+MobThreat is the only active development/publication target.
+
 Status: **implemented and locally verified (2026-10-27)**. The user approved
 installing needed tools and free-asset research. They selected an RPG-style launcher
 and ward-respecting structure damage with a five-metre blast and distance falloff.

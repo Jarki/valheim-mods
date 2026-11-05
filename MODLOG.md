@@ -1,4 +1,191 @@
-# Firearm expansion development log
+# Valheim mod development log
+
+## 2026-11-05 — MobThreat 1.0.1 published
+
+- Owner explicitly approved publishing the prepared unknown-label display change.
+  Reverified the exact candidate hash and archive before upload; reused the private
+  external token through child-process `TCLI_AUTH_TOKEN`, never command arguments,
+  project files or printed output. Pinned official tcli 0.2.4 returned success.
+- Page: <https://thunderstore.io/c/valheim/p/Jarki/MobThreat/>.
+  Public download:
+  <https://thunderstore.io/package/download/Jarki/MobThreat/1.0.1/>.
+- Public ZIP downloaded and verified; exact SHA-256:
+  `5ede28c042a98e4512394d08455b1886d8ac3888d157273489e5acf767d736c7`.
+- Fresh package metadata reports active 1.0.1, unchanged BepInEx dependency,
+  expected Valheim categories and NSFW off. Review status remains unreviewed.
+- Actual browser listing showed latest 1.0.1 but initially cached old README text.
+  Cache-busted public latest/readme and latest/changelog APIs served the correct
+  new text with is_edited=false. No markdown override or duplicate upload made.
+- Root/development/release docs now record the actual publication. No new game
+  visual test, client/profile/server change, GitHub push or paused-mod work.
+  Private token file remains outside the repository and unchanged.
+
+## 2026-11-05 — MobThreat 1.0.1 hides unknown estimates (unpublished)
+
+- User requested no display instead of `~? hits`. `Sample()` now skips nonpositive
+  hit estimates before assigning/allocating a label. Removed the obsolete unknown
+  caption branch; damage estimation, numeric captions and warning colors unchanged.
+- Existing pool compaction deactivates a previously visible label when its estimate
+  becomes unknown, including when all estimates disappear. No new hooks or options.
+- Synchronized plugin/project/package version to 1.0.1; updated current docs and
+  public changelog, preserving the published 1.0.0 record and artifact.
+- Disposable headless harness compiled the actual production Plugin/ThreatMath
+  sources with simulated engine bindings and exercised LateUpdate/Sample/DrawLabels.
+  Before: two labels for an unknown-only pair where zero were expected. After:
+  unknown/non-humanoid hiding, known-to-unknown cleanup, recovery, singular/red
+  numeric captions, same-count pool reassignment and invalid-damage transitions pass.
+  This is simulated display-state evidence, not fresh in-game visual verification.
+- Standalone lethal-hit regressions, metadata check, owned-reference Release build
+  and archive verification passed. Existing two framework-reference warnings remain.
+  Extracted ZIP lint: six files, zero failures, zero warnings.
+- Candidate: `dist/Jarki-MobThreat-1.0.1.zip`; SHA-256
+  `5ede28c042a98e4512394d08455b1886d8ac3888d157273489e5acf767d736c7`.
+  Verification record: `.dev/release/mobthreat-1.0.1-verification.json`.
+- No game launch, client/profile/server change, upload, token access or paused-mod
+  work. Prior publication approval covered 1.0.0 only; 1.0.1 needs separate approval.
+  Initial KB search timed out after 30 seconds; no upstream submission.
+
+## 2026-11-05 — MobThreat 1.0.0 published
+
+- Owner supplied an owner-only token file outside the repository for the already
+  approved MobThreat-only release. Pinned tcli 0.2.4 read its credential from a
+  child-process `TCLI_AUTH_TOKEN`; no token value was displayed, passed in process
+  arguments, committed or persisted in project/CLI configuration.
+- Official CLI returned success for `Jarki-MobThreat-1.0.0`. Public page:
+  <https://thunderstore.io/c/valheim/p/Jarki/MobThreat/>.
+- Verified public package metadata: active 1.0.0, Valheim, BepInEx 5.4.2351,
+  Mods/Utility/AI Generated/Client-side categories and NSFW off. Review status is
+  unreviewed, not an approval claim. Inspected the live icon and complete rendered
+  README in the actual Valheim listing.
+- Downloaded the public ZIP with curl. SHA-256 exactly matches the approved file:
+  `fc4a09d3ab5c5cc372d6953fd7278dfe72ced6991b303e67581ddec90fcf519d`.
+  The generic package-page URL defaults to Risk of Rain 2 for anonymous visitors;
+  use the explicit Valheim link. Experimental per-version metadata returned 404;
+  public package metadata, Valheim page and ZIP were independently reachable.
+- Firearm Arsenal, Startup Helper and Server Metrics remain paused and unpublished
+  by this work. No GitHub push, game launch, deployment, server/profile change or
+  fresh archive-import test. Existing runtime limitations remain unchanged.
+- Public artifact/evidence and sanitized upload result retained in `.dev/release/`.
+  Token remains in its private external file; one-off token revocation is an
+  owner action. Historical handoff records below describe the pre-upload state.
+
+## 2026-11-05 — MobThreat-only publication handoff; other mods paused
+
+- Owner selected publication of `Jarki-MobThreat-1.0.0` only, accepting the missing
+  fresh clean-profile archive test. No game launch or profile/server operation
+  was authorized by this decision.
+- Owner paused Firearm Arsenal, Startup Helper (including server joining), and
+  Server Metrics: no further development or publication for now. Their source,
+  tests, assets, configs and historical plans are preserved. Added pause notices
+  to their development entrypoints and restricted active README/agent guidance,
+  development examples and CI metadata/regressions to MobThreat.
+- Removed candidate-only wording from MobThreat's public page/changelog. Its
+  public GitHub source path returns 404, so changed the website to the working
+  project repository and disclosed that this plugin's source is not yet pushed.
+- Rebuilt the final MobThreat ZIP, verified metadata/payloads and passed standalone
+  lethal-hit regressions. Existing two framework-reference warnings remain.
+  Extracted final ZIP passed `um publish check`: six files, zero failures/warnings.
+  Thunderstore Markdown Preview rendered the complete README; screenshot inspected.
+- SHA-256: `fc4a09d3ab5c5cc372d6953fd7278dfe72ced6991b303e67581ddec90fcf519d`.
+- Upload is pending owner authentication/final submission. Available browser is
+  signed out; owner-browser relay timed out. Platform manifest validation requires
+  sign-in/team selection and is not claimed. No upload, GitHub push, server/profile
+  change or paused-mod build/test performed after the pause. Handoff fields are
+  recorded in `docs/RELEASING.md`; local preflight evidence is in `.dev/release/`.
+
+## 2026-11-05 — Thunderstore-oriented repository
+
+- User selected MIT for original code/assets and confirmed the Thunderstore team
+  name `Jarki`. Existing audio CC BY/CC0 terms and mandatory attribution retained.
+- Kept four independent source projects and their plugin IDs, DLL names, prefab
+  identities and current versions. Added per-mod `thunderstore.toml`, public
+  package README/changelog and original 256×256 icons; license included in ZIPs.
+- Pinned local Thunderstore CLI 0.2.4 in `.config/dotnet-tools.json`; root SDK
+  policy uses .NET 10. Added `tools/release.py` for metadata checks, fresh local
+  builds, explicit allowlisted packaging, deterministic ZIP metadata, and archive
+  verification. No upload command in this wrapper.
+- Reoriented README, added development/release guides and publishing agent rules.
+  CI checks metadata and standalone tests only, without proprietary references
+  or upload credentials. Python >=3.11, locked Pillow dev dependency; Server
+  Metrics standalone tests now target net10.0 alongside the other test projects.
+- All four candidates built and verified in `dist/`; extracted payloads passed
+  `um publish check` against the installed game with zero failures/warnings.
+  MobThreat tests pass; Firearm 7/7 and Server Metrics 15/15 pass. Known reference/
+  DTO warnings remain. Rejected extra-loader and wrong-version ZIP probes;
+  identical-input MobThreat packaging reproduced the same hash.
+- GitHub CI syntax checked locally, not executed remotely. No game/server launch,
+  deployment, clean-profile ZIP import, account/token setup, git push or upload.
+  Fresh clean-profile candidate tests and separate publication approval remain
+  required before release. Local package-lint evidence is under `.dev/release/`.
+
+## 2026-11-05 — MobThreat adversarial UI fixes
+
+- User accepted the ghost-label and render-scaling findings, declined work on the
+  low-value tiny-DOT edge. Damage-estimation code remains unchanged.
+- `Plugin.Clear()` deactivates active pooled text children before resetting the
+  active count; projection uses native `WorldToScreenPointScaled()`.
+- Reused the original live reviewers' pool/scaling probe modules, executed
+  sequentially by one owner in a fresh `.dev/mobthreat-ui-fix/` private profile.
+  Both two-mob lifecycle cases now produce one live/rendered label and zero
+  orphan texts; before the fix they produced two rendered labels for one mob.
+- Native 640×360 rendering in a 1280×720 window now measures 0.000 px label
+  error (before: 368.5 px). Full-resolution error stays 0.000. Graphics settings
+  restored. Inspected actual screenshots; no runtime exceptions/font-load errors.
+- Release build and standalone lethal-hit regressions passed. The two known
+  game-reference version warnings remain. Game returned to menu and exited
+  normally; temporary helper removed. Evidence and probe-source archive retained
+  locally under `.dev/mobthreat-ui-fix/evidence/`. Northern Hearth unchanged.
+
+## 2026-11-05 — approved MobThreat client verification
+
+- User authorized a separate disposable local client/profile. Native Linux
+  Doorstop profile under `.dev/mobthreat/`, BepInEx 5.4.2351, Valheim l-1.0.20 /
+  Unity 6000.0.75f1. Isolated TigerVNC display `:91`, accelerated virgl OpenGL 4.3.
+  No existing character/world selected, no live server joined, no production deployment.
+- First launch had no running Steam client and failed Steamworks initialization;
+  starting the owned Steam client resolved that prerequisite. MobThreat itself
+  initialized successfully. Subsequent startup reached the menu and private world.
+- Actual rendering exposed missing IMGUI `LegacyRuntime` font data. Replaced it
+  with pooled TextMeshPro labels using `EnemyHud.m_baseHud`'s native Name font.
+  Projection runs after normal camera updates. No Harmony or scene-load hooks.
+- Temporary fixture correction: `Game.SkipIntro()` requests respawn and must not
+  be called repeatedly while waiting for a player. Free-camera captures must set
+  yaw/pitch state, not just the transform. Neither issue was an estimator defect.
+- Final run passed 16 runtime checks, including head-aligned rendering, health
+  and armor changes, HUD hide/restore, component disable/re-enable, destroyed-mob
+  reference release, and world-exit cleanup. Inspected screenshots show Greydwarf:
+  100 HP / 1 armor -> ~9 hits; 20 HP / 1 armor -> red ~2 hits;
+  100 HP / 14 armor -> ~33 hits after equipping Iron Scale Mail.
+- Final `game-run6.log` and loader log contain no exceptions or font-load errors.
+  Evidence retained locally in `.dev/mobthreat/evidence/`; scenario source/DLL
+  removed afterward. Release build and standalone lethal-hit regressions passed;
+  the two documented game-reference version warnings remain.
+- Full Northern Hearth interactions, multiplayer, and broad special-attack
+  coverage remain unverified. Isolated startup success is not a diagnosis of the
+  old external plugin's freeze.
+
+## 2026-11-05 — new MobThreat implementation
+
+- User requested a new client-only MobThreat with approximate hits-to-player-death
+  displayed above mobs' heads. New source lives under `mods/MobThreat/`; it is not
+  a patch or recovery of the missing external plugin.
+- Route: BepInEx 5 polling of the character registry, read-only weapon/defense
+  queries and IMGUI overhead labels. No Harmony, scene callbacks, async waits or
+  persistent scene objects.
+- Inspected installed game damage flow: resistance before combined-channel armor,
+  difficulty before armor, local damage-taken rate afterward, separate world-level
+  base damage. Strongest initialized weapon attack plus level/missing-health
+  scaling; deterministic approximate vanilla skill roll.
+- Release build passed with .NET SDK 10.0.113 and read-only BepInEx 5.4.2351
+  references downloaded from the official Thunderstore package into `/tmp`.
+  Two MSB3277 game-reference warnings remain (HTTP/compression); no compiler errors.
+- Lethal-hit arithmetic regressions passed. Production mitigation ran against real
+  game HitData in a throwaway harness: eight expected-damage scenarios passed,
+  covering armor branches, resistance, difficulty, local rate, world addition,
+  immunity, and resulting hits at current health.
+- Game/UI startup and overhead lifecycle are unverified: no authorized game launch,
+  loader install, profile modification, deployment or server change performed.
+  Full assumptions and build/config instructions are in `mods/MobThreat/README.md`.
 
 ## 2026-10-27 — implementation authorized
 

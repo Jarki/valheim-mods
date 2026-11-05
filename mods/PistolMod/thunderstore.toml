@@ -1,0 +1,42 @@
+[config]
+schemaVersion = "0.0.1"
+
+[package]
+namespace = "Jarki"
+name = "Firearm_Arsenal"
+versionNumber = "1.1.0"
+description = "Adds a craftable pistol, automatic rifle and rocket launcher with reloads, projectiles and procedural weapon animation."
+websiteUrl = "https://github.com/Jarki/valheim-mods/tree/main/mods/PistolMod"
+containsNsfwContent = false
+
+[package.dependencies]
+denikson-BepInExPack_Valheim = "5.4.2351"
+ValheimModding-Jotunn = "2.30.2"
+
+[build]
+icon = "package/icon.png"
+readme = "package/README.md"
+outdir = "../../dist"
+
+[[build.copy]]
+source = "bin/Release/netstandard2.1/PistolMod.dll"
+target = "plugins/PistolMod/PistolMod.dll"
+
+[[build.copy]]
+source = "package/CHANGELOG.md"
+target = "CHANGELOG.md"
+
+[[build.copy]]
+source = "../../LICENSE"
+target = "LICENSE"
+
+[[build.copy]]
+source = "Assets/Audio/ATTRIBUTION.md"
+target = "ATTRIBUTION.md"
+
+[publish]
+repository = "https://thunderstore.io"
+communities = ["valheim"]
+
+[publish.categories]
+valheim = ["mods", "ai-generated", "gear"]

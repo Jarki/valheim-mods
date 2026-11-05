@@ -4,6 +4,9 @@
 *.dll
 *.pdb
 
+# Thunderstore build output (metadata and package sources remain tracked)
+/dist/
+
 # Local development labs and game/reference material
 .dev/
 *.r2z

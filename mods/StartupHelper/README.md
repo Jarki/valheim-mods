@@ -1,5 +1,9 @@
 # Startup Helper
 
+**Paused by the owner (2026-11-05), including server-join work: no further
+development or publication for now.** Source/tests and the historical notes below
+are preserved. Resume only on an explicit owner decision.
+
 A standalone **client-only BepInEx 5** plugin that selects an existing character
 and starts an existing private world or joins a server on game launch.
 It has no Jotunn, Firearm Arsenal, or PistolMod dependency.
