@@ -8,8 +8,11 @@ verification: [PistolMod](../mods/PistolMod/README.md),
 [MobThreat](../mods/MobThreat/README.md). Do not interpret historical build or
 runtime records as fresh verification of a release archive.
 
-**Active development: MobThreat only.** Firearm Arsenal, Startup Helper
-(including server joining), and Server Metrics are paused by the owner. Their
+**Active development: MobThreat and NearbyStore.** Both have release-wrapper
+metadata and published releases. NearbyStore build and verification commands are
+in its
+[README](../mods/NearbyStore/README.md). Firearm Arsenal, Startup Helper
+(including server joining), and Server Metrics remain paused by the owner. Their
 instructions and verification records are retained as history, not authorization
 to resume work, testing, deployment or publication.
 
@@ -33,7 +36,7 @@ dotnet build mods/MobThreat/MobThreat.csproj -c Release \
 dotnet run --project tests/MobThreat.Tests/MobThreat.Tests.csproj -c Release
 ```
 
-The example targets the only active plugin. Source build properties are
+The example targets MobThreat; NearbyStore has equivalent commands in its README. Source build properties are
 not release-wrapper flags: see the release guide for `--game-dir`,
 `--reference-profile`, and optional `--managed-dir`. Builds may report existing
 framework reference-version conflicts; consult the per-mod records rather than

@@ -1,14 +1,55 @@
 # Releasing to Thunderstore
 
 This guide documents local packaging and the release workflow; it does **not**
-authorize future publication or runtime operations. **MobThreat 1.0.1 was published
-on 2026-11-05** under the confirmed **Jarki** team; other packages remain paused.
+authorize future publication or runtime operations. **MobThreat 1.0.1 and
+NearbyStore 1.0.0 were published on 2026-11-05** under the confirmed **Jarki** team.
 
-**Active release scope: MobThreat only.** The owner paused Firearm Arsenal,
-Startup Helper (including server joining), and Server Metrics. Retain their
-historical configs and artifacts, but do not develop, build, test or publish them
-without an explicit decision to resume. Older multi-package verification below
-is historical evidence, not a current release plan.
+**Active release scope: MobThreat and NearbyStore.** The owner separately approved
+NearbyStore's exact final 1.0.0 artifact after the verification limits were
+disclosed. Firearm Arsenal, Startup Helper (including server joining), and Server
+Metrics remain paused; older multi-package verification is not a current release plan.
+
+## Published NearbyStore 1.0.0 — 2026-11-05
+
+- Release ZIP: `dist/Jarki-NearbyStore-1.0.0.zip`; team **Jarki**, community **Valheim**.
+- SHA-256: `543600cdd70cf27c76567ee29af493747dc9e6a958513dc87f66ef90f35afef3`.
+- Categories: `mods`, `ai-generated`, `client-side`, `utility`; NSFW off.
+- Only dependency: `denikson-BepInExPack_Valheim-5.4.2351`.
+- Pinned tcli build and archive verification pass; six-file extracted payload
+  passes publishing lint with zero failures/warnings. 13/13 transfer cases and
+  3/3 adversarial groups pass (20,480 generated deposits plus fixed-point repeats).
+- Original programmatic chest/arrow/favorite icon, MIT license and AI disclosure
+  included. No game/dependency binaries, tests, configs or saves bundled.
+- Authorized isolated native-client checks passed 38 assertions, including fixture
+  setup. Actual keyboard/mouse workflow, character-file save/reload, matching/
+  overflow and private/busy/range exclusions were exercised; UI screenshots at
+  default/70%/130% scale were inspected.
+- Delayed ownership failed before the fix and passed after injecting ownership
+  transitions on real local game containers. Late-response suppression and
+  already-owned quarantine recovery passed; no two-client test was performed.
+- Candidate DLL was extracted from the tcli ZIP into a new isolated development
+  profile. Mod-manager local-import UI, multiplayer, denied wards and uninstall/
+  reinstall remain unverified. Public README discloses these and remote-request
+  quarantine/manual-merge limitations.
+- Current global rules were read; MIT terms and AI disclosure are included.
+- One earlier second-store assertion failed without quantity diagnostics. Two
+  instrumented runs of the identical final DLL passed in fresh/reused local
+  worlds. Original cause unconfirmed; public README and private evidence retain
+  this distinction rather than claiming a production fix.
+- Owner approved the exact artifact and confirmed an existing token. The private
+  external token file was validated and used only through child-process
+  `TCLI_AUTH_TOKEN` with pinned tcli 0.2.4; publishing returned success. No credential
+  was printed, copied into the repository or persisted in CLI configuration.
+- Page: <https://thunderstore.io/c/valheim/p/Jarki/NearbyStore/>.
+- Download: <https://thunderstore.io/package/download/Jarki/NearbyStore/1.0.0/>.
+- Downloaded public ZIP passes archive verification and exactly matches the hash
+  above. Public metadata reports active 1.0.0, expected categories/dependency and
+  NSFW off. Review is **unreviewed**, not moderation approval.
+- The live Valheim page, original icon, version and README/testing disclosures
+  were visually inspected in Chromium. An initial canonical-page read returned
+  404 immediately after upload; the cache-busted live browser page rendered correctly.
+- Only a disposable local profile/game was used; no live profile/server change,
+  paused-mod upload or public-source push.
 
 ## Published MobThreat 1.0.1 — 2026-11-05
 
