@@ -1,0 +1,20 @@
+## Copy to the chosen profile's BepInEx/config/local.valheim.startuphelper.cfg.
+## Enable only after confirming these disposable local saves exist in that profile.
+
+[Startup]
+Enabled = false
+Character = firearmlab
+CharacterSource = Local
+Mode = LocalWorld
+LaunchDelaySeconds = 5
+CancelKey = F8
+SkipStartupCinematic = true
+
+[LocalWorld]
+Name = firearmlab2026
+Source = Local
+
+[Server]
+Address =
+Port = 2456
+PasswordEnvironmentVariable =

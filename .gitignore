@@ -1,0 +1,63 @@
+# Compiled .NET outputs
+**/bin/
+**/obj/
+*.dll
+*.pdb
+
+# Local development labs and game/reference material
+.dev/
+*.r2z
+*.fch
+*.fwl
+*.fwl.old
+*.fwl2
+
+# Python environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Crash and diagnostic outputs
+mono_crash.*
+core
+core.*
+*.dmp
+*.stackdump
+crash-reports/
+
+# Credentials and machine-local configuration
+.env
+.env.*
+!.env.example
+!.env.template
+.secrets/
+.ssh/
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+id_rsa.*
+id_ed25519
+id_ed25519.*
+.netrc
+.npmrc
+
+# Live mod-manager profiles, player data, and runtime diagnostics
+**/BepInEx/
+*.cfg
+!*.cfg.example
+*.log
+*.fch.*
+*.fwl.*
+*.db
+*.db2
+*.db.*
+*.chunk
+*.chunks
+*.ok
+character-playtime*.json

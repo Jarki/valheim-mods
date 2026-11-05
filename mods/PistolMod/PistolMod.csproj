@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>PistolMod</AssemblyName>
+    <Version>1.1.0</Version>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <GameDir Condition="'$(GameDir)' == ''">$(HOME)/.local/share/Steam/steamapps/common/Valheim</GameDir>
+    <ReferenceProfile Condition="'$(ReferenceProfile)' == ''">$(HOME)/.config/r2modmanPlus-local/Valheim/profiles/Valheim2</ReferenceProfile>
+    <ManagedDir>$(GameDir)/valheim_Data/Managed</ManagedDir>
+  </PropertyGroup>
+  <ItemGroup>
+    <ModelAsset Include="pistol;rifle;launcher;ammo9mm;ammo762;rocket" />
+    <AudioAsset Include="pistol_shot;pistol_reload;ak_shot;ak_reload;rpg_launch;explosion" />
+    <EmbeddedResource Include="Assets/Models/*.mesh;Assets/Models/*.png;Assets/Audio/*.wav" />
+    <Reference Include="$(ManagedDir)/assembly_valheim.dll;$(ManagedDir)/assembly_utils.dll;$(ManagedDir)/assembly_guiutils.dll;$(ManagedDir)/SoftReferenceableAssets.dll;$(ManagedDir)/UnityEngine*.dll;$(ManagedDir)/Unity.TextMeshPro.dll;$(ManagedDir)/Splatform.dll;$(ManagedDir)/gui_framework.dll" Private="false" />
+    <Reference Include="$(ReferenceProfile)/BepInEx/core/BepInEx.dll;$(ReferenceProfile)/BepInEx/core/0Harmony.dll;$(ReferenceProfile)/BepInEx/plugins/ValheimModding-Jotunn/Jotunn.dll" Private="false" />
+  </ItemGroup>
+  <Target Name="CheckLocalReferences" BeforeTargets="ResolveReferences">
+    <Error Condition="!Exists('$(ManagedDir)/assembly_valheim.dll')" Text="Set GameDir to your owned native Valheim install." />
+    <Error Condition="!Exists('$(ReferenceProfile)/BepInEx/plugins/ValheimModding-Jotunn/Jotunn.dll')" Text="Set ReferenceProfile to a BepInEx/Jotunn profile. References are read-only and not bundled." />
+  </Target>
+  <Target Name="CheckEmbeddedAssets" BeforeTargets="PrepareForBuild">
+    <Error Condition="!Exists('$(MSBuildProjectDirectory)/Assets/Models/%(ModelAsset.Identity).mesh')" Text="Missing %(ModelAsset.Identity) mesh. Run Blender with Tools/build_models.py first." />
+    <Error Condition="!Exists('$(MSBuildProjectDirectory)/Assets/Models/%(ModelAsset.Identity).png')" Text="Missing %(ModelAsset.Identity) icon. Run Blender with Tools/build_models.py first." />
+    <Error Condition="!Exists('$(MSBuildProjectDirectory)/Assets/Audio/%(AudioAsset.Identity).wav')" Text="Missing licensed recording %(AudioAsset.Identity).wav." />
+  </Target>
+</Project>

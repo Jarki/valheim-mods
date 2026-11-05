@@ -1,0 +1,10 @@
+[project]
+name = "valheim-mods"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = [
+    "universal-modder @ git+https://github.com/rehan-remade/universal-modder@c1dff21663665dd17af289744a301b66e369605e",
+]
+
+[tool.uv]
+package = false
