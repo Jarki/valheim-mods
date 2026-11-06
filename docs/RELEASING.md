@@ -2,12 +2,51 @@
 
 This guide documents local packaging and the release workflow; it does **not**
 authorize future publication or runtime operations. **MobThreat 1.0.1 and
-NearbyStore 1.0.0 were published on 2026-11-05** under the confirmed **Jarki** team.
+NearbyStore 1.0.0 were published on 2026-11-05; Rotheart 1.0.0 on 2026-11-06**
+under the confirmed **Jarki** team.
 
-**Active release scope: MobThreat and NearbyStore.** The owner separately approved
-NearbyStore's exact final 1.0.0 artifact after the verification limits were
-disclosed. Firearm Arsenal, Startup Helper (including server joining), and Server
-Metrics remain paused; older multi-package verification is not a current release plan.
+**Active release scope: MobThreat, NearbyStore and Rotheart.** The owner separately
+approved each published artifact after disclosure of its verification limits.
+Firearm Arsenal, Startup Helper (including server joining), and Server Metrics
+remain paused; older multi-package verification is not a current release plan.
+
+## Published Rotheart 1.0.0 — 2026-11-06
+
+- ZIP: `dist/Jarki-Rotheart-1.0.0.zip`; **Jarki**, **Valheim**.
+- SHA-256: `e0c940623679ac88ffc4ba6e48827295cf297625d92ae5495c0cdb87a46d3222`.
+- Categories: `mods`, `ai-generated`, `gear`; NSFW off.
+- Dependencies: `denikson-BepInExPack_Valheim-5.4.2351`, `ValheimModding-Jotunn-2.30.2`.
+- Pinned tcli build and six-file archive verification pass. Extracted-payload lint
+  reports zero failures/warnings. No dependencies, game assemblies, tests, saves,
+  development state or credentials are bundled.
+- ZIP DLL is byte-identical to the final native-game-tested DLL:
+  `93ce43500cfc24e3b2c737778d8a7f46029e580f7e8ab81f4cd4bc5f4c3293be`.
+- 65 isolated native-client assertions passed with zero Unity errors/exceptions;
+  actual crafting, activation, combat, persistence and visuals were verified.
+- Remote multiplayer, dedicated servers, controllers, Windows, mod-manager ZIP
+  import and uninstall/reinstall remain unverified. The public README discloses
+  these limits, the two existing build reference warnings, AI assistance and
+  the source-not-pushed state.
+- Original Blender model/icon and package-icon composition are MIT licensed.
+  The package icon can be regenerated with `mods/Rotheart/Tools/build_package_icon.py`.
+- Current global rules and live category slugs checked. Icon and exact candidate
+  README were visually inspected using Thunderstore's Markdown Preview.
+- Owner approved this exact ZIP and its disclosed limits. Pinned tcli 0.2.4
+  published it successfully using the existing private external token only in
+  child-process `TCLI_AUTH_TOKEN`; nothing was printed or saved containing the token.
+- Page: <https://thunderstore.io/c/valheim/p/Jarki/Rotheart/>.
+- Download: <https://thunderstore.io/package/download/Jarki/Rotheart/1.0.0/>.
+- Downloaded public ZIP passes archive verification and matches the approved hash
+  above. Public API reports active 1.0.0, expected dependencies/categories and
+  NSFW off. Review is **unreviewed**, not moderation approval.
+- Live listing, icon, version, README and testing disclosures visually inspected
+  in Chromium; screenshots and sanitized publication log remain in ignored
+  `.dev/release/rotheart-1.0.0/`.
+- No game/profile/server operation or public-source push occurred during publication.
+- The owner subsequently authorized the GitHub source push. Rotheart source is
+  linked from its development README; the immutable 1.0.0 package keeps its
+  source-publication disclosure as recorded at packaging time.
+
 
 ## Published NearbyStore 1.0.0 — 2026-11-05
 
@@ -144,22 +183,23 @@ these sources synchronized in the same change:
 The checker rejects config/project/plugin version mismatches. Do not rename source
 directories, DLLs or existing plugin IDs to match public package names. Current
 mapping: `PistolMod` → `Firearm_Arsenal` 1.1.0, `StartupHelper` → `Startup_Helper`
-1.0.0, `ServerMetrics` → `Server_Metrics` 1.4.0, `MobThreat` → `MobThreat` 1.0.1.
+1.0.0, `ServerMetrics` → `Server_Metrics` 1.4.0, `MobThreat` → `MobThreat` 1.0.1,
+`NearbyStore` → `NearbyStore` 1.0.0, `Rotheart` → `Rotheart` 1.0.0.
 Do not silently reuse a published version for changed contents.
 
 Each config uses schema `0.0.1`, the confirmed `Jarki` namespace, community
 `valheim`, `containsNsfwContent = false`, and the project's GitHub source URL.
-All require `denikson-BepInExPack_Valheim` 5.4.2351; only Firearm Arsenal also
-requires `ValheimModding-Jotunn` 2.30.2. Keep verified community category slugs:
+All require `denikson-BepInExPack_Valheim` 5.4.2351; Firearm Arsenal and Rotheart also
+require `ValheimModding-Jotunn` 2.30.2. Keep verified community category slugs:
 `mods`, **`ai-generated`**, and the appropriate `client-side`, `server-side`,
 `utility` or `gear` categories. A client-only optional helper is not a server
-requirement; Firearm Arsenal requires matching server/client installations.
+requirement; Firearm Arsenal and Rotheart require matching server/client installations.
 
 Preserve the public disclosure: developed with AI assistance including OpenAI
-Codex; this release preparation uses `gpt-6.1-sol`. Do not claim every historical
-change used that model. State known runtime limitations honestly and distinguish
-source tests, historical client evidence, fresh packaging checks and clean-profile
-ZIP tests.
+Codex. Earlier release preparation used `gpt-6.1-sol`; Rotheart used `gpt-6-astra`.
+Do not attribute every historical change to one model. State known runtime
+limitations honestly and distinguish source tests, historical client evidence,
+fresh packaging checks and clean-profile ZIP tests.
 
 ## 3. Restore pinned tools and check metadata
 

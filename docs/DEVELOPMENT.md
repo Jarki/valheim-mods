@@ -4,14 +4,17 @@ See the [root package overview](../README.md) and [release procedure](RELEASING.
 The source READMEs remain authoritative for gameplay, configuration and historical
 verification: [PistolMod](../mods/PistolMod/README.md),
 [StartupHelper](../mods/StartupHelper/README.md),
-[ServerMetrics](../mods/ServerMetrics/README.md), and
-[MobThreat](../mods/MobThreat/README.md). Do not interpret historical build or
+[ServerMetrics](../mods/ServerMetrics/README.md),
+[MobThreat](../mods/MobThreat/README.md),
+[NearbyStore](../mods/NearbyStore/README.md), and
+[Rotheart](../mods/Rotheart/README.md). Do not interpret historical build or
 runtime records as fresh verification of a release archive.
 
-**Active development: MobThreat and NearbyStore.** Both have release-wrapper
-metadata and published releases. NearbyStore build and verification commands are
-in its
-[README](../mods/NearbyStore/README.md). Firearm Arsenal, Startup Helper
+**Active development: MobThreat, NearbyStore and Rotheart.** All three have
+release-wrapper metadata and published releases. Rotheart 1.0.0's original Blender
+art and isolated native-trinket test harness are documented in its README.
+Publication records and verification limits are in [RELEASING.md](RELEASING.md).
+Firearm Arsenal, Startup Helper
 (including server joining), and Server Metrics remain paused by the owner. Their
 instructions and verification records are retained as history, not authorization
 to resume work, testing, deployment or publication.
@@ -72,9 +75,10 @@ mod-development skill directories with those from that revision's `skills/`.
 Retain the upstream license and update this revision record together. Do not
 merely overlay files and leave obsolete upstream files behind.
 
-Blender is needed only to regenerate committed firearm models/icons; follow the
-PistolMod README's actual tool constraints. FFmpeg is used for local evidence
-media. No fal/MCP or other paid asset service is configured by this setup.
+Blender regenerates Rotheart's original model/icon using its `Tools/build_models.py`
+Eevee recipe. It is also required for historical firearm art regeneration, which
+remains paused; PistolMod's README retains those tool constraints. FFmpeg is used
+for local evidence media. No fal/MCP or other paid asset service is configured.
 Installing CLI tools or skills does not install BepInEx or authorize game launches,
 profile changes, server operations or uploads.
 

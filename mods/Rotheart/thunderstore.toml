@@ -1,0 +1,38 @@
+[config]
+schemaVersion = "0.0.1"
+
+[package]
+namespace = "Jarki"
+name = "Rotheart"
+versionNumber = "1.0.0"
+description = "A swamp trinket with 50% poison resistance. At 10 adrenaline, unleash a damaging miasma that drains a little of your health. Original ooze-heart model and effects."
+websiteUrl = "https://github.com/Jarki/valheim-mods"
+containsNsfwContent = false
+
+[package.dependencies]
+denikson-BepInExPack_Valheim = "5.4.2351"
+ValheimModding-Jotunn = "2.30.2"
+
+[build]
+icon = "package/icon.png"
+readme = "package/README.md"
+outdir = "../../dist"
+
+[[build.copy]]
+source = "bin/Release/netstandard2.1/Rotheart.dll"
+target = "plugins/Rotheart/Rotheart.dll"
+
+[[build.copy]]
+source = "package/CHANGELOG.md"
+target = "CHANGELOG.md"
+
+[[build.copy]]
+source = "../../LICENSE"
+target = "LICENSE"
+
+[publish]
+repository = "https://thunderstore.io"
+communities = ["valheim"]
+
+[publish.categories]
+valheim = ["mods", "ai-generated", "gear"]

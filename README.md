@@ -2,15 +2,20 @@
 
 A source collection of independent Valheim BepInEx plugins under the confirmed
 **Jarki** Thunderstore team.
-**Published: [MobThreat 1.0.1](https://thunderstore.io/c/valheim/p/Jarki/MobThreat/) · [NearbyStore 1.0.0](https://thunderstore.io/c/valheim/p/Jarki/NearbyStore/).**
+**Published: [MobThreat 1.0.1](https://thunderstore.io/c/valheim/p/Jarki/MobThreat/) · [NearbyStore 1.0.0](https://thunderstore.io/c/valheim/p/Jarki/NearbyStore/) · [Rotheart 1.0.0](https://thunderstore.io/c/valheim/p/Jarki/Rotheart/).**
 Publication and packaging checks are not fresh clean-profile runtime verification.
 
 ## Packages
 
-**MobThreat and NearbyStore are active release targets.**
+**MobThreat, NearbyStore and Rotheart are active release targets.**
 [NearbyStore](mods/NearbyStore/README.md) 1.0.0 adds an inventory button that stores
 items in nearby chests, with a favorite shortcut to keep selected stacks.
 Its first release is published; local-client tests do not establish multiplayer compatibility.
+
+[Rotheart](mods/Rotheart/README.md) 1.0.0 adds a swamp trinket:
+passive poison resistance and a damaging miasma triggered at 10 adrenaline.
+Its first release is published, and the public ZIP matches the approved artifact.
+The gameplay DLL passed 65 isolated native-client assertions; multiplayer remains unverified.
 Firearm Arsenal, Startup Helper (including server joining), and Server Metrics
 remain paused; their source, tests, assets and historical package definitions are
 preserved.
@@ -22,6 +27,7 @@ All packages require `denikson-BepInExPack_Valheim` **5.4.2351**.
 | --- | --- | --- | --- | --- |
 | `Jarki-MobThreat` | 1.0.1 | Client only | None | **Active** — [MobThreat](mods/MobThreat/README.md) |
 | `Jarki-NearbyStore` | 1.0.0 | Client only | None | **Published; locally tested** — [NearbyStore](mods/NearbyStore/README.md) |
+| `Jarki-Rotheart` | 1.0.0 | Server and every client; multiplayer unverified | `ValheimModding-Jotunn` 2.30.2 | **Published; locally tested** — [Rotheart](mods/Rotheart/README.md) |
 | `Jarki-Firearm_Arsenal` | 1.1.0 | Server and every client; matching versions | `ValheimModding-Jotunn` 2.30.2 | **Paused** — [PistolMod](mods/PistolMod/README.md) |
 | `Jarki-Startup_Helper` | 1.0.0 | Client only; optional, disabled by default | None | **Paused** — [StartupHelper](mods/StartupHelper/README.md) |
 | `Jarki-Server_Metrics` | 1.4.0 | Dedicated server only | None | **Paused** — [ServerMetrics](mods/ServerMetrics/README.md) |
@@ -48,7 +54,8 @@ uv run python tools/release.py verify dist/Jarki-MobThreat-1.0.1.zip
 
 `check` validates metadata without launching a game. `build` performs a fresh
 Release build, packages with locally pinned official Thunderstore CLI **0.2.4**,
-and verifies the archive. Only build MobThreat or NearbyStore while the other projects are paused. It reads
+and verifies the archive. Active release-wrapper targets are MobThreat, NearbyStore and
+Rotheart. Paused projects remain excluded from current work. The wrapper reads
 `VALHEIM_GAME_DIR` and `VALHEIM_REFERENCE_PROFILE` when flags are absent;
 `--managed-dir` supports explicit server managed-assembly references. No command
 above uploads anything. See [releasing](docs/RELEASING.md) for the full gates and

@@ -14,7 +14,7 @@ Read `docs/RELEASING.md` and the publishing skill before release preparation. Ea
 
 Run `uv run python tools/release.py check MobThreat` before packaging. Build only with read-only owned game/loader references, and verify each candidate ZIP. Do not bundle dependencies, test plugins, development state, saves or credentials. Original code/assets are MIT; preserve separate third-party audio terms and attribution. CI validates MobThreat metadata and standalone behavior only, never downloads game assemblies or uploads packages. The confirmed team is `Jarki`; every actual upload still needs separate explicit approval.
 
-MobThreat and NearbyStore are the active development/publication targets. The owner paused Firearm Arsenal (`PistolMod`), Startup Helper (including server joining), and Server Metrics. Preserve their source, tests, assets and historical package definitions; do not develop, build, test, deploy or publish them unless the owner explicitly resumes the relevant project. Historical plans and old build-all instructions do not override this pause.
+MobThreat, NearbyStore and Rotheart are the active development/publication targets. The owner paused Firearm Arsenal (`PistolMod`), Startup Helper (including server joining), and Server Metrics. Preserve their source, tests, assets and historical package definitions; do not develop, build, test, deploy or publish them unless the owner explicitly resumes the relevant project. Historical plans and old build-all instructions do not override this pause.
 
 
 ## Boundaries
