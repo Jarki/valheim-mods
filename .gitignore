@@ -9,6 +9,7 @@
 
 # Local development labs and game/reference material
 .dev/
+MODLOG.md
 *.r2z
 *.fch
 *.fwl
