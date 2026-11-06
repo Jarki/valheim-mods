@@ -2,10 +2,11 @@
 
 ## 1.1.2
 
-- Move the button and shortcut hint to the right of the player inventory, vertically centered, rather than underneath. Keep a gap from crafting at 70%, 100% and 130% UI scale on the tested 1280×720 surface.
-- Hide the entire Stack nearby button and shortcut hint while a container, crafting station, active crafting operation, inventory dialog or blocking overlay is open; restore it in the standalone player inventory. The normal basic crafting recipe list remains allowed.
+- Place a square 56×56 magic-wand icon button to the right of inventory. Remove all button captions and shortcut hints; Alt+F favoriting remains available.
+- Reuse Valheim's native border and hover/pressed states around original gold wand artwork; no extracted game assets bundled.
+- Hide the wand while a container, crafting station, active crafting operation, inventory dialog or blocking overlay is open; restore it in standalone inventory. The ordinary basic crafting list remains allowed.
 - Cancel pending transfers when a blocking UI opens, retaining late-response protection. Favorite shortcuts in chest inventory and vanilla-style stacking remain unchanged.
-- Right-side 1.1.2 DLL passed 95 native-client checks including fixtures with OdinsFoodBarrels 1.4.0 loaded. Layout at three UI scales, chest/barrel/workbench/dialog transitions, active crafting, cancellation and actual restored-button overflow passed; screenshots inspected. 12 standalone transfer cases pass from the unchanged transfer implementation. Multiplayer and other UI mods remain unverified.
+- Square-wand DLL passed 102 native-client checks with OdinsFoodBarrels 1.4.0 loaded: text-free square layout, nonblocking icon graphics, actual Alt+F, hover/click, three UI scales, prior visibility transitions and overflow stacking. Multiplayer and other UI mods remain unverified.
 
 ## 1.1.1
 

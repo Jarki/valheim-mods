@@ -1,10 +1,11 @@
 # NearbyStore
 
-Client-side Valheim BepInEx plugin. Open your inventory and click **Stack nearby**
-to the right of the player inventory to apply vanilla-style **Stack items** to placed chests
+Client-side Valheim BepInEx plugin. Click the square **magic-wand icon** to the
+right of your inventory to apply vanilla-style **Stack items** to placed chests
 within **10 metres**. No server plugin or Jotunn dependency.
-**1.1.2 is a locally verified, unpublished UI fix:** the whole button/hint panel
-sits to the right of inventory and hides while containers, crafting stations or blocking overlays are open.
+**1.1.2 is a locally verified, unpublished UI fix:** the icon hides while containers,
+crafting stations or blocking overlays are open. It uses Valheim's native border
+and interaction sprites with an original gold wand graphic. No caption or shortcut hint.
 [1.1.1 remains the published release](https://thunderstore.io/c/valheim/p/Jarki/NearbyStore/).
 No live profile or server deployment was performed.
 
@@ -28,7 +29,7 @@ No live profile or server deployment was performed.
 - Respects private-chest ownership, wards, busy chests and the vanilla network
   ownership handshake. No forced ownership or writes to remotely owned inventories.
   Tombstones, dropped-loot containers and containers without a placed Piece are excluded.
-- The button and shortcut hint appear only in the standalone player inventory.
+- The wand button appears only in the standalone player inventory.
   Containers, crafting stations, active crafting, inventory dialogs and blocking
   menus hide the whole panel. The basic crafting recipe list beside the ordinary
   inventory does not hide it. Dragging/splitting also hide it.
@@ -52,8 +53,8 @@ No live profile or server deployment was performed.
 
 Configuration: `BepInEx/config/jarki.nearbystore.cfg` after first plugin load:
 `Storage.Radius` (1–50 metres, default 10) and
-`Controls.FavoriteShortcut` (default `F + LeftAlt`). The current shortcut is shown
-below the button.
+`Controls.FavoriteShortcut` (default `F + LeftAlt`). Favoriting remains available,
+but no shortcut hint is displayed.
 
 ## Build and standalone verification
 
@@ -74,8 +75,8 @@ Build output: `bin/Release/netstandard2.1/NearbyStore.dll` beneath this director
 For an authorized isolated development profile, the DLL belongs under
 `BepInEx/plugins/NearbyStore/`. Do not copy game assemblies or test binaries.
 Local 1.1.2 candidate: `dist/Jarki-NearbyStore-1.1.2.zip`.
-SHA-256: `78ede460b7363982ab6d59c97af91503c87f94f4ea57b07c1acf24cb0191ad9b`.
-Packaged DLL is byte-identical to the right-side native-tested DLL.
+ZIP SHA-256: `02a01e3659510b9eb75794a0e2b9de6908443eb917d868c341d5af314ce86a70`.
+The exact packaged wand DLL passed the native run; payload lint has zero failures/warnings.
 Published archive: `dist/Jarki-NearbyStore-1.1.1.zip`; public SHA-256
 `64b4158a6bee93df94e3f07123d0ee691239f6bd49c196c56dc31c3f120b8abd`.
 Historical archive: `dist/Jarki-NearbyStore-1.1.0.zip`; public download matches SHA-256
@@ -88,7 +89,7 @@ profile was created; no live profile or server deployment was performed.
 
 Verification of unpublished 1.1.2:
 
-- **95 native-client checks including fixtures** pass with the right-side 1.1.2 DLL,
+- **102 native-client checks including fixtures** pass with the square-wand 1.1.2 DLL,
   Valheim l-1.0.20 and OdinsFoodBarrels 1.4.0. First-open chest, raspberry barrel,
   workbench, active handcrafting, skills, compendium, trophies, achievements,
   variants, split/drag, pause, text viewer and text input hide the whole panel.
@@ -98,18 +99,21 @@ Verification of unpublished 1.1.2:
   stone/resin remain carried. The basic crafting list does not block the button.
 - Right-side panel placement, on-screen bounds and separation from crafting pass
   at 70%, 100% and 130% UI scale on a 1280×720 surface. Screenshots inspected.
-  The initial 260-unit width clipped crafting at 130%; narrowing to 240 fixed it.
+- The square 56×56-layout-unit button contains only original wand artwork, with no
+  caption or hint. Native hover/pressed screenshots inspected; actual Alt+F still
+  favorites the hovered item. Wand graphics do not intercept button clicks.
+  Native border/material and SpriteSwap states are reused; no extracted assets bundled.
 - **12/12 standalone transfer cases** pass. Build retains two existing MSB3277
   warnings. Screenshots inspected; successful run has no logged errors/exceptions,
   clean logout and game exit 0.
 - First launch stopped before the menu because Steam API initialization failed;
   retry with Steam already running passed without production-code changes.
-- Current private evidence: `.dev/nearbystore-side-lab/evidence/`; earlier visibility-only
-  evidence: `.dev/nearbystore-ui-lab/evidence/`. Fresh disposable
+- Current private evidence: `.dev/nearbystore-wand-lab/evidence/`; prior style,
+  placement and visibility evidence remains in the earlier isolated labs. Fresh disposable
   character/world in a copied development profile; no live profiles or servers
   touched. ZIP-install UI, every additional overlay guard, controller, other UI
-  mods and multiplayer remain unverified. The owner separately authorized committing
-  and pushing these source changes; Thunderstore publication remains unapproved.
+  mods and multiplayer remain unverified. Earlier visibility/placement changes were
+  pushed in `f59b755`; native styling remains local. The owner deferred Thunderstore publication.
 
 Verification of corrected 1.1.1:
 

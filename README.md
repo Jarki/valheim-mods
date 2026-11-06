@@ -14,7 +14,8 @@ fill matching stacks, then use spare slots only in chests already holding that i
 Native-client checks passed with OdinsFoodBarrels 1.4.0; multiplayer remains unverified.
 **1.1.2 is an unpublished local UI fix:** place the button to the right of inventory
 and hide it while containers, crafting stations or blocking overlays are open.
-Its right-side DLL passed 95 native-client checks; see the development notes.
+Its square, text-free magic-wand button passed 102 native-client checks;
+see the development notes.
 
 [Rotheart](mods/Rotheart/README.md) 1.0.0 adds a swamp trinket:
 passive poison resistance and a damaging miasma triggered at 10 adrenaline.

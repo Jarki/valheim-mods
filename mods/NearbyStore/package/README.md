@@ -1,12 +1,14 @@
 # NearbyStore 1.1.2
 
-An inventory **Stack nearby** button applies vanilla-style **Stack items** across nearby placed chests.
+A square **magic-wand button** applies vanilla-style **Stack items** across nearby placed chests.
 **Left Alt + F** favorites the hovered inventory stack so it stays with you.
 Client-side; no Jotunn dependency or server installation.
 
 **1.1.2 moves the button to the right of inventory and fixes menu overlap.**
-The button and shortcut hint hide while a container, crafting station, active crafting
-operation or blocking overlay is open, then return beside the standalone player inventory.
+The wand button hides while a container, crafting station, active crafting
+operation or blocking overlay is open, then returns beside the standalone player inventory.
+It uses Valheim's native border and hover/pressed styling with an original gold wand.
+There is no caption or shortcut hint. **Left Alt + F** favoriting still works.
 Stacking still matches vanilla: fill compatible stacks, then use free slots only
 in chests already holding that item. Unmatched items stay carried.
 Native-client checks include **OdinsFoodBarrels 1.4.0**; multiplayer remains
@@ -16,7 +18,7 @@ unverified. Try disposable saves first and keep backups: this moves real items.
 
 1. Open your inventory. Hover a stack and press **Left Alt + F** to toggle its
    favorite marker. A gold **F** identifies favorites.
-2. Close any container, crafting station or overlay, then click **Stack nearby**
+2. Close any container, crafting station or overlay, then click the **magic-wand icon**
    to the right of the standalone player inventory. Its normal basic crafting list is allowed.
 3. Chests within **10 metres** are visited nearest first. Like vanilla **Stack items**,
    each chest accepts only item names already present in that chest.
@@ -41,7 +43,7 @@ source stack. Favorite persistence was verified through an actual disposable
 character-file save and reload in the running game.
 
 Containers, crafting stations, active crafting, inventory dialogs, dragging,
-splitting, chat and blocking menus hide the entire button/hint panel. Death and
+splitting, chat and blocking menus hide the wand button. Death and
 teleportation also block storage. Closing inventory or opening a blocking UI
 cancels remaining transfers without undoing completed transfers. A missing network
 response stops the operation after five seconds; late responses from this operation
@@ -67,6 +69,7 @@ checks used Valheim **l-1.0.20**, Unity **6000.0.75f1**.
   `BepInEx/plugins/NearbyStore/NearbyStore.dll`. Keep `LICENSE`; remove duplicate
   NearbyStore DLLs. Native Linux uses Linux Doorstop, not Proton DLL overrides.
 
+
 ## Configuration
 
 First load creates `BepInEx/config/jarki.nearbystore.cfg`. Edit while the game is
@@ -80,14 +83,16 @@ Radius = 10
 FavoriteShortcut = F + LeftAlt
 ```
 
-Radius is in metres, constrained to 1–50. The current favorite shortcut appears
-below the button. Favorites can be toggled in the player inventory even while a
-chest is open; storing requires the chest to be closed.
+Radius is in metres, constrained to 1–50. The favorite shortcut remains configurable;
+no shortcut hint is displayed.
+Favorites can be toggled in the player inventory even while a chest is open;
+storing requires the chest to be closed.
 
 ## Uninstall, compatibility and troubleshooting
 
-Close Valheim and remove `BepInEx/plugins/NearbyStore/NearbyStore.dll`; remove its
-config separately if desired. No custom item prefabs or world objects are added.
+Close Valheim and remove `BepInEx/plugins/NearbyStore/NearbyStore.dll` (or the
+older `BepInEx/plugins/NearbyStore/NearbyStore.dll`); remove its config separately
+if desired. No custom item prefabs or world objects are added.
 Favorite custom-data markers are inert without the plugin. Already deposited items
 remain where they were stored. Uninstall/reinstall and cross-version behavior
 have not been runtime-tested.
@@ -112,7 +117,7 @@ passwords or tokens.
 
 ## Verification, license and credits
 
-The right-side **1.1.2 DLL** passed **95 native-client checks including fixtures**:
+The square-wand **1.1.2 DLL** passed **102 native-client checks including fixtures**:
 first-open chest, Odin raspberry barrel, workbench, active handcrafting, skills,
 compendium, trophies, achievements, variants, split/drag, pause and text overlays
 hide the whole panel; closing them restores it. Pending-transfer cancellation and
@@ -120,8 +125,10 @@ late-response suppression pass. Actual Tab and mouse input then deposit 12 wood
 into a chest already holding a full 50 stack, leaving unmatched stone/resin carried.
 Screenshots were inspected; clean logout/exit, no errors in the successful run.
 The panel stays to the right, fully on-screen and clear of the crafting menu at
-70%, 100% and 130% UI scale on 1280×720. The initial panel width clipped crafting
-at 130%; reducing it to 240 layout units fixed the overlap.
+70%, 100% and 130% UI scale on 1280×720. The button is 56×56 layout units and
+contains no text. Actual Alt+F favoriting and native hover/pressed visuals were exercised.
+Wand graphics do not intercept clicks. Native border styling is reused at runtime,
+not bundled as extracted assets; the wand artwork is original.
 **12/12 standalone transfer cases** pass; the Release build retains two existing
 MSB3277 warnings. A first launch failed Steam API initialization before the menu;
 retrying with Steam already running passed without production-code changes.

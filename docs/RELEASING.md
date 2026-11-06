@@ -13,25 +13,27 @@ remain paused; older multi-package verification is not a current release plan.
 ## Local NearbyStore 1.1.2 — unpublished
 
 - Pinned-tcli candidate path: `dist/Jarki-NearbyStore-1.1.2.zip`.
-  SHA-256: `78ede460b7363982ab6d59c97af91503c87f94f4ea57b07c1acf24cb0191ad9b`.
-  Six-file archive verification and payload lint pass (zero failures/warnings);
-  packaged DLL exactly matches the native-tested right-side DLL.
-- UI-only correction: place the button/hint panel to the right of inventory and hide
+  ZIP SHA-256 `02a01e3659510b9eb75794a0e2b9de6908443eb917d868c341d5af314ce86a70`;
+  packaged/native-tested DLL SHA-256 `ae6d020ba56897c58b138604551a5aa1e681b4819662bdc72ff80d0463a13a90`.
+  Archive verification and six-file payload lint pass with zero lint failures/warnings.
+- UI-only correction: place a square, text-free magic-wand button to the right of inventory and hide
   it during container, crafting-station, active crafting and blocking-overlay use;
   cancel pending transfers safely.
-- Right-side DLL passed 95 native-client checks including fixtures with OdinsFoodBarrels
+- Square-wand DLL passed 102 native-client checks including fixtures with OdinsFoodBarrels
   1.4.0 loaded. Actual Tab/button input still deposits matching full-stack overflow
   and retains unmatched items. 12 standalone transfer cases pass.
 - Layout is on-screen and separate from crafting at 70%, 100% and 130% UI scale
-  on 1280×720. Initial 260-unit width clipped crafting at 130%; 240 units passed.
+  on 1280×720. The icon button is 56×56 layout units, with no caption or hint.
+- Reuses the native border, SpriteSwap states and material around original wand
+  artwork. Actual Alt+F favoriting remains available; icon graphics do not intercept clicks.
 - First native launch failed Steam API initialization before the menu; retry with
   Steam running passed. Screenshots inspected, no errors in the successful run,
   clean logout/game exit 0. Two existing MSB3277 build warnings remain.
-- Current private evidence: `.dev/nearbystore-side-lab/evidence/`; earlier visibility
-  checks: `.dev/nearbystore-ui-lab/evidence/`. Disposable local saves
+- Current private evidence: `.dev/nearbystore-wand-lab/evidence/`; earlier style,
+  placement and visibility checks remain in their previous isolated labs. Disposable local saves
   only; no live deployment or upload. Multiplayer, third-party UI mods
-  and release-ZIP installation UI remain unverified. The owner separately authorized
-  committing and pushing the source changes; Thunderstore publication needs separate approval.
+  and release-ZIP installation UI remain unverified. Earlier visibility/placement
+  source was pushed in `f59b755`; native styling remains local. The owner deferred publication.
 
 ## Published NearbyStore 1.1.1 — 2026-11-06
 

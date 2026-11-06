@@ -34,8 +34,6 @@ namespace NearbyStore
         private Harmony harmony;
         private GameObject panel;
         private Button storeButton;
-        private TMP_Text caption;
-        private TMP_Text hint;
         private Player actor;
         private Container pending;
         private bool running;
@@ -45,7 +43,6 @@ namespace NearbyStore
         private int moved;
         private float deadline;
         private Func<ItemDrop.ItemData, bool> protectedItem;
-        private string shortcutLabel;
 
         private void Awake()
         {
@@ -54,8 +51,6 @@ namespace NearbyStore
                 new ConfigDescription("Nearby chest radius in metres.", new AcceptableValueRange<float>(1f, 50f)));
             favoriteKey = Config.Bind("Controls", "FavoriteShortcut", new KeyboardShortcut(KeyCode.F, KeyCode.LeftAlt),
                 "Toggle favorite on the hovered player-inventory stack while inventory is open.");
-            UpdateShortcutLabel(null, EventArgs.Empty);
-            favoriteKey.SettingChanged += UpdateShortcutLabel;
             protectedItem = IsProtected;
             harmony = new Harmony("jarki.nearbystore");
             harmony.PatchAll(typeof(Plugin));
@@ -111,14 +106,9 @@ namespace NearbyStore
                         (favorite ? "Favorited: " : "Unfavorited: ") + Localization.instance.Localize(item.m_shared.m_name));
                 }
             }
-            if (hint.text != shortcutLabel) hint.text = shortcutLabel;
             UpdateMarkers(gui.m_playerGrid);
         }
 
-        private void UpdateShortcutLabel(object sender, EventArgs args)
-        {
-            shortcutLabel = favoriteKey.Value.ToString() + " : favorite hovered item";
-        }
 
         private void EnsurePanel(InventoryGui gui)
         {
@@ -130,23 +120,50 @@ namespace NearbyStore
             root.anchorMin = root.anchorMax = new Vector2(1f, .5f);
             root.pivot = new Vector2(0f, .5f);
             root.anchoredPosition = new Vector2(8f, 0f);
-            root.sizeDelta = new Vector2(240f, 68f);
+            root.sizeDelta = new Vector2(56f, 56f);
+            var nativeButton = gui.m_craftButton;
+            var nativeImage = (Image)nativeButton.targetGraphic;
             var buttonObject = new GameObject("StoreButton", typeof(RectTransform), typeof(Image), typeof(Button));
             var rect = (RectTransform)buttonObject.transform;
             rect.SetParent(root, false);
-            rect.anchorMin = new Vector2(0f, .45f);
+            rect.anchorMin = Vector2.zero;
             rect.anchorMax = Vector2.one;
             rect.offsetMin = rect.offsetMax = Vector2.zero;
             var image = buttonObject.GetComponent<Image>();
-            image.color = new Color(.12f, .1f, .07f, .96f);
+            image.sprite = nativeImage.sprite;
+            image.type = nativeImage.type;
+            image.pixelsPerUnitMultiplier = nativeImage.pixelsPerUnitMultiplier;
+            image.material = nativeImage.material;
+            image.color = nativeImage.color;
             storeButton = buttonObject.GetComponent<Button>();
             storeButton.targetGraphic = image;
+            storeButton.spriteState = nativeButton.spriteState;
+            storeButton.colors = nativeButton.colors;
+            storeButton.transition = nativeButton.transition;
             storeButton.onClick.AddListener(Begin);
-            caption = MakeText(rect, gui.m_playerName, "Stack nearby", 18f);
-            var note = MakeText(root, gui.m_playerName, "", 13f);
-            var noteRect = note.rectTransform;
-            noteRect.anchorMax = new Vector2(1f, .4f);
-            hint = note;
+            var gold = new Color(1f, .73f, .3f);
+            var ivory = new Color(1f, .94f, .72f);
+            MakeWandPart(rect, "Wand", new Vector2(-3f, -3f), new Vector2(5f, 30f), -45f, gold);
+            MakeWandPart(rect, "Tip", new Vector2(8f, 8f), new Vector2(5f, 8f), -45f, ivory);
+            MakeWandPart(rect, "SparkVertical", new Vector2(13f, 14f), new Vector2(2f, 11f), 0f, ivory);
+            MakeWandPart(rect, "SparkHorizontal", new Vector2(13f, 14f), new Vector2(11f, 2f), 0f, ivory);
+            MakeWandPart(rect, "SparkLeft", new Vector2(-13f, 9f), new Vector2(4f, 4f), 45f, gold);
+            MakeWandPart(rect, "SparkRight", new Vector2(14f, -10f), new Vector2(3f, 3f), 45f, gold);
+        }
+
+        private static void MakeWandPart(RectTransform parent, string name, Vector2 position,
+            Vector2 size, float rotation, Color color)
+        {
+            var part = new GameObject(name, typeof(RectTransform), typeof(Image));
+            var rect = (RectTransform)part.transform;
+            rect.SetParent(parent, false);
+            rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(.5f, .5f);
+            rect.anchoredPosition = position;
+            rect.sizeDelta = size;
+            rect.localRotation = Quaternion.Euler(0f, 0f, rotation);
+            var image = part.GetComponent<Image>();
+            image.color = color;
+            image.raycastTarget = false;
         }
 
         private static TMP_Text MakeText(Transform parent, TMP_Text template, string text, float size)
@@ -214,7 +231,6 @@ namespace NearbyStore
                 (b.transform.position - actor.transform.position).sqrMagnitude));
             index = moved = 0;
             running = true;
-            caption.text = "Stacking...";
             Advance();
         }
 
@@ -263,7 +279,6 @@ namespace NearbyStore
         {
             running = false;
             pending = null;
-            if (caption) caption.text = "Stack nearby";
             if (actor) actor.Message(MessageHud.MessageType.TopLeft,
                 timedOut ? "Stacking timed out. Open the chest normally, close it, then retry." :
                 moved > 0 ? "Stacked " + moved + " items nearby." : "Nothing stacked: no room in matching chests or eligible items.");
@@ -287,7 +302,6 @@ namespace NearbyStore
         private void OnDestroy()
         {
             if (running) Finish();
-            favoriteKey.SettingChanged -= UpdateShortcutLabel;
             harmony?.UnpatchSelf();
             if (panel) Destroy(panel);
             foreach (var marker in markers.Values)
