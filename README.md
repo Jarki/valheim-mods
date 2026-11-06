@@ -2,15 +2,16 @@
 
 A source collection of independent Valheim BepInEx plugins under the confirmed
 **Jarki** Thunderstore team.
-**Published: [MobThreat 1.0.1](https://thunderstore.io/c/valheim/p/Jarki/MobThreat/) · [NearbyStore 1.0.0](https://thunderstore.io/c/valheim/p/Jarki/NearbyStore/) · [Rotheart 1.0.0](https://thunderstore.io/c/valheim/p/Jarki/Rotheart/).**
+**Published: [MobThreat 1.0.1](https://thunderstore.io/c/valheim/p/Jarki/MobThreat/) · [NearbyStore 1.1.0](https://thunderstore.io/c/valheim/p/Jarki/NearbyStore/) · [Rotheart 1.0.0](https://thunderstore.io/c/valheim/p/Jarki/Rotheart/).**
 Publication and packaging checks are not fresh clean-profile runtime verification.
 
 ## Packages
 
 **MobThreat, NearbyStore and Rotheart are active release targets.**
-[NearbyStore](mods/NearbyStore/README.md) 1.0.0 adds an inventory button that stores
-items in nearby chests, with a favorite shortcut to keep selected stacks.
-Its first release is published; local-client tests do not establish multiplayer compatibility.
+[NearbyStore](mods/NearbyStore/README.md) **1.1.1 is a local correction, not published**;
+1.1.0 remains the public release. The correction matches vanilla Stack items:
+fill matching stacks, then use spare slots only in chests already holding that item.
+Native-client checks passed with OdinsFoodBarrels 1.4.0; multiplayer remains unverified.
 
 [Rotheart](mods/Rotheart/README.md) 1.0.0 adds a swamp trinket:
 passive poison resistance and a damaging miasma triggered at 10 adrenaline.
@@ -26,7 +27,7 @@ All packages require `denikson-BepInExPack_Valheim` **5.4.2351**.
 | Thunderstore package | Version | Install side | Additional dependency | Source / development notes |
 | --- | --- | --- | --- | --- |
 | `Jarki-MobThreat` | 1.0.1 | Client only | None | **Active** — [MobThreat](mods/MobThreat/README.md) |
-| `Jarki-NearbyStore` | 1.0.0 | Client only | None | **Published; locally tested** — [NearbyStore](mods/NearbyStore/README.md) |
+| `Jarki-NearbyStore` | 1.1.1 candidate; 1.1.0 published | Client only | None | **Vanilla stacking correction; OdinsFoodBarrels 1.4.0 locally tested** — [NearbyStore](mods/NearbyStore/README.md) |
 | `Jarki-Rotheart` | 1.0.0 | Server and every client; multiplayer unverified | `ValheimModding-Jotunn` 2.30.2 | **Published; locally tested** — [Rotheart](mods/Rotheart/README.md) |
 | `Jarki-Firearm_Arsenal` | 1.1.0 | Server and every client; matching versions | `ValheimModding-Jotunn` 2.30.2 | **Paused** — [PistolMod](mods/PistolMod/README.md) |
 | `Jarki-Startup_Helper` | 1.0.0 | Client only; optional, disabled by default | None | **Paused** — [StartupHelper](mods/StartupHelper/README.md) |

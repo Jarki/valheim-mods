@@ -9,7 +9,7 @@ using UnityEngine.UI;
 
 namespace NearbyStore
 {
-    [BepInPlugin("jarki.nearbystore", "NearbyStore", "1.0.0")]
+    [BepInPlugin("jarki.nearbystore", "NearbyStore", "1.1.1")]
     public sealed class Plugin : BaseUnityPlugin
     {
         private static Plugin instance;
@@ -40,7 +40,6 @@ namespace NearbyStore
         private bool answered;
         private bool granted;
         private int index;
-        private int pass;
         private int moved;
         private float deadline;
         private Func<ItemDrop.ItemData, bool> protectedItem;
@@ -131,7 +130,7 @@ namespace NearbyStore
             storeButton = buttonObject.GetComponent<Button>();
             storeButton.targetGraphic = image;
             storeButton.onClick.AddListener(Begin);
-            caption = MakeText(rect, gui.m_playerName, "Store nearby", 18f);
+            caption = MakeText(rect, gui.m_playerName, "Stack nearby", 18f);
             var note = MakeText(root, gui.m_playerName, "", 13f);
             var noteRect = note.rectTransform;
             noteRect.anchorMax = new Vector2(1f, .4f);
@@ -201,9 +200,9 @@ namespace NearbyStore
                 if (Eligible(chest) && (!outstanding.Contains(chest) || chest.IsOwner())) chests.Add(chest);
             chests.Sort((a, b) => (a.transform.position - actor.transform.position).sqrMagnitude.CompareTo(
                 (b.transform.position - actor.transform.position).sqrMagnitude));
-            index = pass = moved = 0;
+            index = moved = 0;
             running = true;
-            caption.text = "Storing...";
+            caption.text = "Stacking...";
             Advance();
         }
 
@@ -223,7 +222,7 @@ namespace NearbyStore
                 {
                     // Refresh the synchronized inventory only after ownership has arrived.
                     LoadContainer(chest);
-                    moved += StorageTransfer.Deposit(actor.GetInventory(), chest.GetInventory(), pass == 0, protectedItem);
+                    moved += StorageTransfer.Deposit(actor.GetInventory(), chest.GetInventory(), protectedItem);
                 }
             }
             while (index < chests.Count)
@@ -233,7 +232,7 @@ namespace NearbyStore
                 if (chest.IsOwner())
                 {
                     LoadContainer(chest);
-                    moved += StorageTransfer.Deposit(actor.GetInventory(), chest.GetInventory(), pass == 0, protectedItem);
+                    moved += StorageTransfer.Deposit(actor.GetInventory(), chest.GetInventory(), protectedItem);
                     continue;
                 }
                 // Do not overlap uncorrelatable vanilla requests after a timeout.
@@ -245,12 +244,6 @@ namespace NearbyStore
                 View(chest).InvokeRPC("RPC_RequestStack", actor.GetPlayerID());
                 return;
             }
-            if (pass == 0)
-            {
-                pass = 1;
-                index = 0;
-                return;
-            }
             Finish();
         }
 
@@ -258,10 +251,10 @@ namespace NearbyStore
         {
             running = false;
             pending = null;
-            if (caption) caption.text = "Store nearby";
+            if (caption) caption.text = "Stack nearby";
             if (actor) actor.Message(MessageHud.MessageType.TopLeft,
-                timedOut ? "Storage timed out. Open the chest normally, close it, then retry." :
-                moved > 0 ? "Stored " + moved + " items nearby." : "Nothing stored: no accessible space or eligible items.");
+                timedOut ? "Stacking timed out. Open the chest normally, close it, then retry." :
+                moved > 0 ? "Stacked " + moved + " items nearby." : "Nothing stacked: no room in matching chests or eligible items.");
             actor = null;
             chests.Clear();
         }

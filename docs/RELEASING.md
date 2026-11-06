@@ -1,14 +1,66 @@
 # Releasing to Thunderstore
 
 This guide documents local packaging and the release workflow; it does **not**
-authorize future publication or runtime operations. **MobThreat 1.0.1 and
-NearbyStore 1.0.0 were published on 2026-11-05; Rotheart 1.0.0 on 2026-11-06**
-under the confirmed **Jarki** team.
+authorize future publication or runtime operations. **MobThreat 1.0.1 was published
+on 2026-11-05; NearbyStore 1.1.0 and Rotheart 1.0.0 on 2026-11-06**
+under the confirmed **Jarki** team. Earlier releases remain recorded below.
 
 **Active release scope: MobThreat, NearbyStore and Rotheart.** The owner separately
 approved each published artifact after disclosure of its verification limits.
 Firearm Arsenal, Startup Helper (including server joining), and Server Metrics
 remain paused; older multi-package verification is not a current release plan.
+
+## Local NearbyStore 1.1.1 correction — not published
+
+- Replaces 1.1.0's partial-stack-only behavior with vanilla-style matching-chest
+  insertion, including new stacks in available slots. Unrelated/empty chests remain excluded.
+- Exact 1.1.1 DLL passed 673 native-client checks including fixtures, six
+  comparisons against vanilla `Inventory.StackAll`, actual inventory/button input
+  and OdinsFoodBarrels 1.4.0 checks across all 36 restricted container types.
+- 12 standalone cases and 3 adversarial groups pass (10,240 deposits); two existing
+  MSB3277 warnings remain. Multiplayer/custom barrel settings remain unverified.
+- Candidate: `dist/Jarki-NearbyStore-1.1.1.zip`. Publication needs separate
+  exact-candidate approval; no upload, live deployment or source push performed.
+- Candidate SHA-256:
+  `64b4158a6bee93df94e3f07123d0ee691239f6bd49c196c56dc31c3f120b8abd`.
+  Pinned-tcli archive verification and six-file payload lint pass with zero lint
+  failures/warnings. Packaged DLL exactly matches the native-tested DLL:
+  `2a3185ce971a3cde39badbb4258b5262b8be6da83a6daba692158a98a0dcd41f`.
+
+## Published NearbyStore 1.1.0 — 2026-11-06
+
+- ZIP: `dist/Jarki-NearbyStore-1.1.0.zip`; **Jarki**, **Valheim**.
+- SHA-256: `50164e0a0ef14e4a0e14076c89bf4c40cd670218aba0f78c4ab45356d2b792b8`.
+- Stack-only behavior: fill compatible existing chest stacks, never empty slots;
+  unmatched items and overflow remain carried. Favorites and access checks retained.
+- Categories: `mods`, `ai-generated`, `client-side`, `utility`; NSFW off.
+  Only dependency: `denikson-BepInExPack_Valheim-5.4.2351`.
+- Pinned tcli 0.2.4 build and six-file archive verification pass; extracted-payload
+  publishing lint has zero failures/warnings. Required MobThreat baseline check
+  and NearbyStore metadata check pass. The two existing build warnings remain.
+- 12 standalone cases and 3 adversarial groups pass, including 10,240 deposits
+  plus fixed-point repeats. Stack-only gameplay passed 74 native-client checks
+  before the version bump. The packaged 1.1.0 DLL/ZIP was not separately launched.
+- Packaged DLL SHA-256:
+  `9d1478459e65c0fccab3e6752ae99453133090b0d2ec4d743eb0f5e1a95aa8e7`.
+  All 23 method bodies, signatures, member/type references and bytecode strings
+  match the game-tested build; assembly version changes to 1.1.0.0.
+- Current global rules and public metadata checked; exact candidate README
+  rendered in Thunderstore Markdown Preview and icon visually inspected.
+  MIT and AI credits included; public source availability disclosure corrected.
+- Owner approved the exact ZIP and limits via **Publish 1.1.0**. Pinned tcli
+  published successfully using the existing private token only in a child-process
+  environment; no credential was printed, copied or persisted.
+- Page: <https://thunderstore.io/c/valheim/p/Jarki/NearbyStore/>.
+- Download: <https://thunderstore.io/package/download/Jarki/NearbyStore/1.1.0/>.
+- Public download passes archive verification and exactly matches the approved
+  hash. Public API reports active 1.1.0 with expected categories/dependency,
+  NSFW off and **unreviewed** moderation status. Live listing, version, icon and
+  stack-only README were visually inspected.
+- Multiplayer, denied wards, modpack/controller compatibility, ZIP-import UI and
+  uninstall/reinstall remain unverified. Failure history and limits are disclosed.
+  No live profile/server deployment, game launch or GitHub source push during
+  publication. Private evidence: `.dev/release/nearbystore-1.1.0/`.
 
 ## Published Rotheart 1.0.0 — 2026-11-06
 
@@ -184,7 +236,7 @@ The checker rejects config/project/plugin version mismatches. Do not rename sour
 directories, DLLs or existing plugin IDs to match public package names. Current
 mapping: `PistolMod` → `Firearm_Arsenal` 1.1.0, `StartupHelper` → `Startup_Helper`
 1.0.0, `ServerMetrics` → `Server_Metrics` 1.4.0, `MobThreat` → `MobThreat` 1.0.1,
-`NearbyStore` → `NearbyStore` 1.0.0, `Rotheart` → `Rotheart` 1.0.0.
+`NearbyStore` → `NearbyStore` 1.1.1 (candidate), `Rotheart` → `Rotheart` 1.0.0.
 Do not silently reuse a published version for changed contents.
 
 Each config uses schema `0.0.1`, the confirmed `Jarki` namespace, community

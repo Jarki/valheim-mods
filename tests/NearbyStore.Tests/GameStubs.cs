@@ -1,6 +1,6 @@
-// Handwritten behavioral doubles, not game code. Only the APIs used by StorageTransfer are
-// represented. In particular, targeted movement mutates the original source stack, clones into
-// empty cells, preserves metadata on merges, and can return false after transferring some units.
+// Handwritten behavioral doubles, not game code. Normal inventory movement fills stacks
+// with matching name, quality and world level, then places the same item in a free cell.
+// A full destination can accept a partial amount while retaining the source item.
 public struct Vector2i
 {
     public int x;
@@ -33,19 +33,6 @@ public sealed class ItemDrop
         public Vector2i m_gridPos;
         public Dictionary<string, string> m_customData = new();
 
-        public ItemData Clone()
-        {
-            var result = (ItemData)MemberwiseClone();
-            result.m_customData = new Dictionary<string, string>(m_customData);
-            return result;
-        }
-
-        public bool IsSameType(ItemData other)
-        {
-            return other != null && m_shared.m_name == other.m_shared.m_name &&
-                m_worldLevel == other.m_worldLevel &&
-                (m_shared.m_maxQuality <= 1 || m_quality == other.m_quality);
-        }
     }
 }
 
@@ -88,44 +75,44 @@ public sealed class Inventory
         items.Add(item);
     }
 
-    public bool MoveItemToThis(Inventory source, ItemDrop.ItemData item, int amount, int x, int y)
+    public void MoveItemToThis(Inventory source, ItemDrop.ItemData item)
     {
-        amount = Math.Min(amount, item.m_stack);
-        bool complete = false;
-        if (x >= 0 && x < width && y >= 0 && y < height)
+        int remaining = item.m_stack;
+        if (item.m_shared.m_maxStackSize > 1)
         {
-            var existing = GetItemAt(x, y);
-            if (existing == null)
+            foreach (var existing in items)
             {
-                var placed = item.Clone();
-                placed.m_stack = amount;
-                placed.m_gridPos = new Vector2i(x, y);
-                items.Add(placed);
-                item.m_stack -= amount;
-                complete = true;
-                ChangeCount++;
-            }
-            else if (existing.IsSameType(item) && existing.m_stack < existing.m_shared.m_maxStackSize)
-            {
-                int moved = Math.Min(amount, existing.m_shared.m_maxStackSize - existing.m_stack);
+                if (existing.m_shared.m_name != item.m_shared.m_name ||
+                    existing.m_quality != item.m_quality || existing.m_worldLevel != item.m_worldLevel)
+                    continue;
+                int moved = Math.Min(remaining, existing.m_shared.m_maxStackSize - existing.m_stack);
                 existing.m_stack += moved;
-                item.m_stack -= moved;
-                complete = moved == amount;
-                ChangeCount++;
+                remaining -= moved;
+                if (remaining == 0) break;
             }
         }
-
-        if (item.m_stack == 0)
+        if (remaining == 0)
         {
-            if (source.items.Remove(item))
-            {
-                source.ChangeCount++;
-            }
+            source.items.Remove(item);
         }
         else
         {
-            source.ChangeCount++;
+            item.m_stack = remaining;
+            // These fixtures are resources; vanilla searches their rows bottom first.
+            for (int y = height - 1; y >= 0; y--)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    if (GetItemAt(x, y) != null) continue;
+                    source.items.Remove(item);
+                    Put(item, x, y);
+                    source.ChangeCount++;
+                    ChangeCount++;
+                    return;
+                }
+            }
         }
-        return complete;
+        source.ChangeCount++;
+        ChangeCount++;
     }
 }

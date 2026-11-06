@@ -1,10 +1,11 @@
 # NearbyStore
 
-Client-side Valheim BepInEx plugin. Open your inventory and click **Store nearby**
-below the player inventory to deposit carried items into placed chests within
-**10 metres**. No server plugin or Jotunn dependency.
-[NearbyStore 1.0.0 is published](https://thunderstore.io/c/valheim/p/Jarki/NearbyStore/);
-no live profile or server deployment was performed.
+Client-side Valheim BepInEx plugin. Open your inventory and click **Stack nearby**
+below the player inventory to apply vanilla-style **Stack items** to placed chests
+within **10 metres**. No server plugin or Jotunn dependency.
+**1.1.1 is the corrected local candidate; not published.**
+[Published 1.1.0](https://thunderstore.io/c/valheim/p/Jarki/NearbyStore/) only fills
+partial stacks and does not include this correction. No live deployment performed.
 
 ## Controls and behavior
 
@@ -12,9 +13,12 @@ no live profile or server deployment was performed.
   favorite status. A gold **F** marks favorites; they are never auto-deposited.
 - Equipped items, queued-for-equip items and quest items also stay carried.
   Unequipped hotbar items are eligible unless favorited.
-- Storage first visits chests already containing that item type, nearest first.
-  Remaining items use any available nearby chest space, nearest first. Empty
-  chests can receive items. Full chests leave overflow in your inventory.
+- Chests are visited nearest first. Like vanilla `Inventory.StackAll`, an item is
+  eligible when its name already exists in that chest. Native insertion fills
+  compatible stacks, then uses free slots for another stack, even if the original
+  stack was full. Different quality/world-level items use separate slots.
+  Empty chests and absent item types accept nothing; capacity-limited remainders
+  stay in their original player-inventory slots.
 - Favorite markers are stored on individual stacks in vanilla item custom data,
   not on inventory slots, so moving a stack does not unprotect it. Splitting
   copies its marker. Vanilla manual merging keeps the destination stack's marker;
@@ -35,6 +39,12 @@ no live profile or server deployment was performed.
   chest normally avoids that RPC path.
 - Search radius is spherical and does not require line of sight: chests behind
   walls or on another floor can be eligible. No automatic sorting on pickup.
+- **OdinsFoodBarrels 1.4.0**: all 36 restricted container types were exercised in
+  the real native client, including seed bag, meat freezer and spice shelf.
+  Native `MoveItemToThis`/`AddItem` calls retain its Harmony restriction patches.
+  Matching overflow, partial merging, favorites and prohibited-item rejection pass.
+  Empty barrels require seeding, as with vanilla Stack items. Custom barrel settings,
+  other versions and multiplayer remain unverified; no dependency is added.
 
 Configuration: `BepInEx/config/jarki.nearbystore.cfg` after first plugin load:
 `Storage.Radius` (1–50 metres, default 10) and
@@ -53,19 +63,83 @@ dotnet run --project tests/NearbyStore.Tests/NearbyStore.Tests.csproj -c Release
 uv run python tools/release.py check NearbyStore
 uv run python tools/release.py build NearbyStore \
   --game-dir /path/to/Valheim --reference-profile /path/to/reference-profile
-uv run python tools/release.py verify dist/Jarki-NearbyStore-1.0.0.zip
+uv run python tools/release.py verify dist/Jarki-NearbyStore-1.1.1.zip
 ```
 
 Build output: `bin/Release/netstandard2.1/NearbyStore.dll` beneath this directory.
 For an authorized isolated development profile, the DLL belongs under
 `BepInEx/plugins/NearbyStore/`. Do not copy game assemblies or test binaries.
-Published archive: `dist/Jarki-NearbyStore-1.0.0.zip`; its public download matches
-SHA-256 `543600cdd70cf27c76567ee29af493747dc9e6a958513dc87f66ef90f35afef3`.
+Corrected candidate archive: `dist/Jarki-NearbyStore-1.1.1.zip`.
+Published archive: `dist/Jarki-NearbyStore-1.1.0.zip`; public download matches SHA-256
+`50164e0a0ef14e4a0e14076c89bf4c40cd670218aba0f78c4ab45356d2b792b8`.
+Historical published archive: `dist/Jarki-NearbyStore-1.0.0.zip`; public SHA-256
+`543600cdd70cf27c76567ee29af493747dc9e6a958513dc87f66ef90f35afef3`.
 The public [README](package/README.md), [changelog](package/CHANGELOG.md) and
 `thunderstore.toml` define the package. Only an authorized disposable development
 profile was created; no live profile or server deployment was performed.
 
-Verification:
+Verification of corrected 1.1.1:
+
+- **12/12 standalone cases** and **3/3 adversarial groups** pass: 10,240 deposits
+  plus fixed-point repeats, 6,617 transferred units. Full matching-stack overflow,
+  partial capacity, unmatched types, protection, metadata and conservation covered.
+- The exact candidate DLL passed **673 native-client checks including fixtures**
+  on Valheim l-1.0.20 / Unity 6000.0.75f1 / BepInExPack 5.4.2351 with
+  OdinsFoodBarrels 1.4.0. Six scenarios matched real `Inventory.StackAll` contents
+  and positions; actual Tab/button input exercised nearby stacking and barrel overflow.
+- All 36 barrel prefabs passed eligibility, merge, overflow, favorite and
+  prohibited-item checks. Default sizes/settings only; no special adapter needed.
+- Result screenshots inspected; clean logout/game exit 0; no plugin errors or
+  exceptions. Build passes with the two existing MSB3277 warnings.
+- Private evidence: `.dev/nearbystore-vanilla-lab/evidence/`. Fresh disposable
+  character/world in a copied development profile; no live profile/server changes.
+  Test-started Steam was shut down afterward. Initial launch permission issue was
+  resolved by invoking the loader with `sh`; a sign-in dialog was hidden without login.
+- Multiplayer, denied wards, custom barrel configurations, controller/modpack
+  compatibility, release-ZIP installation UI and uninstall/reinstall remain unverified.
+
+Historical verification of stack-only 1.1.0 (not the corrected behavior):
+
+- **12/12 standalone cases** and **3/3 adversarial groups** pass, including
+  320 seeds × 8 rounds, **10,240 deposits** plus fixed-point repeats. Coverage
+  includes empty cells staying empty, full/missing/incompatible stacks, partial
+  merges, multiple chests, protection, metadata and quantity conservation.
+- Disposable production-core smoke with handwritten inventory doubles: 20 carried
+  stone fills a 45/50 chest stack with 5 units, leaving 15 stone carried. Unmatched
+  wood and favorite food stay carried; an empty chest stays empty. Seeding a wood
+  stack and unfavoriting food permits only the available matching merges.
+- Release build succeeds against owned game and existing isolated-loader references,
+  with the same two MSB3277 warnings. The default reference profile was absent;
+  verification used `.dev/nearbystore-lab/profile` as a read-only reference.
+- **74 native-client checks pass**, including fixture assertions, on Valheim
+  `l-1.0.20`, Unity 6000.0.75f1 and BepInExPack 5.4.2351. Actual Tab/Alt+F/button
+  input filled wood/stone stacks across chests, retained exact overflow, unmatched
+  resin, full-stack flint and favorite food, and left empty chest slots untouched.
+  Repeated clicking moved nothing; seeding matching stacks and unfavoriting food
+  enabled the remaining eligible transfers.
+- The actual **Stack nearby** button, favorite marker and default/70%/130% scale
+  screenshots were inspected. Favorite character-file save/reload, private/busy/
+  range exclusion, injected ownership-delay/late-response/quarantine checks and
+  clean logout passed. No plugin exception was found in the successful run's logs.
+- Tested DLL SHA-256:
+  `88344660e6b93e588b055cfc67d76454adec29e4f1cb9d214222b3d2f2abe598`.
+  Evidence and archived harness sources are under `.dev/nearbystore-stack-lab/`.
+  Two initial runs stopped at input-focus setup; the next run found an unexpectedly
+  empty second chest. After disabling structural/weather wear on floating test
+  chests and adding pre-transfer fixture checks, the identical production DLL
+  passed. The earlier empty-chest cause was not independently proven.
+- Testing used disposable local saves and a separate development profile, not
+  multiplayer or a packaged ZIP. No live profile/server deployment was performed.
+- The runtime-tested DLL retained version 1.0.0 during development. Release
+  preparation changes only version metadata to 1.1.0, not gameplay code.
+  The version-bumped DLL/ZIP has not been separately launched in-game.
+- After exact-candidate owner approval, pinned tcli published 1.1.0 successfully.
+  The public ZIP passed archive verification and matches the approved hash.
+  All 23 method bodies, signatures, member/type references and bytecode strings
+  match the native-game-tested build; only release version metadata changed.
+  Live listing/README/icon verified. Moderation status is unreviewed.
+
+Historical verification of published 1.0.0 (not stack-only runtime evidence):
 
 - Release build succeeds with zero errors and two existing MSB3277 framework
   conflicts (`System.Net.Http`, `System.IO.Compression`).

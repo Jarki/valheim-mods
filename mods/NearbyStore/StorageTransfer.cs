@@ -22,7 +22,7 @@ namespace NearbyStore
             return true;
         }
 
-        internal static int Deposit(Inventory source, Inventory destination, bool matchingOnly,
+        internal static int Deposit(Inventory source, Inventory destination,
             Func<ItemDrop.ItemData, bool> protectedItem = null)
         {
             if (ReferenceEquals(source, destination))
@@ -32,56 +32,35 @@ namespace NearbyStore
 
             int transferred = 0;
             var items = source.GetAllItems();
-            var storedItems = destination.GetAllItems();
-            int width = destination.GetWidth();
-            int height = destination.GetHeight();
-            // Vanilla removes exhausted source stacks. Reverse traversal keeps the live list safe
-            // without copying it and leaves every remaining source stack in its original grid cell.
-            for (int index = items.Count - 1; index >= 0; index--)
+            // Keep vanilla source order without allocating its snapshot list. A successful
+            // native move removes this entry; a partial move leaves it in its original cell.
+            for (int index = 0; index < items.Count;)
             {
                 var item = items[index];
                 if (item.m_equipped || IsFavorite(item) || (protectedItem != null && protectedItem(item)) ||
-                    (matchingOnly && !destination.ContainsItemByName(item.m_shared.m_name)))
+                    !destination.ContainsItemByName(item.m_shared.m_name))
                 {
+                    index++;
                     continue;
                 }
 
-                for (int storedIndex = 0; storedIndex < storedItems.Count && item.m_stack > 0; storedIndex++)
+                int before = item.m_stack;
+                int count = items.Count;
+                // Same AddItem path as vanilla StackAll: merge first, then use an empty slot.
+                destination.MoveItemToThis(source, item);
+                if (items.Count < count)
                 {
-                    var stored = storedItems[storedIndex];
-                    int space = stored.m_shared.m_maxStackSize - stored.m_stack;
-                    if (space > 0 && stored.IsSameType(item))
-                    {
-                        // Targeted movement preserves destination metadata, including favorites.
-                        transferred += Move(source, destination, item, Math.Min(space, item.m_stack),
-                            stored.m_gridPos.x, stored.m_gridPos.y);
-                    }
+                    transferred += before;
                 }
-
-                for (int y = 0; y < height && item.m_stack > 0; y++)
+                else
                 {
-                    for (int x = 0; x < width && item.m_stack > 0; x++)
-                    {
-                        if (destination.GetItemAt(x, y) == null)
-                        {
-                            transferred += Move(source, destination, item,
-                                Math.Min(item.m_shared.m_maxStackSize, item.m_stack), x, y);
-                        }
-                    }
+                    transferred += before - item.m_stack;
+                    index++;
                 }
             }
 
             return transferred;
         }
 
-        private static int Move(Inventory source, Inventory destination, ItemDrop.ItemData item,
-            int amount, int x, int y)
-        {
-            int before = item.m_stack;
-            // The amount/coordinates overload clones into empty cells and decrements the original
-            // stack even on a partial move. Its bool is not a transferred-unit count.
-            destination.MoveItemToThis(source, item, amount, x, y);
-            return before - item.m_stack;
-        }
     }
 }

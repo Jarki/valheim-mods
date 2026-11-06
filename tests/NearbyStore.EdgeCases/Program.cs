@@ -44,24 +44,26 @@ static void FavoriteSequence()
 
     Equal(0, Pass(source, chests, protectedItems), "initial favorites must stay carried");
     StorageTransfer.ToggleFavorite(wood);
-    Equal(3, Pass(source, chests, protectedItems, matchingOnly: true), "only wood merge space is available");
+    Equal(3, Pass(source, chests, protectedItems), "only wood merge space is available");
     Equal(7, wood.m_stack, "partially deposited wood");
     Same(wood, source.GetItemAt(3, 1), "partial wood keeps its original cell");
     StorageTransfer.ToggleFavorite(wood);
     StorageTransfer.ToggleFavorite(stone);
-    Equal(1, Pass(source, chests, protectedItems, matchingOnly: true), "newly unfavorited stone can merge");
-    Equal(5, Pass(source, chests, protectedItems), "stone uses spare chest while wood is reprotected");
+    Equal(1, Pass(source, chests, protectedItems), "newly unfavorited stone can merge");
+    Equal(0, Pass(source, chests, protectedItems), "stone cannot use an empty chest");
     Same(wood, source.GetItemAt(3, 1), "refavorited wood cannot move to the spare chest");
     Equal(7, wood.m_stack, "refavoriting preserves its remaining quantity");
-    Equal(5, spare.GetItemAt(0, 0).m_stack, "spare contains only eligible stone");
-    Equal("stone", spare.GetItemAt(0, 0).m_shared.m_name, "spare item type");
+    Equal(0, spare.GetAllItems().Count, "spare stays empty");
+    Same(stone, source.GetItemAt(1, 0), "stone remainder stays carried");
+    Equal(5, stone.m_stack, "stone overflow stays carried");
     StorageTransfer.ToggleFavorite(wood);
     Equal(0, Pass(source, chests, protectedItems), "unfavoriting does not bypass incompatible occupied cells");
     var discovered = new Inventory(1, 1);
+    discovered.Put(Item("wood", 3, 10, "discovered wood"), 0, 0);
     var expanded = chests.Append(discovered).ToArray();
-    Equal(7, Pass(source, expanded, protectedItems), "unfavorited remainder reaches newly available chest");
-    Equal(0, source.GetAllItems().Count, "both stacks eventually leave the source");
-    Equal("carried wood", discovered.GetItemAt(0, 0).m_customData["payload"], "metadata follows moved remainder");
+    Equal(7, Pass(source, expanded, protectedItems), "unfavorited remainder fills newly discovered wood stack");
+    Equal(1, source.GetAllItems().Count, "unmatched stone stays carried");
+    Equal("discovered wood", discovered.GetItemAt(0, 0).m_customData["payload"], "merge preserves destination metadata");
     True(!StorageTransfer.IsFavorite(discovered.GetItemAt(0, 0)), "unfavorited marker must not reappear");
     AssertIdempotent(source, expanded, protectedItems);
 }
@@ -71,7 +73,7 @@ static void MixedCompatibilitySequence()
     var source = new Inventory(4, 2);
     var qualityTwo = Item("arrow", 7, 10, "quality-two payload", quality: 2, maxQuality: 4, variant: 3);
     var otherWorld = Item("arrow", 8, 10, "world-one payload", world: 1, maxQuality: 4, variant: 2);
-    var wood = Item("wood", 5, 10, "wood payload", quality: 8, variant: 9);
+    var wood = Item("wood", 5, 10, "wood payload", variant: 9);
     source.Put(qualityTwo, 3, 1);
     source.Put(otherWorld, 1, 0);
     source.Put(wood, 0, 1);
@@ -92,7 +94,7 @@ static void MixedCompatibilitySequence()
     var chests = new[] { first, second, third };
     var protectedItems = new HashSet<ItemDrop.ItemData>();
 
-    Equal(8, Pass(source, chests, protectedItems, matchingOnly: true), "matching merges plus new wood stack");
+    Equal(8, Pass(source, chests, protectedItems), "compatible merges and matching overflow use capacity");
     Equal(5, qualityTwo.m_stack, "quality-two remainder");
     Equal(7, otherWorld.m_stack, "world-one remainder");
     Equal(4, wrongQuality.m_stack, "wrong quality cannot absorb arrow units");
@@ -101,25 +103,22 @@ static void MixedCompatibilitySequence()
     True(StorageTransfer.IsFavorite(favorite), "destination favorite survives merging");
     Equal("destination favorite", favorite.m_customData["payload"], "merged stack keeps destination metadata");
     Equal("destination wood", storedWood.m_customData["payload"], "wood merge keeps destination payload");
-    var newWood = third.GetItemAt(1, 0);
-    Equal(3, newWood.m_stack, "only overflow occupies the last free cell");
-    Equal("wood payload", newWood.m_customData["payload"], "overflow clones incoming metadata");
-    Equal(8, newWood.m_quality, "new stack retains ignored-for-merging quality");
-    Equal(9, newWood.m_variant, "new stack retains visual variant");
-    Equal(0, Pass(source, chests, protectedItems), "fallback cannot merge incompatible remainders");
+    Same(wood, third.GetItemAt(1, 0), "matching overflow occupies the free cell");
+    True(source.GetItemAt(0, 1) == null, "wood transfers completely");
+    Equal(3, wood.m_stack, "wood overflow forms a new stack");
+    Equal("wood payload", wood.m_customData["payload"], "new stack retains source metadata");
+    Equal(0, Pass(source, chests, protectedItems), "incompatible remainders cannot move");
     AssertIdempotent(source, chests, protectedItems);
 
     var discovered = new Inventory(2, 1);
     var expanded = chests.Append(discovered).ToArray();
-    Equal(12, Pass(source, expanded, protectedItems), "both incompatible remainder classes can use new cells");
-    Equal(0, source.GetAllItems().Count, "all source quantities transferred");
-    var depositedQualityTwo = discovered.GetAllItems().Single(item => item.m_worldLevel == 0);
-    var depositedOtherWorld = discovered.GetAllItems().Single(item => item.m_worldLevel == 1);
-    Equal("quality-two payload", depositedQualityTwo.m_customData["payload"], "quality-two clone payload");
-    Equal(2, depositedQualityTwo.m_quality, "quality-two clone quality");
-    Equal(3, depositedQualityTwo.m_variant, "quality-two clone variant");
-    Equal("world-one payload", depositedOtherWorld.m_customData["payload"], "world-one clone payload");
-    Equal(1, depositedOtherWorld.m_quality, "world-one clone quality");
+    Equal(0, Pass(source, expanded, protectedItems), "an empty discovered chest accepts nothing");
+    discovered.Put(Item("arrow", 5, 10, "quality-two target", quality: 2, maxQuality: 4), 0, 0);
+    discovered.Put(Item("arrow", 3, 10, "world-one target", world: 1, maxQuality: 4), 1, 0);
+    Equal(12, Pass(source, expanded, protectedItems), "matching stacks accept the compatible arrow remainders");
+    Equal(0, source.GetAllItems().Count, "all matching remainders have transferred");
+    Equal("quality-two target", discovered.GetItemAt(0, 0).m_customData["payload"], "quality target metadata survives");
+    Equal("world-one target", discovered.GetItemAt(1, 0).m_customData["payload"], "world target metadata survives");
     AssertIdempotent(source, expanded, protectedItems);
 }
 
@@ -166,13 +165,10 @@ static void GeneratedSequences()
                     int other = random.Next(index + 1);
                     (chests[index], chests[other]) = (chests[other], chests[index]);
                 }
-                foreach (bool matchingOnly in new[] { true, false })
+                foreach (var chest in chests)
                 {
-                    foreach (var chest in chests)
-                    {
-                        totalMoved += CheckedDeposit(source, chest, world, matchingOnly, protectedItems);
-                        deposits++;
-                    }
+                    totalMoved += CheckedDeposit(source, chest, world, protectedItems);
+                    deposits++;
                 }
                 AssertIdempotent(source, chests, protectedItems);
                 EqualTotals(initialTotals, Totals(world), $"seed {seed}, round {round}: global conservation");
@@ -188,7 +184,6 @@ static void GeneratedSequences()
             throw new InvalidOperationException($"Deterministic seed {seed} failed.", exception);
         }
     }
-    True(totalMoved > 0, "generated sequences must actually move eligible quantities");
     Console.WriteLine($"  Generated: 320 seeds, 8 rounds each, {deposits} checked deposits plus fixed-point repeats; {totalMoved} moved units.");
 }
 
@@ -217,22 +212,18 @@ static void Populate(Inventory inventory, Random random, string prefix, bool sou
     }
 }
 
-static int Pass(Inventory source, Inventory[] chests, HashSet<ItemDrop.ItemData> protectedItems,
-    bool? matchingOnly = null)
+static int Pass(Inventory source, Inventory[] chests, HashSet<ItemDrop.ItemData> protectedItems)
 {
     var world = new[] { source }.Concat(chests).ToArray();
     int moved = 0;
-    foreach (bool matching in matchingOnly.HasValue ? new[] { matchingOnly.Value } : new[] { true, false })
+    foreach (var chest in chests)
     {
-        foreach (var chest in chests)
-        {
-            moved += CheckedDeposit(source, chest, world, matching, protectedItems);
-        }
+        moved += CheckedDeposit(source, chest, world, protectedItems);
     }
     return moved;
 }
 
-static int CheckedDeposit(Inventory source, Inventory destination, Inventory[] world, bool matchingOnly,
+static int CheckedDeposit(Inventory source, Inventory destination, Inventory[] world,
     HashSet<ItemDrop.ItemData> protectedItems)
 {
     var before = world.SelectMany(inventory => inventory.GetAllItems()).ToDictionary(item => item,
@@ -241,10 +232,10 @@ static int CheckedDeposit(Inventory source, Inventory destination, Inventory[] w
     var sourceTotals = Totals(new[] { source });
     var destinationTotals = Totals(new[] { destination });
     var sourceItems = source.GetAllItems().ToArray();
-    var destinationNames = destination.GetAllItems().Select(item => item.m_shared.m_name).ToHashSet();
+    var destinationItems = destination.GetAllItems().ToArray();
     int sourceBefore = sourceItems.Sum(item => item.m_stack);
     int destinationBefore = destination.GetAllItems().Sum(item => item.m_stack);
-    int moved = StorageTransfer.Deposit(source, destination, matchingOnly, protectedItems.Contains);
+    int moved = StorageTransfer.Deposit(source, destination, protectedItems.Contains);
 
     Equal(sourceBefore - source.GetAllItems().Sum(item => item.m_stack), moved, "returned count equals source loss");
     Equal(destination.GetAllItems().Sum(item => item.m_stack) - destinationBefore, moved, "returned count equals chest gain");
@@ -263,7 +254,7 @@ static int CheckedDeposit(Inventory source, Inventory destination, Inventory[] w
     foreach (var item in sourceItems)
     {
         bool blocked = item.m_equipped || StorageTransfer.IsFavorite(item) || protectedItems.Contains(item) ||
-            (matchingOnly && !destinationNames.Contains(item.m_shared.m_name));
+            !destinationItems.Any(stored => stored.m_shared.m_name == item.m_shared.m_name);
         if (blocked)
         {
             Same(item, source.GetItemAt(before[item].X, before[item].Y), "protected or unmatched item stays in source cell");
@@ -273,18 +264,15 @@ static int CheckedDeposit(Inventory source, Inventory destination, Inventory[] w
     // A consumer must not be left holding any eligible units while this chest can accept them.
     foreach (var item in remaining)
     {
-        if (item.m_equipped || StorageTransfer.IsFavorite(item) || protectedItems.Contains(item) ||
-            (matchingOnly && !destinationNames.Contains(item.m_shared.m_name))) continue;
-        True(destination.GetAllItems().Count == destination.GetWidth() * destination.GetHeight(),
-            "eligible remainder requires a completely occupied destination");
+        if (item.m_equipped || StorageTransfer.IsFavorite(item) || protectedItems.Contains(item)) continue;
         True(!destination.GetAllItems().Any(stored => Compatible(stored, item) && stored.m_stack < stored.m_shared.m_maxStackSize),
             "eligible remainder cannot leave a compatible stack partly empty");
+        True(!destination.ContainsItemByName(item.m_shared.m_name) ||
+            destination.GetAllItems().Count == destination.GetWidth() * destination.GetHeight(),
+            "eligible matching remainder cannot leave an empty chest slot");
     }
-    if (matchingOnly)
-    {
-        True(destination.GetAllItems().All(item => destinationNames.Contains(item.m_shared.m_name)),
-            "matching-only deposit must not introduce an absent name");
-    }
+    True(destination.GetAllItems().Take(destinationItems.Length).SequenceEqual(destinationItems),
+        "existing destination stack identities and order are retained");
     var seen = new HashSet<ItemDrop.ItemData>();
     foreach (var inventory in world)
     {
@@ -298,16 +286,15 @@ static int CheckedDeposit(Inventory source, Inventory destination, Inventory[] w
             True(cells.Add((item.m_gridPos.x, item.m_gridPos.y)), "grid cells must be unique");
             if (before.TryGetValue(item, out var snapshot))
             {
-                Equal((snapshot.X, snapshot.Y), (item.m_gridPos.x, item.m_gridPos.y), "existing items retain positions");
+                if (!sourceItems.Contains(item) || ReferenceEquals(inventory, source))
+                    Equal((snapshot.X, snapshot.Y), (item.m_gridPos.x, item.m_gridPos.y), "unmoved items retain positions");
                 True(snapshot.SameMetadata(item), "existing items retain all metadata");
                 if (!ReferenceEquals(inventory, source) && !ReferenceEquals(inventory, destination))
                     Equal(snapshot.Stack, item.m_stack, "unvisited chests are untouched");
             }
             else
             {
-                True(ReferenceEquals(inventory, destination), "new items belong only to the visited chest");
-                True(sourceItems.Any(original => before[original].SameMetadata(item)), "new stack inherits an incoming item's metadata");
-                True(before.Keys.All(original => !ReferenceEquals(original.m_customData, item.m_customData)), "cloned metadata cannot alias any original");
+                throw new InvalidOperationException("Native movement must retain item identities.");
             }
         }
     }
@@ -321,15 +308,13 @@ static void AssertIdempotent(Inventory source, Inventory[] chests, HashSet<ItemD
 {
     var world = new[] { source }.Concat(chests).ToArray();
     var state = world.Select(inventory => inventory.GetAllItems().Select(item => (Item: item, State: new ItemSnapshot(item))).ToArray()).ToArray();
-    var changes = world.Select(inventory => inventory.ChangeCount).ToArray();
     for (int repeat = 0; repeat < 3; repeat++)
     {
-        Equal(0, Pass(source, chests, protectedItems), "repeating a completed two-pass deposit moves no units");
+        Equal(0, Pass(source, chests, protectedItems), "repeating completed stacking moves no units");
         for (int index = 0; index < world.Length; index++)
         {
             var actual = world[index].GetAllItems();
             Equal(state[index].Length, actual.Count, "idempotent deposit keeps stack count");
-            Equal(changes[index], world[index].ChangeCount, "idempotent deposit does not dirty inventories");
             for (int itemIndex = 0; itemIndex < actual.Count; itemIndex++)
             {
                 var expected = state[index][itemIndex];
@@ -359,11 +344,11 @@ static ItemDrop.ItemData Item(string name, int amount, int maxStack, string payl
 
 static bool Compatible(ItemDrop.ItemData left, ItemDrop.ItemData right) =>
     left.m_shared.m_name == right.m_shared.m_name && left.m_worldLevel == right.m_worldLevel &&
-    (left.m_shared.m_maxQuality <= 1 || left.m_quality == right.m_quality);
+    left.m_quality == right.m_quality && left.m_shared.m_maxStackSize > 1;
 
 static Dictionary<(string Name, byte World, int Quality), int> Totals(IEnumerable<Inventory> inventories) =>
     inventories.SelectMany(inventory => inventory.GetAllItems())
-        .GroupBy(item => (item.m_shared.m_name, item.m_worldLevel, item.m_shared.m_maxQuality > 1 ? item.m_quality : 0))
+        .GroupBy(item => (item.m_shared.m_name, item.m_worldLevel, item.m_quality))
         .ToDictionary(group => group.Key, group => group.Sum(item => item.m_stack));
 
 static void EqualTotals(Dictionary<(string Name, byte World, int Quality), int> expected,

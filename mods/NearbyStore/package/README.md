@@ -1,26 +1,33 @@
-# NearbyStore
+# NearbyStore 1.1.1
 
-An inventory **Store nearby** button sends carried items to nearby placed chests.
+An inventory **Stack nearby** button applies vanilla-style **Stack items** across nearby placed chests.
 **Left Alt + F** favorites the hovered inventory stack so it stays with you.
 Client-side; no Jotunn dependency or server installation.
 
-**Tested locally, multiplayer unverified.** The inventory workflow and character
-favorite save/reload were exercised in an isolated native Valheim client. This
-does not establish live-server or modpack compatibility. Try a separate profile
-and disposable saves first; inventory automation moves real items, so keep backups.
+**1.1.1 fixes overly restrictive stacking in 1.1.0.** A chest containing an item
+can receive more of it: fill compatible stacks first, then create another stack
+in a free slot. Items absent from the chest stay carried.
+Native-client checks include **OdinsFoodBarrels 1.4.0**; multiplayer remains
+unverified. Try disposable saves first and keep backups: this moves real items.
 
 ## Use
 
 1. Open your inventory. Hover a stack and press **Left Alt + F** to toggle its
    favorite marker. A gold **F** identifies favorites.
-2. Close any open chest, then click **Store nearby** below the player inventory.
-3. Chests within **10 metres** are visited nearest first, matching item types
-   first, then any free space. Full chests leave overflow carried.
+2. Close any open chest, then click **Stack nearby** below the player inventory.
+3. Chests within **10 metres** are visited nearest first. Like vanilla **Stack items**,
+   each chest accepts only item names already present in that chest.
+4. Compatible stacks are filled first; remaining units use free slots in that
+   matching chest. A full stone stack does not prevent another stone stack.
+5. Items absent from all eligible nearby chests stay carried. If matching chests
+   run out of room, the remainder stays in its original inventory slot.
 
 Favorites, equipped items, queued-for-equip items and quest items stay carried.
-Unequipped hotbar items are eligible unless favorited. Empty placed chests can
-receive items. Private ownership, wards, busy containers and the vanilla ownership
-handshake are checked; tombstones, dropped loot and non-Piece containers are excluded.
+Unequipped hotbar items are eligible unless favorited. Empty chests receive nothing.
+Vanilla stack limits, quality/world-level merge rules and slot placement apply.
+Different quality/world-level items can occupy separate slots in a matching chest.
+Private ownership, wards, busy containers and the vanilla ownership handshake are
+checked; tombstones, dropped loot and non-Piece containers are excluded.
 Search is spherical, including through walls and between floors.
 
 Favorites belong to stacks, not slots, using vanilla item custom data. Moving or
@@ -45,8 +52,8 @@ opening the chest normally avoids that RPC path. No automatic retry is attempted
 
 ## Requirements and installation
 
-Requires Valheim and **denikson-BepInExPack_Valheim 5.4.2351**. Built and locally
-tested on native Valheim **l-1.0.20**, Unity **6000.0.75f1**.
+Requires Valheim and **denikson-BepInExPack_Valheim 5.4.2351**. Native-client
+checks used Valheim **l-1.0.20**, Unity **6000.0.75f1**.
 
 - **Mod manager:** install `Jarki-NearbyStore` in a separate Valheim profile and
   accept its BepInEx dependency. Launch modded using your normal loader route.
@@ -80,10 +87,19 @@ Favorite custom-data markers are inert without the plugin. Already deposited ite
 remain where they were stored. Uninstall/reinstall and cross-version behavior
 have not been runtime-tested.
 
-Other inventory, chest, UI, controller and sorting mods have not been compatibility
-tested. Multiplayer, real remote-owner concurrency and denied wards remain
-unverified. Private/busy/out-of-range exclusion was exercised locally. This is
-not a claim that the plugin is safe on a live server.
+**OdinsFoodBarrels 1.4.0:** tested with the exact released DLL in an isolated
+native client. All **36** restricted container types, including the seed bag,
+meat freezer and spice shelf, passed nearby eligibility, matching overflow,
+partial merging, favorites and prohibited-item rejection checks. A real button
+click also deposited raspberry overflow into a full-stack raspberry barrel.
+The mod's own inventory restrictions remain active; no hard dependency or
+special-case bypass is added. **Empty barrels still need an initial item**, just
+like vanilla Stack items. Custom barrel settings and other versions are unverified.
+
+Other inventory/UI/controller mods, multiplayer, real remote-owner concurrency,
+denied wards and uninstall/reinstall remain unverified. NearbyStore is client-only;
+install OdinsFoodBarrels on the sides required by its author. Local checks are
+not a claim of live-server compatibility.
 
 For missing UI or errors, include game/mod versions, reproduction steps and relevant
 redacted `BepInEx/LogOutput.log` entries in a report. Never post private saves,
@@ -91,36 +107,40 @@ passwords or tokens.
 
 ## Verification, license and credits
 
-Release build succeeds with two existing MSB3277 framework-reference conflicts.
-**13/13 standalone cases** and **3/3 adversarial groups** pass. The latter include
-320 deterministic seeds, 8 rounds and **20,480 checked deposits**, plus fixed-point
-repeats, testing protection, compatibility, conservation and source-position stability
-with handwritten inventory API doubles.
+The 1.1.1 Release build succeeds with two existing MSB3277 framework-reference
+warnings. **12/12 standalone cases** and **3/3 adversarial groups** pass:
+320 seeds, 8 rounds and **10,240 deposits** plus fixed-point repeats. Tests cover
+matching overflow, absent types, full capacity, quality/world-level separation,
+favorites, metadata, quantity conservation and carried-slot stability.
 
-An isolated native client completed **38 checks**, including fixture assertions:
-real Tab/Alt+F/button input, favorites retained while 32 wood/stone units were stored,
-unfavorite then storing 8 food units, matching-first/overflow behavior,
-private/busy/range exclusions, actual character-file favorite save/reload, and clean
-logout. Screenshots were inspected at default, 70% and 130% UI scale.
+The exact **1.1.1 gameplay DLL** completed **673 native-client checks**, including
+fixture assertions, on Valheim **l-1.0.20**, Unity **6000.0.75f1**, BepInExPack
+**5.4.2351**, with **OdinsFoodBarrels 1.4.0** loaded:
 
-A granted-before-ownership-update race was reproduced before the fix and passed
-afterward using injected ownership transitions on real local game containers.
-Late canceled responses and already-owned quarantine recovery were also exercised.
-These are not two-client network tests. The candidate DLL was installed from the
-release ZIP into a fresh isolated profile; mod-manager local-import UI was not tested.
+- Six scenarios compared real vanilla `Inventory.StackAll` against production
+  transfer, with identical inventory contents and positions.
+- Actual Tab and button clicks verified full-stack overflow, partial merges across
+  chests, favorites, absent types, repeated-click no-op and private/busy/range exclusions.
+- All 36 barrel types passed native inventory checks; their item restrictions
+  rejected disallowed transfers even with an invalid matching fixture item present.
+- Inventory/result screenshots were inspected; the client logged out and exited
+  cleanly, with no logged plugin errors or exceptions.
 
-One earlier automation run failed the second-storage destination assertion before
-its quantities were logged. Two instrumented runs of the identical DLL, in fresh
-and reused disposable worlds, passed with zero food left carried and eight units
-in the intended chest. The earlier assertion's cause is unconfirmed; its evidence
-is retained rather than treated as proof of a fixed production defect.
+Verification used a separate profile and disposable local saves. The test did not
+change live profiles or servers. Loader startup initially needed `sh` because the
+copied launch script was not executable; a Steam sign-in dialog was moved off the
+test surface without signing in. No production-code workaround was needed.
+The release ZIP's installation UI and multiplayer have not been tested.
+Earlier releases' runtime evidence and limitations remain in the source development log.
 
 Original code and programmatic package icon: **MIT, copyright 2026 Jarki**, see
 `LICENSE`. Valheim, BepInEx and Harmony belong to their respective owners; no game,
-loader, library binaries or extracted assets are included. Developed and packaged
-with **OpenAI Codex (gpt-6.1-sol)** assistance; categorized **AI Generated**.
+loader, library binaries or extracted assets are included. Developed with
+**OpenAI Codex** assistance: earlier release work used **gpt-6.1-sol**; this
+stacking correction and compatibility verification used **gpt-6-astra**.
+Categorized **AI Generated**.
 
 [Project repository](https://github.com/Jarki/valheim-mods) ·
 [Report issues](https://github.com/Jarki/valheim-mods/issues).
-NearbyStore source has not been pushed to the public repository as part of this
-release preparation.
+[NearbyStore source](https://github.com/Jarki/valheim-mods/tree/main/mods/NearbyStore)
+is public; this work does not push the 1.1.1 changes to GitHub.
