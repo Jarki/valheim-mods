@@ -3,9 +3,9 @@
 Client-side Valheim BepInEx plugin. Open your inventory and click **Stack nearby**
 below the player inventory to apply vanilla-style **Stack items** to placed chests
 within **10 metres**. No server plugin or Jotunn dependency.
-**1.1.1 is the corrected local candidate; not published.**
-[Published 1.1.0](https://thunderstore.io/c/valheim/p/Jarki/NearbyStore/) only fills
-partial stacks and does not include this correction. No live deployment performed.
+[NearbyStore 1.1.1 is published](https://thunderstore.io/c/valheim/p/Jarki/NearbyStore/),
+and its source is pushed to GitHub. It corrects 1.1.0's partial-stack-only behavior.
+No live profile or server deployment was performed.
 
 ## Controls and behavior
 
@@ -69,8 +69,9 @@ uv run python tools/release.py verify dist/Jarki-NearbyStore-1.1.1.zip
 Build output: `bin/Release/netstandard2.1/NearbyStore.dll` beneath this directory.
 For an authorized isolated development profile, the DLL belongs under
 `BepInEx/plugins/NearbyStore/`. Do not copy game assemblies or test binaries.
-Corrected candidate archive: `dist/Jarki-NearbyStore-1.1.1.zip`.
-Published archive: `dist/Jarki-NearbyStore-1.1.0.zip`; public download matches SHA-256
+Published archive: `dist/Jarki-NearbyStore-1.1.1.zip`; public SHA-256
+`64b4158a6bee93df94e3f07123d0ee691239f6bd49c196c56dc31c3f120b8abd`.
+Historical archive: `dist/Jarki-NearbyStore-1.1.0.zip`; public download matches SHA-256
 `50164e0a0ef14e4a0e14076c89bf4c40cd670218aba0f78c4ab45356d2b792b8`.
 Historical published archive: `dist/Jarki-NearbyStore-1.0.0.zip`; public SHA-256
 `543600cdd70cf27c76567ee29af493747dc9e6a958513dc87f66ef90f35afef3`.
@@ -97,6 +98,11 @@ Verification of corrected 1.1.1:
   resolved by invoking the loader with `sh`; a sign-in dialog was hidden without login.
 - Multiplayer, denied wards, custom barrel configurations, controller/modpack
   compatibility, release-ZIP installation UI and uninstall/reinstall remain unverified.
+- Published after the owner's separate **push and publish** instruction. Source
+  commit `5ac8f66` is public. Public 1.1.1 ZIP passes archive verification and is
+  byte-identical to the approved candidate; live listing/version/README inspected.
+  The package's source-push sentence records the earlier preparation stage;
+  the approved ZIP was intentionally kept unchanged for publication.
 
 Historical verification of stack-only 1.1.0 (not the corrected behavior):
 
