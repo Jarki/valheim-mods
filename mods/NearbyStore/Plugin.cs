@@ -9,7 +9,7 @@ using UnityEngine.UI;
 
 namespace NearbyStore
 {
-    [BepInPlugin("jarki.nearbystore", "NearbyStore", "1.1.1")]
+    [BepInPlugin("jarki.nearbystore", "NearbyStore", "1.1.2")]
     public sealed class Plugin : BaseUnityPlugin
     {
         private static Plugin instance;
@@ -23,6 +23,8 @@ namespace NearbyStore
             AccessTools.FieldRefAccess<InventoryGui, ItemDrop.ItemData>("m_dragItem");
         private static readonly AccessTools.FieldRef<InventoryGrid, List<InventoryElement>> Elements =
             AccessTools.FieldRefAccess<InventoryGrid, List<InventoryElement>>("m_elements");
+        private static readonly AccessTools.FieldRef<InventoryGui, float> CraftTimer =
+            AccessTools.FieldRefAccess<InventoryGui, float>("m_craftTimer");
 
         private readonly List<Container> chests = new List<Container>();
         private readonly HashSet<Container> outstanding = new HashSet<Container>();
@@ -64,10 +66,17 @@ namespace NearbyStore
             var player = Player.m_localPlayer;
             var gui = InventoryGui.instance;
             return player && !player.IsDead() && !player.IsTeleporting() && !player.InCutscene() &&
-                gui && InventoryGui.IsVisible() && (!storage || !gui.IsContainerOpen()) && DragItem(gui) == null &&
+                gui && InventoryGui.IsVisible() && DragItem(gui) == null &&
                 !gui.m_splitDialog.IsActive && !Menu.IsVisible() && !Console.IsVisible() &&
                 (!Chat.instance || !Chat.instance.HasFocus()) && !Minimap.IsOpen() &&
-                !TextInput.IsVisible();
+                !TextInput.IsVisible() &&
+                (!storage || (!gui.IsContainerOpen() && !player.GetCurrentCraftingStation() &&
+                    CraftTimer(gui) < 0f && !gui.IsSkillsPanelOpen && !gui.IsTextPanelOpen &&
+                    !gui.IsTrophisPanelOpen && !gui.IsAchievementsPanelOpen &&
+                    !gui.m_variantDialog.gameObject.activeInHierarchy &&
+                    !StoreGui.IsVisible() && (!TextViewer.instance || !TextViewer.instance.IsVisible()) &&
+                    !PlayerCustomizaton.IsBarberGuiVisible() && !Hud.IsPieceSelectionVisible() &&
+                    !Hud.InRadial() && !GameCamera.InFreeFly()));
         }
 
         private bool IsProtected(ItemDrop.ItemData item)
@@ -80,12 +89,15 @@ namespace NearbyStore
             var gui = InventoryGui.instance;
             if (!gui || !InventoryGui.IsVisible())
             {
+                if (panel && panel.activeSelf) panel.SetActive(false);
                 if (running) Finish();
                 return;
             }
             EnsurePanel(gui);
-            storeButton.interactable = Ready() && !running;
-            if (running && (!Ready() || actor != Player.m_localPlayer)) Finish();
+            bool storageReady = Ready();
+            if (panel.activeSelf != storageReady) panel.SetActive(storageReady);
+            storeButton.interactable = storageReady && !running;
+            if (running && (!storageReady || actor != Player.m_localPlayer)) Finish();
             if (running) Advance();
             if (Ready(false) && favoriteKey.Value.IsDown())
             {
@@ -115,10 +127,10 @@ namespace NearbyStore
             panel = new GameObject("NearbyStore", typeof(RectTransform));
             var root = (RectTransform)panel.transform;
             root.SetParent(gui.m_player, false);
-            root.anchorMin = root.anchorMax = new Vector2(0f, 0f);
-            root.pivot = new Vector2(0f, 1f);
-            root.anchoredPosition = new Vector2(0f, -8f);
-            root.sizeDelta = new Vector2(260f, 68f);
+            root.anchorMin = root.anchorMax = new Vector2(1f, .5f);
+            root.pivot = new Vector2(0f, .5f);
+            root.anchoredPosition = new Vector2(8f, 0f);
+            root.sizeDelta = new Vector2(240f, 68f);
             var buttonObject = new GameObject("StoreButton", typeof(RectTransform), typeof(Image), typeof(Button));
             var rect = (RectTransform)buttonObject.transform;
             rect.SetParent(root, false);

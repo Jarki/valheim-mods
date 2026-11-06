@@ -12,6 +12,9 @@ Publication and packaging checks are not fresh clean-profile runtime verificatio
 pushed to GitHub. The correction matches vanilla Stack items:
 fill matching stacks, then use spare slots only in chests already holding that item.
 Native-client checks passed with OdinsFoodBarrels 1.4.0; multiplayer remains unverified.
+**1.1.2 is an unpublished local UI fix:** place the button to the right of inventory
+and hide it while containers, crafting stations or blocking overlays are open.
+Its right-side DLL passed 95 native-client checks; see the development notes.
 
 [Rotheart](mods/Rotheart/README.md) 1.0.0 adds a swamp trinket:
 passive poison resistance and a damaging miasma triggered at 10 adrenaline.
@@ -27,7 +30,7 @@ All packages require `denikson-BepInExPack_Valheim` **5.4.2351**.
 | Thunderstore package | Version | Install side | Additional dependency | Source / development notes |
 | --- | --- | --- | --- | --- |
 | `Jarki-MobThreat` | 1.0.1 | Client only | None | **Active** — [MobThreat](mods/MobThreat/README.md) |
-| `Jarki-NearbyStore` | 1.1.1 | Client only | None | **Published; OdinsFoodBarrels 1.4.0 locally tested** — [NearbyStore](mods/NearbyStore/README.md) |
+| `Jarki-NearbyStore` | 1.1.2 local / 1.1.1 published | Client only | None | **UI fix locally tested; unpublished** — [NearbyStore](mods/NearbyStore/README.md) |
 | `Jarki-Rotheart` | 1.0.0 | Server and every client; multiplayer unverified | `ValheimModding-Jotunn` 2.30.2 | **Published; locally tested** — [Rotheart](mods/Rotheart/README.md) |
 | `Jarki-Firearm_Arsenal` | 1.1.0 | Server and every client; matching versions | `ValheimModding-Jotunn` 2.30.2 | **Paused** — [PistolMod](mods/PistolMod/README.md) |
 | `Jarki-Startup_Helper` | 1.0.0 | Client only; optional, disabled by default | None | **Paused** — [StartupHelper](mods/StartupHelper/README.md) |

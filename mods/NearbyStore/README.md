@@ -1,10 +1,11 @@
 # NearbyStore
 
 Client-side Valheim BepInEx plugin. Open your inventory and click **Stack nearby**
-below the player inventory to apply vanilla-style **Stack items** to placed chests
+to the right of the player inventory to apply vanilla-style **Stack items** to placed chests
 within **10 metres**. No server plugin or Jotunn dependency.
-[NearbyStore 1.1.1 is published](https://thunderstore.io/c/valheim/p/Jarki/NearbyStore/),
-and its source is pushed to GitHub. It corrects 1.1.0's partial-stack-only behavior.
+**1.1.2 is a locally verified, unpublished UI fix:** the whole button/hint panel
+sits to the right of inventory and hides while containers, crafting stations or blocking overlays are open.
+[1.1.1 remains the published release](https://thunderstore.io/c/valheim/p/Jarki/NearbyStore/).
 No live profile or server deployment was performed.
 
 ## Controls and behavior
@@ -27,10 +28,13 @@ No live profile or server deployment was performed.
 - Respects private-chest ownership, wards, busy chests and the vanilla network
   ownership handshake. No forced ownership or writes to remotely owned inventories.
   Tombstones, dropped-loot containers and containers without a placed Piece are excluded.
-- Close any chest before using the button. Dragging, splitting, menus, chat,
-  teleportation and death disable storage. Closing inventory cancels further
-  transfers; already stored items stay in the chests. A missing network response
-  stops the operation after five seconds; late responses cannot trigger vanilla
+- The button and shortcut hint appear only in the standalone player inventory.
+  Containers, crafting stations, active crafting, inventory dialogs and blocking
+  menus hide the whole panel. The basic crafting recipe list beside the ordinary
+  inventory does not hide it. Dragging/splitting also hide it.
+  Opening a blocking UI or closing inventory cancels further transfers; already
+  stored items stay in the chests. Chat, teleportation and death block storage.
+  A missing network response stops the operation after five seconds; late responses cannot trigger vanilla
   stack-all and accidentally deposit favorites.
   If it times out, open the affected chest normally, close it, and retry.
   Still-remote containers with an unanswered request remain quarantined until
@@ -63,12 +67,15 @@ dotnet run --project tests/NearbyStore.Tests/NearbyStore.Tests.csproj -c Release
 uv run python tools/release.py check NearbyStore
 uv run python tools/release.py build NearbyStore \
   --game-dir /path/to/Valheim --reference-profile /path/to/reference-profile
-uv run python tools/release.py verify dist/Jarki-NearbyStore-1.1.1.zip
+uv run python tools/release.py verify dist/Jarki-NearbyStore-1.1.2.zip
 ```
 
 Build output: `bin/Release/netstandard2.1/NearbyStore.dll` beneath this directory.
 For an authorized isolated development profile, the DLL belongs under
 `BepInEx/plugins/NearbyStore/`. Do not copy game assemblies or test binaries.
+Local 1.1.2 candidate: `dist/Jarki-NearbyStore-1.1.2.zip`.
+SHA-256: `78ede460b7363982ab6d59c97af91503c87f94f4ea57b07c1acf24cb0191ad9b`.
+Packaged DLL is byte-identical to the right-side native-tested DLL.
 Published archive: `dist/Jarki-NearbyStore-1.1.1.zip`; public SHA-256
 `64b4158a6bee93df94e3f07123d0ee691239f6bd49c196c56dc31c3f120b8abd`.
 Historical archive: `dist/Jarki-NearbyStore-1.1.0.zip`; public download matches SHA-256
@@ -78,6 +85,31 @@ Historical published archive: `dist/Jarki-NearbyStore-1.0.0.zip`; public SHA-256
 The public [README](package/README.md), [changelog](package/CHANGELOG.md) and
 `thunderstore.toml` define the package. Only an authorized disposable development
 profile was created; no live profile or server deployment was performed.
+
+Verification of unpublished 1.1.2:
+
+- **95 native-client checks including fixtures** pass with the right-side 1.1.2 DLL,
+  Valheim l-1.0.20 and OdinsFoodBarrels 1.4.0. First-open chest, raspberry barrel,
+  workbench, active handcrafting, skills, compendium, trophies, achievements,
+  variants, split/drag, pause, text viewer and text input hide the whole panel.
+- Closing each tested overlay restores the button. Pending transfer cancellation
+  retains late-response protection. Actual Tab and mouse input restore inventory
+  and deposit 12 wood into a chest already holding a full 50 stack; unmatched
+  stone/resin remain carried. The basic crafting list does not block the button.
+- Right-side panel placement, on-screen bounds and separation from crafting pass
+  at 70%, 100% and 130% UI scale on a 1280×720 surface. Screenshots inspected.
+  The initial 260-unit width clipped crafting at 130%; narrowing to 240 fixed it.
+- **12/12 standalone transfer cases** pass. Build retains two existing MSB3277
+  warnings. Screenshots inspected; successful run has no logged errors/exceptions,
+  clean logout and game exit 0.
+- First launch stopped before the menu because Steam API initialization failed;
+  retry with Steam already running passed without production-code changes.
+- Current private evidence: `.dev/nearbystore-side-lab/evidence/`; earlier visibility-only
+  evidence: `.dev/nearbystore-ui-lab/evidence/`. Fresh disposable
+  character/world in a copied development profile; no live profiles or servers
+  touched. ZIP-install UI, every additional overlay guard, controller, other UI
+  mods and multiplayer remain unverified. The owner separately authorized committing
+  and pushing these source changes; Thunderstore publication remains unapproved.
 
 Verification of corrected 1.1.1:
 

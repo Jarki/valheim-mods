@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.2
+
+- Move the button and shortcut hint to the right of the player inventory, vertically centered, rather than underneath. Keep a gap from crafting at 70%, 100% and 130% UI scale on the tested 1280×720 surface.
+- Hide the entire Stack nearby button and shortcut hint while a container, crafting station, active crafting operation, inventory dialog or blocking overlay is open; restore it in the standalone player inventory. The normal basic crafting recipe list remains allowed.
+- Cancel pending transfers when a blocking UI opens, retaining late-response protection. Favorite shortcuts in chest inventory and vanilla-style stacking remain unchanged.
+- Right-side 1.1.2 DLL passed 95 native-client checks including fixtures with OdinsFoodBarrels 1.4.0 loaded. Layout at three UI scales, chest/barrel/workbench/dialog transitions, active crafting, cancellation and actual restored-button overflow passed; screenshots inspected. 12 standalone transfer cases pass from the unchanged transfer implementation. Multiplayer and other UI mods remain unverified.
+
 ## 1.1.1
 
 - Correct 1.1.0's overly restrictive stacking to match vanilla **Stack items**. Chests containing an item accept it through native inventory insertion: fill compatible stacks, then create another stack in a free slot. No fallback into unrelated or empty chests.

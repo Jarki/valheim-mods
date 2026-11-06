@@ -1,12 +1,14 @@
-# NearbyStore 1.1.1
+# NearbyStore 1.1.2
 
 An inventory **Stack nearby** button applies vanilla-style **Stack items** across nearby placed chests.
 **Left Alt + F** favorites the hovered inventory stack so it stays with you.
 Client-side; no Jotunn dependency or server installation.
 
-**1.1.1 fixes overly restrictive stacking in 1.1.0.** A chest containing an item
-can receive more of it: fill compatible stacks first, then create another stack
-in a free slot. Items absent from the chest stay carried.
+**1.1.2 moves the button to the right of inventory and fixes menu overlap.**
+The button and shortcut hint hide while a container, crafting station, active crafting
+operation or blocking overlay is open, then return beside the standalone player inventory.
+Stacking still matches vanilla: fill compatible stacks, then use free slots only
+in chests already holding that item. Unmatched items stay carried.
 Native-client checks include **OdinsFoodBarrels 1.4.0**; multiplayer remains
 unverified. Try disposable saves first and keep backups: this moves real items.
 
@@ -14,7 +16,8 @@ unverified. Try disposable saves first and keep backups: this moves real items.
 
 1. Open your inventory. Hover a stack and press **Left Alt + F** to toggle its
    favorite marker. A gold **F** identifies favorites.
-2. Close any open chest, then click **Stack nearby** below the player inventory.
+2. Close any container, crafting station or overlay, then click **Stack nearby**
+   to the right of the standalone player inventory. Its normal basic crafting list is allowed.
 3. Chests within **10 metres** are visited nearest first. Like vanilla **Stack items**,
    each chest accepts only item names already present in that chest.
 4. Compatible stacks are filled first; remaining units use free slots in that
@@ -37,10 +40,12 @@ Re-favorite the merged stack if needed. NearbyStore never deposits a favorite
 source stack. Favorite persistence was verified through an actual disposable
 character-file save and reload in the running game.
 
-Dragging, splitting, chat, menus, death and teleportation disable storage. Closing
-inventory cancels remaining transfers without undoing completed transfers. A missing
-network response stops the operation after five seconds; late responses from this
-operation are intercepted rather than running vanilla stack-all on favorites.
+Containers, crafting stations, active crafting, inventory dialogs, dragging,
+splitting, chat and blocking menus hide the entire button/hint panel. Death and
+teleportation also block storage. Closing inventory or opening a blocking UI
+cancels remaining transfers without undoing completed transfers. A missing network
+response stops the operation after five seconds; late responses from this operation
+are intercepted rather than running vanilla stack-all on favorites.
 
 After a timeout, **open the affected chest normally, close it, then retry**.
 Already-owned chests can be used without another network request. A still-remote
@@ -107,8 +112,23 @@ passwords or tokens.
 
 ## Verification, license and credits
 
-The 1.1.1 Release build succeeds with two existing MSB3277 framework-reference
-warnings. **12/12 standalone cases** and **3/3 adversarial groups** pass:
+The right-side **1.1.2 DLL** passed **95 native-client checks including fixtures**:
+first-open chest, Odin raspberry barrel, workbench, active handcrafting, skills,
+compendium, trophies, achievements, variants, split/drag, pause and text overlays
+hide the whole panel; closing them restores it. Pending-transfer cancellation and
+late-response suppression pass. Actual Tab and mouse input then deposit 12 wood
+into a chest already holding a full 50 stack, leaving unmatched stone/resin carried.
+Screenshots were inspected; clean logout/exit, no errors in the successful run.
+The panel stays to the right, fully on-screen and clear of the crafting menu at
+70%, 100% and 130% UI scale on 1280×720. The initial panel width clipped crafting
+at 130%; reducing it to 240 layout units fixed the overlap.
+**12/12 standalone transfer cases** pass; the Release build retains two existing
+MSB3277 warnings. A first launch failed Steam API initialization before the menu;
+retrying with Steam already running passed without production-code changes.
+This is not verification of every additional overlay guard or third-party UI mod.
+
+Historical **1.1.1** transfer verification: **12/12 standalone cases** and
+**3/3 adversarial groups** passed:
 320 seeds, 8 rounds and **10,240 deposits** plus fixed-point repeats. Tests cover
 matching overflow, absent types, full capacity, quality/world-level separation,
 favorites, metadata, quantity conservation and carried-slot stability.
@@ -137,10 +157,9 @@ Original code and programmatic package icon: **MIT, copyright 2026 Jarki**, see
 `LICENSE`. Valheim, BepInEx and Harmony belong to their respective owners; no game,
 loader, library binaries or extracted assets are included. Developed with
 **OpenAI Codex** assistance: earlier release work used **gpt-6.1-sol**; this
-stacking correction and compatibility verification used **gpt-6-astra**.
+stacking correction, compatibility verification and UI fix used **gpt-6-astra**.
 Categorized **AI Generated**.
 
 [Project repository](https://github.com/Jarki/valheim-mods) ·
 [Report issues](https://github.com/Jarki/valheim-mods/issues).
-[NearbyStore source](https://github.com/Jarki/valheim-mods/tree/main/mods/NearbyStore)
-is public; this work does not push the 1.1.1 changes to GitHub.
+[NearbyStore source](https://github.com/Jarki/valheim-mods/tree/main/mods/NearbyStore).

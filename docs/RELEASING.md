@@ -10,6 +10,29 @@ approved each published artifact after disclosure of its verification limits.
 Firearm Arsenal, Startup Helper (including server joining), and Server Metrics
 remain paused; older multi-package verification is not a current release plan.
 
+## Local NearbyStore 1.1.2 — unpublished
+
+- Pinned-tcli candidate path: `dist/Jarki-NearbyStore-1.1.2.zip`.
+  SHA-256: `78ede460b7363982ab6d59c97af91503c87f94f4ea57b07c1acf24cb0191ad9b`.
+  Six-file archive verification and payload lint pass (zero failures/warnings);
+  packaged DLL exactly matches the native-tested right-side DLL.
+- UI-only correction: place the button/hint panel to the right of inventory and hide
+  it during container, crafting-station, active crafting and blocking-overlay use;
+  cancel pending transfers safely.
+- Right-side DLL passed 95 native-client checks including fixtures with OdinsFoodBarrels
+  1.4.0 loaded. Actual Tab/button input still deposits matching full-stack overflow
+  and retains unmatched items. 12 standalone transfer cases pass.
+- Layout is on-screen and separate from crafting at 70%, 100% and 130% UI scale
+  on 1280×720. Initial 260-unit width clipped crafting at 130%; 240 units passed.
+- First native launch failed Steam API initialization before the menu; retry with
+  Steam running passed. Screenshots inspected, no errors in the successful run,
+  clean logout/game exit 0. Two existing MSB3277 build warnings remain.
+- Current private evidence: `.dev/nearbystore-side-lab/evidence/`; earlier visibility
+  checks: `.dev/nearbystore-ui-lab/evidence/`. Disposable local saves
+  only; no live deployment or upload. Multiplayer, third-party UI mods
+  and release-ZIP installation UI remain unverified. The owner separately authorized
+  committing and pushing the source changes; Thunderstore publication needs separate approval.
+
 ## Published NearbyStore 1.1.1 — 2026-11-06
 
 - Replaces 1.1.0's partial-stack-only behavior with vanilla-style matching-chest
@@ -246,7 +269,7 @@ The checker rejects config/project/plugin version mismatches. Do not rename sour
 directories, DLLs or existing plugin IDs to match public package names. Current
 mapping: `PistolMod` → `Firearm_Arsenal` 1.1.0, `StartupHelper` → `Startup_Helper`
 1.0.0, `ServerMetrics` → `Server_Metrics` 1.4.0, `MobThreat` → `MobThreat` 1.0.1,
-`NearbyStore` → `NearbyStore` 1.1.1, `Rotheart` → `Rotheart` 1.0.0.
+`NearbyStore` → `NearbyStore` 1.1.2 (unpublished), `Rotheart` → `Rotheart` 1.0.0.
 Do not silently reuse a published version for changed contents.
 
 Each config uses schema `0.0.1`, the confirmed `Jarki` namespace, community
