@@ -8,7 +8,7 @@ estimated weapon damage shows no label.
 Published as **[Jarki-MobThreat 1.0.1](https://thunderstore.io/c/valheim/p/Jarki/MobThreat/)**
 on 2026-11-05. The public ZIP matches the verified local artifact. The owner
 accepted the missing fresh clean-profile archive-import test; publication does not
-add runtime compatibility evidence. See [release records](../../docs/RELEASING.md).
+add runtime compatibility evidence. See the [release procedure](../../docs/RELEASING.md).
 
 For 1.0.1, standalone arithmetic tests and a headless simulation of the production
 display code passed, including known-to-unknown cleanup and label-pool reuse.

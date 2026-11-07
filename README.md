@@ -102,5 +102,5 @@ fixes. Firearm multiplayer and Startup Helper server joining remain unverified;
 MobThreat's DOT approximation is intentionally unchanged. Server Metrics evidence
 is historical tests and source, not a newly launched server. See each development
 README for exact scope. These records do not establish that the release ZIPs
-have been imported and tested in clean profiles. MobThreat's actual publication
-and public-download verification are recorded in [releasing](docs/RELEASING.md).
+have been imported and tested in clean profiles. See [releasing](docs/RELEASING.md)
+for the current release workflow.

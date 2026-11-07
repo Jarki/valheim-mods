@@ -13,7 +13,7 @@ runtime records as fresh verification of a release archive.
 **Active development: MobThreat, NearbyStore and Rotheart.** All three have
 release-wrapper metadata and published releases. Rotheart 1.0.0's original Blender
 art and isolated native-trinket test harness are documented in its README.
-Publication records and verification limits are in [RELEASING.md](RELEASING.md).
+The current release workflow is in [RELEASING.md](RELEASING.md).
 Firearm Arsenal, Startup Helper
 (including server joining), and Server Metrics remain paused by the owner. Their
 instructions and verification records are retained as history, not authorization
