@@ -56,6 +56,8 @@ their bundled references/scripts are vendored under `.agents/skills/`, with the
 upstream MIT license in `.agents/skills/LICENSE`. `AGENTS.md` routes assistants to
 them.
 
+The local `publish-mod` skill uses a project-specific public README template.
+
 ```sh
 uv sync --locked
 uv run um --help
@@ -72,8 +74,9 @@ pinned CLI/skills; the executable and dependencies remain project-local.
 To update the toolkit, review a new upstream revision, change the Git revision in
 `pyproject.toml`, run `uv lock` and `uv sync --locked`, and replace the 11 vendored
 mod-development skill directories with those from that revision's `skills/`.
-Retain the upstream license and update this revision record together. Do not
-merely overlay files and leave obsolete upstream files behind.
+Retain the upstream license and update this revision record together. Replace
+only vendored directories, preserving the project-owned skills below; remove
+obsolete files within each replaced upstream skill rather than merely overlaying.
 
 Blender regenerates Rotheart's original model/icon using its `Tools/build_models.py`
 Eevee recipe. It is also required for historical firearm art regeneration, which
@@ -81,6 +84,21 @@ remains paused; PistolMod's README retains those tool constraints. FFmpeg is use
 for local evidence media. No fal/MCP or other paid asset service is configured.
 Installing CLI tools or skills does not install BepInEx or authorize game launches,
 profile changes, server operations or uploads.
+
+### Project-owned engineering skills
+
+These local skills extract reusable procedures from historical Valheim development.
+They are not part of the pinned Universal Modder distribution. Read the matching
+skill when its trigger applies; none authorizes game launches, system changes,
+deployment or publication. Historical examples are provenance, not fresh proof.
+
+| Skill | Use when |
+| --- | --- |
+| [test-oracle-validation](../.agents/skills/test-oracle-validation/SKILL.md) | Building a harness, separating fixture failures from defects, or defining what evidence proves |
+| [lifecycle-transition-checks](../.agents/skills/lifecycle-transition-checks/SKILL.md) | Changing pools, caches, scene resources, or cleanup/recovery behavior |
+| [host-native-integration](../.agents/skills/host-native-integration/SKILL.md) | Integrating fonts, materials, coordinates, timing, or ordinary host interactions |
+| [snapshot-before-mutation](../.agents/skills/snapshot-before-mutation/SKILL.md) | Batch effects can change later eligibility, visibility, or permissions |
+| [constraint-first-diagnosis](../.agents/skills/constraint-first-diagnosis/SKILL.md) | Diagnosing environment failures before changing drivers, security settings, or tool versions |
 
 ## Isolated runtime development and evidence
 

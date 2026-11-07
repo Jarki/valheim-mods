@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Package the unchanged DLL under `plugins/Jarki-MobThreat/`. Remove older copies from `plugins/MobThreat/` when upgrading; DLL name, plugin ID and config path remain unchanged.
+
 ## 1.0.1
 
 - Hide labels when damage is unknown, zero or otherwise has no finite hit estimate, instead of displaying `~? hits`.

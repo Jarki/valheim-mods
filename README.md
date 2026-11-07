@@ -72,8 +72,8 @@ above uploads anything. See [releasing](docs/RELEASING.md) for the full gates an
 - `mods/<project>/package/`: public README, changelog and icon;
   `thunderstore.toml` beside it defines each package.
 - `tests/`: standalone regressions and in-game test sources.
-- [MODLOG.md](MODLOG.md), [MODDING_PLAN.md](MODDING_PLAN.md), and
-  [NEXT-STEPS.md](NEXT-STEPS.md): retained development history and plans.
+- [MODDING_PLAN.md](MODDING_PLAN.md) and [NEXT-STEPS.md](NEXT-STEPS.md):
+  retained development plans.
 - `.agents/skills/`: vendored Universal Modder development skills.
 
 The sibling [`valheim-server`](../valheim-server/) repository owns deployment,

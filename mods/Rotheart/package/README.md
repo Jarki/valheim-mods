@@ -47,7 +47,9 @@ Required dependencies:
 
 **Mod manager:** install `Jarki-Rotheart` into a separate Valheim profile and accept both dependencies. Launch modded through your normal OS-appropriate loader route.
 
-**Manual:** close Valheim, install the required dependencies, then copy this archive's `plugins/Rotheart/` directory into `BepInEx/plugins/`. The resulting plugin path is `BepInEx/plugins/Rotheart/Rotheart.dll`. Keep `LICENSE` and remove duplicate Rotheart DLLs. Model, icon and effects are embedded; no additional asset downloads are needed. Native Linux uses Linux Doorstop, not Proton DLL overrides.
+**Manual:** close Valheim, install the required dependencies, then copy this archive's `plugins/Jarki-Rotheart/` directory into `BepInEx/plugins/`. The resulting plugin path is `BepInEx/plugins/Jarki-Rotheart/Rotheart.dll`. Keep `LICENSE` and remove duplicate Rotheart DLLs. Model, icon and effects are embedded; no additional asset downloads are needed. Native Linux uses Linux Doorstop, not Proton DLL overrides.
+
+The folder naming change is unreleased. Published 1.0.0 uses `plugins/Rotheart/`; follow the folder actually present in your archive. Remove the previous DLL when changing layouts; never keep both copies.
 
 The mod declares **matching installations on the server and every client** because it adds a networked item. This requirement is not a claim of verified remote-multiplayer compatibility. Windows, controllers, unrelated-mod combinations and every armor outfit have not been tested.
 
@@ -55,7 +57,7 @@ There are no gameplay configuration options in this release. Stable plugin ID: `
 
 ## Uninstall and troubleshooting
 
-**Back up first.** Remove Rotheart items from characters, chests, drops and displays before disabling or uninstalling the mod. Loading a save without its custom prefab definition can lose those items. Then close Valheim and remove `BepInEx/plugins/Rotheart/Rotheart.dll`. Uninstall/reinstall has not been runtime-tested.
+**Back up first.** Remove Rotheart items from characters, chests, drops and displays before disabling or uninstalling the mod. Loading a save without its custom prefab definition can lose those items. Then close Valheim and remove `BepInEx/plugins/Jarki-Rotheart/Rotheart.dll` (or the older `BepInEx/plugins/Rotheart/Rotheart.dll`). Uninstall/reinstall has not been runtime-tested.
 
 If the item is missing, confirm that both dependencies loaded and that your game supports native trinkets. Learn all four ingredients and use a sheltered level-one forge. For errors, report your game/mod/dependency versions, reproduction steps and relevant redacted `BepInEx/LogOutput.log` entries. Never publish saves, account identifiers, passwords or tokens.
 

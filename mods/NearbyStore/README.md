@@ -73,7 +73,7 @@ uv run python tools/release.py verify dist/Jarki-NearbyStore-1.1.2.zip
 
 Build output: `bin/Release/netstandard2.1/NearbyStore.dll` beneath this directory.
 For an authorized isolated development profile, the DLL belongs under
-`BepInEx/plugins/NearbyStore/`. Do not copy game assemblies or test binaries.
+`BepInEx/plugins/Jarki-NearbyStore/`. Do not copy game assemblies or test binaries.
 Local 1.1.2 candidate: `dist/Jarki-NearbyStore-1.1.2.zip`.
 ZIP SHA-256: `02a01e3659510b9eb75794a0e2b9de6908443eb917d868c341d5af314ce86a70`.
 The exact packaged wand DLL passed the native run; payload lint has zero failures/warnings.

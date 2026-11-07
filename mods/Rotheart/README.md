@@ -27,7 +27,7 @@ Valheim currently labels the native trinket category as “Utility item” in it
 
 Requires the owned **Valheim l-1.0.20** native API, **BepInExPack Valheim 5.4.2351** and **Jotunn 2.30.2**. Older game builds without native trinket/adrenaline support are unsupported.
 
-Build output: `bin/Release/netstandard2.1/Rotheart.dll`. With Valheim closed, copy only that DLL to a separately managed profile's `BepInEx/plugins/Rotheart/` directory. The model and icon are embedded. Do not copy test DLLs, game assemblies, dependency binaries or development profiles into a distribution.
+Build output: `bin/Release/netstandard2.1/Rotheart.dll`. With Valheim closed, copy only that DLL to a separately managed profile's `BepInEx/plugins/Jarki-Rotheart/` directory. The model and icon are embedded. Do not copy test DLLs, game assemblies, dependency binaries or development profiles into a distribution.
 
 This adds a networked item: matching mod versions are required on the server and every client. **Remote multiplayer and dedicated-server operation have not been verified.** This work installed it only into disposable local test profiles; it did not change your normal gameplay profile or server.
 
@@ -103,8 +103,7 @@ No Unity errors or exceptions occurred in the final scenario.
 
 Inventory/tooltip, hip attachment, world-drop materials and aura-combat screenshots
 were inspected. Initial testing found and corrected a particle curve-mode mismatch
-and an incorrect particle-material fallback for the solid model; fixture-only
-failures are recorded in MODLOG rather than hidden.
+and an incorrect particle-material fallback for the solid model.
 
 Final evidence: `.dev/rotheart-lab/runs/20261105205139565502/evidence/`.
 The delivered DLL and the tested profile DLL have the same SHA-256:
@@ -115,4 +114,4 @@ compatibility certification.
 
 ## License and credits
 
-Original code and art are MIT licensed under the repository [LICENSE](../../LICENSE), copyright 2026 Jarki. Developed with AI assistance (OpenAI Codex). BepInEx, Jotunn and Valheim retain their own licenses and are not redistributed. See [MODLOG.md](MODLOG.md) for implementation findings and test history.
+Original code and art are MIT licensed under the repository [LICENSE](../../LICENSE), copyright 2026 Jarki. Developed with AI assistance (OpenAI Codex). BepInEx, Jotunn and Valheim retain their own licenses and are not redistributed.

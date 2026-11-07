@@ -2,6 +2,8 @@
 
 ## 1.1.2
 
+- Install under `plugins/Jarki-NearbyStore/`; remove the previous NearbyStore DLL when upgrading to avoid duplicate copies. Plugin ID, DLL name and config path stay unchanged.
+- Refresh the player-facing page with concise core features and before/after stacking screenshots.
 - Place a square 56×56 magic-wand icon button to the right of inventory. Remove all button captions and shortcut hints; Alt+F favoriting remains available.
 - Reuse Valheim's native border and hover/pressed states around original gold wand artwork; no extracted game assets bundled.
 - Hide the wand while a container, crafting station, active crafting operation, inventory dialog or blocking overlay is open; restore it in standalone inventory. The ordinary basic crafting list remains allowed.

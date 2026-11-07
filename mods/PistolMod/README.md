@@ -6,8 +6,7 @@ only on an explicit owner decision; MobThreat is the sole active release target.
 
 Expands the original 9mm Pistol plugin with an AKM-style rifle and RPG-style
 launcher. **Release build, asset validation, seven standalone regression groups,
-and 142 native-client integration checks pass.** Verification details are below
-and in the root `MODLOG.md`.
+and 142 native-client integration checks pass.** Verification details are below.
 
 The original plugin GUID (`local.pistol9mm`), DLL name, pistol/ammo prefab names,
 and item magazine save key are retained. Version 1.1 requires matching mods on

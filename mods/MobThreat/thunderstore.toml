@@ -19,7 +19,7 @@ outdir = "../../dist"
 
 [[build.copy]]
 source = "bin/Release/netstandard2.1/MobThreat.dll"
-target = "plugins/MobThreat/MobThreat.dll"
+target = "plugins/Jarki-MobThreat/MobThreat.dll"
 
 [[build.copy]]
 source = "package/CHANGELOG.md"

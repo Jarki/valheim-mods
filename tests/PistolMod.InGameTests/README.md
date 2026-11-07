@@ -2,8 +2,7 @@
 
 This is a separate BepInEx test plugin. It is not part of the main DLL or copied
 by `launch-dev.sh`. **142 checks passed, zero failed** in the native client on
-2026-10-27. Results and captures are under `.dev/pistol/evidence/arsenal-run4/`;
-earlier fixture failures and fixes are recorded in `MODLOG.md`.
+2026-10-27. Results and captures are under `.dev/pistol/evidence/arsenal-run4/`.
 
 The scenario exercises native inventory Save/Load, ammo/reload/trigger behavior,
 durability, real structure damage RPCs, denied and permitted ward access, blast

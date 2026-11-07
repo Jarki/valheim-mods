@@ -152,8 +152,8 @@ reference-version warnings (`System.Net.Http`, `System.IO.Compression`).
 **Local startup verified in-game:** selected Local `firearmlab` /
 `firearmlab2026`, loaded gameplay automatically, skipped the startup cinematic
 through its native handler, and stayed at the menu after logout. The local flow
-was used for repeated firearm regression launches. Evidence is recorded in root
-`MODLOG.md` and `.dev/pistol/evidence/arsenal-run4/LogOutput.log`.
+was used for repeated firearm regression launches. Evidence is recorded in
+`.dev/pistol/evidence/arsenal-run4/LogOutput.log`.
 Server/password flow, F8 cancellation, and missing-save error paths have not
 been runtime-tested. Server flow requires a separately authorized test.
 

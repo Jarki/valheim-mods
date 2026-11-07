@@ -10,6 +10,26 @@ approved each published artifact after disclosure of its verification limits.
 Firearm Arsenal, Startup Helper (including server joining), and Server Metrics
 remain paused; older multi-package verification is not a current release plan.
 
+## Unreleased plugin-folder naming
+
+Future active-mod packages use `plugins/<namespace>-<package-name>/<DLL-name>`,
+for example `plugins/Jarki-MobThreat/MobThreat.dll`. Source directories, DLL names,
+plugin IDs and save keys are unchanged. Paused projects retain their historical
+packaging metadata until explicitly resumed.
+
+This change does not rewrite published ZIPs or the retained candidates/hashes
+below. Those archives use the previous unprefixed plugin folders and no longer
+match current packaging inputs. Before the next publication, assign a new version
+where the current version is already published, synchronize the metadata, rebuild
+and verify a fresh candidate. Remove the previous installed DLL when changing
+folders to avoid loading duplicate plugins; no live profile migration is implied.
+
+Packaging-only smoke verification passed for all three active mods using pinned
+tcli 0.2.4 and existing local DLLs in temporary staging. Each six-file ZIP passed
+full input-byte verification with the new folder; probes moving the DLL back to
+the old folder were rejected. No DLL rebuild, game launch, live profile change,
+retained-archive replacement or upload was performed. Temporary ZIPs were removed.
+
 ## Local NearbyStore 1.1.2 — unpublished
 
 - Pinned-tcli candidate path: `dist/Jarki-NearbyStore-1.1.2.zip`.
@@ -263,9 +283,10 @@ these sources synchronized in the same change:
 - Version in `mods/<project>/<project>.csproj`.
 - Runtime `BepInPlugin` version in the plugin source.
 - Package version in `mods/<project>/thunderstore.toml`.
-- New entry in `mods/<project>/package/CHANGELOG.md`, public package README and
-  development README where version-dependent statements change; update the root
-  package table and any affected examples.
+- New entry in `mods/<project>/package/CHANGELOG.md`; keep release numbers and
+  version-specific announcements there, not in the public README title or intro.
+- Update development READMEs, the root package table and affected examples where
+  version-dependent statements change.
 
 The checker rejects config/project/plugin version mismatches. Do not rename source
 directories, DLLs or existing plugin IDs to match public package names. Current
@@ -282,11 +303,12 @@ require `ValheimModding-Jotunn` 2.30.2. Keep verified community category slugs:
 `utility` or `gear` categories. A client-only optional helper is not a server
 requirement; Firearm Arsenal and Rotheart require matching server/client installations.
 
-Preserve the public disclosure: developed with AI assistance including OpenAI
-Codex. Earlier release preparation used `gpt-6.1-sol`; Rotheart used `gpt-6-astra`.
-Do not attribute every historical change to one model. State known runtime
-limitations honestly and distinguish source tests, historical client evidence,
-fresh packaging checks and clean-profile ZIP tests.
+Keep AI-assistance provenance in development documentation and the required
+`ai-generated` package category. Do not attribute every historical change to one
+model. Public READMEs follow the concise player-facing template in the publishing
+skill: no verification reports, license/credits sections or model bylines.
+Keep actionable compatibility limitations near the end; retain detailed evidence
+and its limits in development records. Required license/attribution files still ship.
 
 ## 3. Restore pinned tools and check metadata
 
@@ -298,6 +320,11 @@ uv sync --locked
 dotnet tool restore
 uv run python tools/release.py check MobThreat
 ```
+
+`MobThreat` is an example, not a mandatory baseline check for other packages.
+Before packaging, run `uv run python tools/release.py check <ModName>`, replacing
+`<ModName>` with the selected active mod: `MobThreat`, `NearbyStore` or `Rotheart`.
+Use the same selected mod for `build` below and verify its resulting archive.
 
 The repository-local .NET tool manifest pins **official Thunderstore CLI 0.2.4**;
 use `dotnet tcli`, not an unpinned global executable. The pinned Universal Modder
@@ -328,7 +355,8 @@ in the ZIP: do not add a duplicate hand-maintained manifest. Explicit copies add
 only:
 
 - `bin/Release/netstandard2.1/<project>.dll` at
-  `plugins/<project>/<project>.dll`;
+  `plugins/<namespace>-<package-name>/<project>.dll` for active mods;
+  paused projects retain `plugins/<project>/<project>.dll`;
 - `package/CHANGELOG.md` at `CHANGELOG.md`;
 - root `LICENSE` at `LICENSE`;
 - for Firearm Arsenal only, `Assets/Audio/ATTRIBUTION.md` at `ATTRIBUTION.md`.

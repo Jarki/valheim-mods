@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Package the unchanged DLL under `plugins/Jarki-Rotheart/`. Remove older copies from `plugins/Rotheart/` when upgrading; DLL name, plugin ID, prefab identity and save data remain unchanged.
+
 ## 1.0.0
 
 - Add Rotheart, a forge-crafted swamp-tier trinket made from Ooze, Guck, Entrails and Iron.

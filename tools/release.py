@@ -53,9 +53,15 @@ def plugin_version(path: Path) -> str:
     return constant.group(1)
 
 
-def copy_map(project: str) -> dict[str, str]:
+def copy_map(project: str, package: dict) -> dict[str, str]:
+    # Paused projects retain their historical package layout until resumed.
+    plugin_folder = (
+        f"{package['namespace']}-{package['name']}"
+        if project in ("MobThreat", "NearbyStore", "Rotheart")
+        else project
+    )
     mapping = {
-        f"bin/Release/netstandard2.1/{project}.dll": f"plugins/{project}/{project}.dll",
+        f"bin/Release/netstandard2.1/{project}.dll": f"plugins/{plugin_folder}/{project}.dll",
         "package/CHANGELOG.md": "CHANGELOG.md",
         "../../LICENSE": "LICENSE",
     }
@@ -95,7 +101,7 @@ def load_package(project: str) -> dict:
         require(build.get(key) == expected, f"{project}: build.{key} must be {expected!r}")
     copies = build.get("copy", [])
     actual = {entry["source"]: entry["target"] for entry in copies}
-    require(len(actual) == len(copies) and actual == copy_map(project),
+    require(len(actual) == len(copies) and actual == copy_map(project, package),
             f"{project}: build.copy must match the explicit plugin/docs/license allowlist")
     for source in ("package/README.md", "package/CHANGELOG.md", "../../LICENSE"):
         require(bool(read_text(folder / source).strip()), f"{project}: empty {source}")
@@ -132,7 +138,7 @@ def archive_path(config: dict) -> Path:
 
 def verify_archive(path: Path, project: str, config: dict, *, compare_dll: bool = False) -> None:
     folder = ROOT / "mods" / project
-    sources = {target: folder / source for source, target in copy_map(project).items()}
+    sources = {target: folder / source for source, target in copy_map(project, config["package"]).items()}
     sources.update({"README.md": folder / "package/README.md", "icon.png": folder / "package/icon.png"})
     expected = set(sources) | {"manifest.json"}
     with zipfile.ZipFile(path) as archive:

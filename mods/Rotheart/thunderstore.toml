@@ -20,7 +20,7 @@ outdir = "../../dist"
 
 [[build.copy]]
 source = "bin/Release/netstandard2.1/Rotheart.dll"
-target = "plugins/Rotheart/Rotheart.dll"
+target = "plugins/Jarki-Rotheart/Rotheart.dll"
 
 [[build.copy]]
 source = "package/CHANGELOG.md"

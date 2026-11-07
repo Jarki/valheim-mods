@@ -7,7 +7,9 @@ A standalone **client-only** overlay showing `~N hits` above nearby hostile mobs
 Requires Valheim and **BepInExPack Valheim 5.4.2351**.
 
 - **Mod manager:** install `Jarki-MobThreat` into a Valheim profile with a Thunderstore-compatible manager such as r2modman, accept its BepInEx dependency, then launch modded.
-- **Manual:** close Valheim and install the appropriate BepInEx loader for your operating system. Copy the archive's `plugins/MobThreat/` directory into `BepInEx/plugins/`, producing `BepInEx/plugins/MobThreat/MobThreat.dll`. Keep `LICENSE` and remove older/duplicate MobThreat DLLs. Use your existing loader launch route; native Linux requires Linux Doorstop.
+- **Manual:** close Valheim and install the appropriate BepInEx loader for your operating system. Copy the archive's `plugins/Jarki-MobThreat/` directory into `BepInEx/plugins/`, producing `BepInEx/plugins/Jarki-MobThreat/MobThreat.dll`. Keep `LICENSE` and remove older/duplicate MobThreat DLLs. Use your existing loader launch route; native Linux requires Linux Doorstop.
+
+The folder naming change is unreleased. Published 1.0.1 uses `plugins/MobThreat/`; follow the folder actually present in your archive. Remove the previous DLL when changing layouts; never keep both copies.
 
 ## Configuration and behavior
 
@@ -29,7 +31,7 @@ Uses the strongest known primary/secondary attack among initialized weapons, not
 
 ## Uninstall and save safety
 
-Set `Display.Enabled = false` or close Valheim and remove `BepInEx/plugins/MobThreat/MobThreat.dll`. The config can be removed separately. The overlay adds no items or save schema and does not modify equipment or apply damage. Normal gameplay still saves normally; keep backups and try a separate profile/disposable world before adding any mod to valued saves.
+Set `Display.Enabled = false` or close Valheim and remove `BepInEx/plugins/Jarki-MobThreat/MobThreat.dll` (or the older `BepInEx/plugins/MobThreat/MobThreat.dll`). The config can be removed separately. The overlay adds no items or save schema and does not modify equipment or apply damage. Normal gameplay still saves normally; keep backups and try a separate profile/disposable world before adding any mod to valued saves.
 
 ## Testing and limitations
 

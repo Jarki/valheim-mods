@@ -59,7 +59,7 @@ dotnet run --project tests/MobThreat.Tests/MobThreat.Tests.csproj -c Release
 
 Output: `bin/Release/netstandard2.1/MobThreat.dll`.
 For an approved isolated development-profile test, put only this DLL in that
-profile's `BepInEx/plugins/MobThreat/`. Do not load the old MobThreat DLL alongside
+profile's `BepInEx/plugins/Jarki-MobThreat/`. Do not load the old MobThreat DLL alongside
 this one. No server-side installation is needed. No deployment is performed by
 the build.
 

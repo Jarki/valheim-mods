@@ -19,7 +19,7 @@ outdir = "../../dist"
 
 [[build.copy]]
 source = "bin/Release/netstandard2.1/NearbyStore.dll"
-target = "plugins/NearbyStore/NearbyStore.dll"
+target = "plugins/Jarki-NearbyStore/NearbyStore.dll"
 
 [[build.copy]]
 source = "package/CHANGELOG.md"
