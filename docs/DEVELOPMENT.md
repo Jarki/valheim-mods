@@ -99,6 +99,7 @@ deployment or publication. Historical examples are provenance, not fresh proof.
 | [host-native-integration](../.agents/skills/host-native-integration/SKILL.md) | Integrating fonts, materials, coordinates, timing, or ordinary host interactions |
 | [snapshot-before-mutation](../.agents/skills/snapshot-before-mutation/SKILL.md) | Batch effects can change later eligibility, visibility, or permissions |
 | [constraint-first-diagnosis](../.agents/skills/constraint-first-diagnosis/SKILL.md) | Diagnosing environment failures before changing drivers, security settings, or tool versions |
+| [realistic-game-screenshots](../.agents/skills/realistic-game-screenshots/SKILL.md) | Capturing believable native gameplay scenes with real equipment, biomes, feature states and inspected original images |
 
 ## Isolated runtime development and evidence
 
