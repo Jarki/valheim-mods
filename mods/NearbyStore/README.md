@@ -3,21 +3,20 @@
 Client-side Valheim BepInEx plugin. Click the square **magic-wand icon** to the
 right of your inventory to apply vanilla-style **Stack items** to placed chests
 within **10 metres**. No server plugin or Jotunn dependency.
-**1.1.2 is published:** the icon hides while containers,
-crafting stations or blocking overlays are open. It uses Valheim's native border
-and interaction sprites with an original gold wand graphic. No caption or shortcut hint.
-[Download NearbyStore 1.1.2](https://thunderstore.io/c/valheim/p/Jarki/NearbyStore/).
+**1.1.3 is published:** stop before chest discovery when no carried stacks are
+transferable, and stop visiting chests once only protected stacks or no items remain.
+The square magic-wand button and Alt+F favorites are unchanged.
+[Download NearbyStore 1.1.3](https://thunderstore.io/c/valheim/p/Jarki/NearbyStore/).
 No live profile or server deployment was performed.
 
-## 1.1.3 candidate: stop when nothing is transferable
+## 1.1.3: stop when nothing is transferable
 
 The source now skips chest discovery when the carried inventory is empty or all
 stacks are protected, and finishes the chest loop as soon as no transferable
 stacks remain. If the remaining stacks become protected while waiting for
 ownership, it stops while retaining the outstanding late-response guard.
 Favorites, equipped/queued/quest protections and the vanilla ownership handshake
-are unchanged. This change is not in the published 1.1.2 ZIP. Source and release
-metadata now identify the unpublished 1.1.3 candidate.
+are unchanged. This optimization is included in published 1.1.3.
 
 Native verification on Valheim l-1.0.21 / BepInExPack 5.4.2351 used a disposable
 world, default 10-metre radius, 32 real carried types and 24 controlled-ownership
@@ -117,13 +116,18 @@ Build output: `bin/Release/netstandard2.1/NearbyStore.dll` beneath this director
 For an authorized isolated development profile, the DLL belongs under
 `BepInEx/plugins/Jarki-NearbyStore/`. Do not copy game assemblies or test binaries.
 
-Prepared 1.1.3 candidate: `dist/Jarki-NearbyStore-1.1.3.zip`.
+Published 1.1.3 archive: `dist/Jarki-NearbyStore-1.1.3.zip`.
 ZIP SHA-256: `9f4bc4e3eb768d92eee5c1785c1f61006709324b447c757ad4fbd1f5ed41b38c`.
 Pinned tcli 0.2.4 build, archive verification and extracted-payload lint pass:
 six files, no lint failures or warnings. The public README is byte-identical to
 the current live Thunderstore page; its prior edited wording differs from the
 retained 1.1.2 ZIP. Icon, dependencies and install layout are unchanged.
-No additional game launch, source push or package upload was performed.
+Gameplay/release source commit `570599f` is pushed to GitHub. Pinned tcli
+published the approved candidate; the downloaded public ZIP matches this SHA-256.
+Live metadata/dependencies, the 256-pixel icon and both existing screenshots were
+inspected. Public README bytes, description, icon and screenshot links are unchanged.
+Moderation status is **unreviewed**. Publication added no runtime evidence or
+live profile/server changes.
 Private release identity and packaging records: `.dev/release/nearbystore-1.1.3/`.
 
 Published 1.1.2 archive: `dist/Jarki-NearbyStore-1.1.2.zip`.
