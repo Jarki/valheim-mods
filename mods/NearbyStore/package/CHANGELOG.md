@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.3
+
+- Stop before chest discovery when no carried stacks are transferable; stop visiting further chests after the last transferable stack is stored.
+- Stop safely if all remaining stacks become protected while ownership is pending. Preserve late-response suppression, favorites/equipment/quest protection and vanilla ownership handshakes.
+- Native controlled-ownership experiments: first-chest-completes storage across 50 chests drops from 50 requests to one (median 5.78 s to 132 ms at injected 100 ms arrival). Empty/all-favorite inventories issue zero requests.
+- Verify 24 scenarios with three reset samples each, plus smoke and five safety transitions; conservation, cancellation, timeout/quarantine, late replies and recovery pass. These are native ownership injections, not real multiplayer measurements. Full-chest insertion cost is unchanged.
+
 ## 1.1.2
 
 - Install under `plugins/Jarki-NearbyStore/`; remove the previous NearbyStore DLL when upgrading to avoid duplicate copies. Plugin ID, DLL name and config path stay unchanged.

@@ -9,7 +9,7 @@ using UnityEngine.UI;
 
 namespace NearbyStore
 {
-    [BepInPlugin("jarki.nearbystore", "NearbyStore", "1.1.2")]
+    [BepInPlugin("jarki.nearbystore", "NearbyStore", "1.1.3")]
     public sealed class Plugin : BaseUnityPlugin
     {
         private static Plugin instance;
@@ -224,12 +224,17 @@ namespace NearbyStore
         {
             if (running || !Ready()) return;
             actor = Player.m_localPlayer;
+            index = moved = 0;
+            if (!StorageTransfer.HasTransferableItems(actor.GetInventory(), protectedItem))
+            {
+                Finish();
+                return;
+            }
             chests.Clear();
             foreach (var chest in FindObjectsByType<Container>(FindObjectsSortMode.None))
                 if (Eligible(chest) && (!outstanding.Contains(chest) || chest.IsOwner())) chests.Add(chest);
             chests.Sort((a, b) => (a.transform.position - actor.transform.position).sqrMagnitude.CompareTo(
                 (b.transform.position - actor.transform.position).sqrMagnitude));
-            index = moved = 0;
             running = true;
             Advance();
         }
@@ -238,6 +243,12 @@ namespace NearbyStore
         {
             if (pending)
             {
+                if (!StorageTransfer.HasTransferableItems(actor.GetInventory(), protectedItem))
+                {
+                    // Finish keeps the outstanding request guard so its late reply stays harmless.
+                    Finish();
+                    return;
+                }
                 // A granted RPC can precede its queued ownership/inventory ZDO.
                 if (!answered || (granted && Eligible(pending) && !pending.IsOwner()))
                 {
@@ -253,7 +264,7 @@ namespace NearbyStore
                     moved += StorageTransfer.Deposit(actor.GetInventory(), chest.GetInventory(), protectedItem);
                 }
             }
-            while (index < chests.Count)
+            while (index < chests.Count && StorageTransfer.HasTransferableItems(actor.GetInventory(), protectedItem))
             {
                 var chest = chests[index++];
                 if (!Eligible(chest)) continue;

@@ -4,6 +4,7 @@ var tests = new (string Name, Action Run)[]
 {
     ("favorite toggling preserves other custom data", FavoriteMarker),
     ("favorite equipped and caller-protected stacks stay put", ProtectedStacks),
+    ("transfer eligibility follows protection changes and deposited remainders", TransferableItems),
     ("stacking skips types absent from the destination", MatchingOnly),
     ("full matching stacks allow another stack with source metadata", MatchingFullStack),
     ("partial capacity counts units and preserves source grid", PartialCapacity),
@@ -79,6 +80,38 @@ static void ProtectedStacks()
     Equal(10, Units(destination, "stone"));
     ValidGrid(source);
     ValidGrid(destination);
+}
+
+static void TransferableItems()
+{
+    var source = new Inventory(4, 1);
+    var favorite = Item("wood", 8);
+    var equipped = Item("sword", 1, 1);
+    var guarded = Item("shield", 1, 1);
+    StorageTransfer.ToggleFavorite(favorite);
+    equipped.m_equipped = true;
+    Func<ItemDrop.ItemData, bool> protect = item => ReferenceEquals(item, guarded);
+    False(StorageTransfer.HasTransferableItems(source, protect));
+    source.Put(favorite, 0, 0);
+    source.Put(equipped, 1, 0);
+    source.Put(guarded, 2, 0);
+    False(StorageTransfer.HasTransferableItems(source, protect));
+    True(StorageTransfer.HasTransferableItems(source));
+    StorageTransfer.ToggleFavorite(favorite);
+    True(StorageTransfer.HasTransferableItems(source, protect));
+    var chest = new Inventory(1, 1);
+    chest.Put(Item("wood", 6, 10), 0, 0);
+    Equal(4, StorageTransfer.Deposit(source, chest, protect));
+    True(StorageTransfer.HasTransferableItems(source, protect));
+    Same(favorite, source.GetItemAt(0, 0));
+    var next = new Inventory(1, 1);
+    next.Put(Item("wood", 1, 10), 0, 0);
+    Equal(4, StorageTransfer.Deposit(source, next, protect));
+    False(StorageTransfer.HasTransferableItems(source, protect));
+    equipped.m_equipped = false;
+    True(StorageTransfer.HasTransferableItems(source, protect));
+    equipped.m_equipped = true;
+    False(StorageTransfer.HasTransferableItems(source, protect));
 }
 
 static void MatchingOnly()

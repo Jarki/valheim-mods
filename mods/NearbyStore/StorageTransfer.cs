@@ -22,6 +22,21 @@ namespace NearbyStore
             return true;
         }
 
+        private static bool CanTransfer(ItemDrop.ItemData item,
+            Func<ItemDrop.ItemData, bool> protectedItem)
+        {
+            return !item.m_equipped && !IsFavorite(item) &&
+                (protectedItem == null || !protectedItem(item));
+        }
+
+        internal static bool HasTransferableItems(Inventory source,
+            Func<ItemDrop.ItemData, bool> protectedItem = null)
+        {
+            foreach (var item in source.GetAllItems())
+                if (CanTransfer(item, protectedItem)) return true;
+            return false;
+        }
+
         internal static int Deposit(Inventory source, Inventory destination,
             Func<ItemDrop.ItemData, bool> protectedItem = null)
         {
@@ -37,8 +52,7 @@ namespace NearbyStore
             for (int index = 0; index < items.Count;)
             {
                 var item = items[index];
-                if (item.m_equipped || IsFavorite(item) || (protectedItem != null && protectedItem(item)) ||
-                    !destination.ContainsItemByName(item.m_shared.m_name))
+                if (!CanTransfer(item, protectedItem) || !destination.ContainsItemByName(item.m_shared.m_name))
                 {
                     index++;
                     continue;

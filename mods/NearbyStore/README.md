@@ -3,11 +3,53 @@
 Client-side Valheim BepInEx plugin. Click the square **magic-wand icon** to the
 right of your inventory to apply vanilla-style **Stack items** to placed chests
 within **10 metres**. No server plugin or Jotunn dependency.
-**1.1.2 is a locally verified, unpublished UI fix:** the icon hides while containers,
+**1.1.2 is published:** the icon hides while containers,
 crafting stations or blocking overlays are open. It uses Valheim's native border
 and interaction sprites with an original gold wand graphic. No caption or shortcut hint.
-[1.1.1 remains the published release](https://thunderstore.io/c/valheim/p/Jarki/NearbyStore/).
+[Download NearbyStore 1.1.2](https://thunderstore.io/c/valheim/p/Jarki/NearbyStore/).
 No live profile or server deployment was performed.
+
+## 1.1.3 candidate: stop when nothing is transferable
+
+The source now skips chest discovery when the carried inventory is empty or all
+stacks are protected, and finishes the chest loop as soon as no transferable
+stacks remain. If the remaining stacks become protected while waiting for
+ownership, it stops while retaining the outstanding late-response guard.
+Favorites, equipped/queued/quest protections and the vanilla ownership handshake
+are unchanged. This change is not in the published 1.1.2 ZIP. Source and release
+metadata now identify the unpublished 1.1.3 candidate.
+
+Native verification on Valheim l-1.0.21 / BepInExPack 5.4.2351 used a disposable
+world, default 10-metre radius, 32 real carried types and 24 controlled-ownership
+scenarios with three reset samples each. With 50 remote-owned test chests and
+permission/ownership arrival injected at 100 ms after each request:
+
+- First chest stores everything: median 5,776.4 ms before versus 132.3 ms after;
+  ownership requests drop from 50 to one.
+- Empty inventory: median 5,682.8 ms versus 0.036 ms callback time, with zero requests.
+- Only favorites: median 5,729.4 ms versus 0.035 ms callback time, with zero requests.
+- Per-type/quality/world-level conservation, remainder positions, favorites,
+  timeout/quarantine, partial-transfer cancellation, late replies, owned recovery
+  and favoriting every remaining stack during a pending request pass.
+- All 24 scenarios plus one smoke and five safety scenarios pass: 78 timed
+  operations. The standalone suite passes 13 cases and three adversarial groups
+  (10,240 checked deposits plus repeats). Builds retain two existing MSB3277 warnings.
+
+These are native-game ownership injections, not real two-client networking.
+The historical baseline and fresh candidate are not randomized paired samples;
+timings exclude next-frame HUD redraw/rendering. Full-chest insertion cost and
+serial ownership waits while transferable items remain are not optimized.
+Actual multiplayer, disconnects and disk persistence remain unverified.
+The gameplay measurements used the development DLL with 1.1.2 version metadata.
+The release-version rebuild and candidate ZIP have not been separately launched
+or imported through a mod manager; release preparation adds no runtime evidence.
+Static comparison of the packaged 1.1.3 DLL with that native-tested development
+DLL passes for all 24 method definitions/IL bodies, 411 referenced metadata
+records and the runtime string heap. Plugin ID and DLL identity are preserved.
+Private measurements and reproducible harnesses are under
+`.dev/nearbystore-ownership-lab/`; the sanitized side-by-side HTML/data are under
+`.dev/nearbystore-earlystop-preview/public/`. No live profile/server deployment.
+
 
 ## Controls and behavior
 
@@ -68,15 +110,27 @@ dotnet run --project tests/NearbyStore.Tests/NearbyStore.Tests.csproj -c Release
 uv run python tools/release.py check NearbyStore
 uv run python tools/release.py build NearbyStore \
   --game-dir /path/to/Valheim --reference-profile /path/to/reference-profile
-uv run python tools/release.py verify dist/Jarki-NearbyStore-1.1.2.zip
+uv run python tools/release.py verify dist/Jarki-NearbyStore-1.1.3.zip
 ```
 
 Build output: `bin/Release/netstandard2.1/NearbyStore.dll` beneath this directory.
 For an authorized isolated development profile, the DLL belongs under
 `BepInEx/plugins/Jarki-NearbyStore/`. Do not copy game assemblies or test binaries.
-Local 1.1.2 candidate: `dist/Jarki-NearbyStore-1.1.2.zip`.
-ZIP SHA-256: `02a01e3659510b9eb75794a0e2b9de6908443eb917d868c341d5af314ce86a70`.
-The exact packaged wand DLL passed the native run; payload lint has zero failures/warnings.
+
+Prepared 1.1.3 candidate: `dist/Jarki-NearbyStore-1.1.3.zip`.
+ZIP SHA-256: `9f4bc4e3eb768d92eee5c1785c1f61006709324b447c757ad4fbd1f5ed41b38c`.
+Pinned tcli 0.2.4 build, archive verification and extracted-payload lint pass:
+six files, no lint failures or warnings. The public README is byte-identical to
+the current live Thunderstore page; its prior edited wording differs from the
+retained 1.1.2 ZIP. Icon, dependencies and install layout are unchanged.
+No additional game launch, source push or package upload was performed.
+Private release identity and packaging records: `.dev/release/nearbystore-1.1.3/`.
+
+Published 1.1.2 archive: `dist/Jarki-NearbyStore-1.1.2.zip`.
+ZIP SHA-256: `c42e3319c7fea2f20fee3291f2ed020bdd6c0cb20ca0508c208c8c533801252c`.
+The public ZIP matches the upload and includes the approved page with before/after
+screenshots. Rebuilt gameplay IL/signatures/runtime strings match the native-tested
+wand DLL; this final rebuild was not separately launched.
 Published archive: `dist/Jarki-NearbyStore-1.1.1.zip`; public SHA-256
 `64b4158a6bee93df94e3f07123d0ee691239f6bd49c196c56dc31c3f120b8abd`.
 Historical archive: `dist/Jarki-NearbyStore-1.1.0.zip`; public download matches SHA-256

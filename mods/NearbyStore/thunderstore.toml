@@ -4,7 +4,7 @@ schemaVersion = "0.0.1"
 [package]
 namespace = "Jarki"
 name = "NearbyStore"
-versionNumber = "1.1.2"
+versionNumber = "1.1.3"
 description = "Vanilla-style Stack items across nearby chests: merge stacks and use free slots for items already stored there. Alt+F protects favorites."
 websiteUrl = "https://github.com/Jarki/valheim-mods"
 containsNsfwContent = false
