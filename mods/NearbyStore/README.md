@@ -3,16 +3,16 @@
 Client-side Valheim BepInEx plugin. Click the square **magic-wand icon** to the
 right of your inventory to apply vanilla-style **Stack items** to placed chests
 within **10 metres**. No server plugin or Jotunn dependency.
-**1.1.3 is published:** stop before chest discovery when no carried stacks are
-transferable, and stop visiting chests once only protected stacks or no items remain.
+**1.1.4 is published:** skip impossible full-chest transfers, spread useful work
+across frames and overlap ownership waits without moving inventory work off-thread.
 The square magic-wand button and Alt+F favorites are unchanged.
-[Download NearbyStore 1.1.3](https://thunderstore.io/c/valheim/p/Jarki/NearbyStore/).
+[Download NearbyStore 1.1.4](https://thunderstore.io/c/valheim/p/Jarki/NearbyStore/).
 No live profile or server deployment was performed.
 
-## 1.1.4 candidate: bounded main-thread storage
+## 1.1.4: bounded main-thread storage
 
-The current source prepares 1.1.4 with performance and response-order fixes beyond
-published 1.1.3. The candidate is not yet published or deployed.
+Published 1.1.4 contains performance and response-order fixes beyond 1.1.3.
+The public README, icon, description and screenshots remain unchanged.
 
 - Skip guaranteed no-capacity transfers before invoking native inventory movement.
   Partial merges and matching overflow into spare slots still use the native path.
@@ -41,15 +41,22 @@ inventory/favorite screenshots inspected.
 The [performance report](../../tests/NearbyStore.Performance/README.md#current-fix-verification)
 records before/after timings, conservation and response/lifecycle controls.
 Ownership delays were injected inside Valheim, not measured between real peers.
-No live deployment or upload was performed; the two known build warnings remain.
+No live deployment was performed; the two known build warnings remain.
 
-Release preparation: pinned tcli built and the release wrapper verified the
-six-file 1.1.4 candidate; extracted-payload lint reports zero failures/warnings.
+Release verification: pinned tcli built and the release wrapper verified the
+six-file 1.1.4 archive; extracted-payload lint reports zero failures/warnings.
 Its gameplay matches the native-tested build across all 32 method definitions/IL
 bodies, 461 referenced metadata records and the runtime string heap; only release
 identity is intentionally updated. This is static comparison, not a fresh launch
-of the release-version DLL or a clean mod-manager ZIP import. Public-page approval
-and the deployment target are still pending.
+of the release-version DLL or a clean mod-manager ZIP import.
+
+Owner-approved publication succeeded. The downloaded public ZIP matches the
+candidate SHA-256, and the published README is byte-identical to 1.1.3.
+Thunderstore reports active/latest 1.1.4 with the expected dependency/categories
+and unreviewed moderation status. Private evidence is under
+`.dev/release/nearbystore-1.1.4/`. No live client/server target was identified:
+the expected operations checkout and default client profile are absent, so no
+live installation or server changes were attempted.
 
 
 ## 1.1.3: stop when nothing is transferable

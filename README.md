@@ -2,7 +2,7 @@
 
 A source collection of independent Valheim BepInEx plugins under the confirmed
 **Jarki** Thunderstore team.
-**Published: [MobThreat 1.0.1](https://thunderstore.io/c/valheim/p/Jarki/MobThreat/) · [NearbyStore 1.1.3](https://thunderstore.io/c/valheim/p/Jarki/NearbyStore/) · [Rotheart 1.0.0](https://thunderstore.io/c/valheim/p/Jarki/Rotheart/) · [Fitness 0.1.1](https://thunderstore.io/c/valheim/p/Jarki/Fitness/).**
+**Published: [MobThreat 1.0.1](https://thunderstore.io/c/valheim/p/Jarki/MobThreat/) · [NearbyStore 1.1.4](https://thunderstore.io/c/valheim/p/Jarki/NearbyStore/) · [Rotheart 1.0.0](https://thunderstore.io/c/valheim/p/Jarki/Rotheart/) · [Fitness 0.1.1](https://thunderstore.io/c/valheim/p/Jarki/Fitness/).**
 Publication and packaging checks are not fresh clean-profile runtime verification.
 
 ## Packages
@@ -19,6 +19,10 @@ The public ZIP matches the uploaded build; see the development notes.
 remain, preserving ownership and late-response safety. The public ZIP matches
 the approved candidate; the public page and screenshots are unchanged.
 Native controlled-ownership measurements do not establish real multiplayer correctness.
+
+**NearbyStore 1.1.4 is published:** skip impossible transfers, slice main-thread
+work and overlap ownership waits. The public ZIP matches the verified candidate;
+the public README and screenshots remain unchanged. No live deployment.
 
 [Rotheart](mods/Rotheart/README.md) 1.0.0 adds a swamp trinket:
 passive poison resistance and a damaging miasma triggered at 10 adrenaline.
@@ -42,7 +46,7 @@ All packages require `denikson-BepInExPack_Valheim` **5.4.2351**.
 | Thunderstore package | Version | Install side | Additional dependency | Source / development notes |
 | --- | --- | --- | --- | --- |
 | `Jarki-MobThreat` | 1.0.1 | Client only | None | **Active** — [MobThreat](mods/MobThreat/README.md) |
-| `Jarki-NearbyStore` | 1.1.4 candidate; 1.1.3 published | Client only | None | **Bounded main-thread storage and overlapping ownership waits; native controlled-delay checks passed** — [NearbyStore](mods/NearbyStore/README.md) |
+| `Jarki-NearbyStore` | 1.1.4 | Client only | None | **Published; bounded main-thread storage and overlapping ownership waits** — [NearbyStore](mods/NearbyStore/README.md) |
 | `Jarki-Rotheart` | 1.0.0 | Server and every client; multiplayer unverified | `ValheimModding-Jotunn` 2.30.2 | **Published; locally tested** — [Rotheart](mods/Rotheart/README.md) |
 | `Jarki-Fitness` | 0.1.1 | Server and every client; multiplayer unverified | `ValheimModding-Jotunn` 2.30.2 | **Published; locally tested** — [Fitness](mods/Fitness/README.md) |
 | `Jarki-Firearm_Arsenal` | 1.1.0 | Server and every client; matching versions | `ValheimModding-Jotunn` 2.30.2 | **Paused** — [PistolMod](mods/PistolMod/README.md) |
