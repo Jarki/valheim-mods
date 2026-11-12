@@ -7,9 +7,10 @@ See [development](DEVELOPMENT.md) for prerequisites and local references, and th
 
 ## 1. Select the package and prepare metadata
 
-Release-wrapper targets are **MobThreat, NearbyStore and Rotheart**. Firearm Arsenal
-(`PistolMod`), Startup Helper and Server Metrics remain owner-paused; do not build,
-test or publish them without explicit resumption. Do not use build-all commands.
+Release-wrapper targets are **Fitness, MobThreat, NearbyStore and Rotheart**.
+Firearm Arsenal (`PistolMod`), Startup Helper and Server Metrics remain
+owner-paused; do not build, test or publish them without explicit resumption.
+Do not use build-all commands.
 
 - Use the selected mod's `thunderstore.toml` and public `package/` files.
 - Synchronize the project version, `BepInPlugin` version and package version.
@@ -28,7 +29,7 @@ Run from the repository root with the prerequisites in the development guide:
 ```sh
 uv sync --locked
 dotnet tool restore
-MOD=MobThreat  # Select MobThreat, NearbyStore or Rotheart.
+MOD=MobThreat  # Select Fitness, MobThreat, NearbyStore or Rotheart.
 uv run python tools/release.py check "$MOD"
 uv run python tools/release.py build "$MOD" \
   --game-dir /path/to/Valheim --reference-profile /path/to/reference-profile

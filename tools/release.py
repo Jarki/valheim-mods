@@ -20,7 +20,7 @@ import zipfile
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
-PROJECTS = ("PistolMod", "StartupHelper", "ServerMetrics", "MobThreat", "NearbyStore", "Rotheart")
+PROJECTS = ("PistolMod", "StartupHelper", "ServerMetrics", "MobThreat", "NearbyStore", "Rotheart", "Fitness")
 VERSION = re.compile(r"(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\Z")
 IDENTIFIER = re.compile(r"[A-Za-z0-9_]{1,128}\Z")
 
@@ -57,7 +57,7 @@ def copy_map(project: str, package: dict) -> dict[str, str]:
     # Paused projects retain their historical package layout until resumed.
     plugin_folder = (
         f"{package['namespace']}-{package['name']}"
-        if project in ("MobThreat", "NearbyStore", "Rotheart")
+        if project in ("MobThreat", "NearbyStore", "Rotheart", "Fitness")
         else project
     )
     mapping = {
@@ -87,7 +87,7 @@ def load_package(project: str) -> dict:
     dependencies = package.get("dependencies", {})
     require(isinstance(dependencies, dict) and dependencies, f"{project}: loader dependency is missing")
     require("denikson-BepInExPack_Valheim" in dependencies, f"{project}: Valheim loader dependency is required")
-    if project in ("PistolMod", "Rotheart"):
+    if project in ("PistolMod", "Rotheart", "Fitness"):
         require("ValheimModding-Jotunn" in dependencies, f"{project}: Jotunn dependency is required")
     for name, value in dependencies.items():
         parts = name.split("-")

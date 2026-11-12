@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>Fitness.InGameTests</AssemblyName>
+    <GameDir Condition="'$(GameDir)' == ''">$(HOME)/.local/share/Steam/steamapps/common/Valheim</GameDir>
+    <ManagedDir Condition="'$(ManagedDir)' == ''">$(GameDir)/valheim_Data/Managed</ManagedDir>
+    <ReferenceProfile Condition="'$(ReferenceProfile)' == ''">$(MSBuildProjectDirectory)/../../.dev/release/reference-profile</ReferenceProfile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="$(ManagedDir)/assembly_valheim.dll;$(ManagedDir)/assembly_utils.dll;$(ManagedDir)/assembly_guiutils.dll;$(ManagedDir)/SoftReferenceableAssets.dll;$(ManagedDir)/UnityEngine*.dll;$(ManagedDir)/Unity.TextMeshPro.dll;$(ManagedDir)/Splatform.dll;$(ManagedDir)/gui_framework.dll" Private="false" />
+    <Reference Include="$(ReferenceProfile)/BepInEx/core/BepInEx.dll;$(ReferenceProfile)/BepInEx/core/0Harmony.dll" Private="false" />
+  </ItemGroup>
+</Project>
