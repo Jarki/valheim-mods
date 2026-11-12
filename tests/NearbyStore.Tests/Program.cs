@@ -15,6 +15,9 @@ var tests = new (string Name, Action Run)[]
     ("multiple chests accept matching overflow but reject absent types", MultipleChests),
     ("self-deposit is a no-op", SelfDeposit),
     ("stacking conserves quantities across capacity boundaries", CapacityMatrix),
+    ("guaranteed no-capacity skips all native change notifications", ImpossibleCapacity),
+    ("snapshot steps recheck membership and live protection", LiveSnapshotGuards),
+    ("single-item steps do not process other source stacks", SingleItemStep),
 };
 
 int failures = 0;
@@ -34,6 +37,97 @@ foreach ((string name, Action run) in tests)
 
 Console.WriteLine($"{tests.Length - failures}/{tests.Length} tests passed.");
 return failures == 0 ? 0 : 1;
+
+// Full-inventory exercises belong to the harness; production handles one snapshot item.
+static int DepositAll(Inventory source, Inventory destination,
+    Func<ItemDrop.ItemData, bool> protectedItem = null)
+{
+    int moved = 0;
+    foreach (var item in source.GetAllItems().ToArray())
+        moved += StorageTransfer.Deposit(source, destination, item, protectedItem);
+    return moved;
+}
+
+static void ImpossibleCapacity()
+{
+    foreach (string reason in new[] { "full", "quality", "world", "nonstackable" })
+    {
+        var source = new Inventory(1, 1);
+        var incoming = Item("wood", reason == "nonstackable" ? 1 : 6,
+            reason == "nonstackable" ? 1 : 10);
+        incoming.m_customData["source"] = "unchanged";
+        var destination = new Inventory(1, 1);
+        var existing = Item("wood", reason == "full" ? 10 : 2, 10);
+        if (reason == "quality") incoming.m_quality = 2;
+        if (reason == "world") incoming.m_worldLevel = 1;
+        source.Put(incoming, 0, 0);
+        destination.Put(existing, 0, 0);
+        int before = incoming.m_stack;
+        Equal(0, StorageTransfer.Deposit(source, destination, incoming));
+        Equal(0, source.ChangeCount);
+        Equal(0, destination.ChangeCount);
+        Same(incoming, source.GetItemAt(0, 0));
+        Same(existing, destination.GetItemAt(0, 0));
+        Equal(before, incoming.m_stack);
+        Equal(reason == "full" ? 10 : 2, existing.m_stack);
+        Equal("unchanged", incoming.m_customData["source"]);
+    }
+}
+
+static void LiveSnapshotGuards()
+{
+    foreach (string change in new[] { "removed", "favorite", "equipped", "protected" })
+    {
+        var source = new Inventory(1, 1);
+        var incoming = Item("wood", 6, 10);
+        incoming.m_customData["source"] = "retained";
+        source.Put(incoming, 0, 0);
+        var snapshot = source.GetAllItems().ToArray();
+        var destination = new Inventory(1, 1);
+        destination.Put(Item("wood", 2, 10), 0, 0);
+        bool protectedNow = false;
+        Func<ItemDrop.ItemData, bool> protect = item => protectedNow;
+        True(StorageTransfer.HasTransferableItems(source, protect));
+        switch (change)
+        {
+            case "removed": source.GetAllItems().Remove(incoming); break;
+            case "favorite": StorageTransfer.ToggleFavorite(incoming); break;
+            case "equipped": incoming.m_equipped = true; break;
+            case "protected": protectedNow = true; break;
+        }
+        Equal(0, StorageTransfer.Deposit(source, destination, snapshot[0], protect));
+        Equal(0, source.ChangeCount);
+        Equal(0, destination.ChangeCount);
+        Equal(6, incoming.m_stack);
+        Equal(2, Units(destination, "wood"));
+        Equal("retained", incoming.m_customData["source"]);
+        if (change == "removed") source.Put(incoming, 0, 0);
+        if (change == "favorite") StorageTransfer.ToggleFavorite(incoming);
+        incoming.m_equipped = false;
+        protectedNow = false;
+        Equal(6, StorageTransfer.Deposit(source, destination, snapshot[0], protect));
+        Equal(0, source.GetAllItems().Count);
+        Equal(8, Units(destination, "wood"));
+    }
+}
+
+static void SingleItemStep()
+{
+    var source = new Inventory(2, 1);
+    var first = Item("wood", 3, 10);
+    var second = Item("wood", 4, 10);
+    source.Put(first, 0, 0);
+    source.Put(second, 1, 0);
+    var destination = new Inventory(1, 1);
+    destination.Put(Item("wood", 1, 10), 0, 0);
+    Equal(3, StorageTransfer.Deposit(source, destination, first));
+    Same(second, source.GetItemAt(1, 0));
+    Equal(4, second.m_stack);
+    Equal(4, Units(destination, "wood"));
+    Equal(0, StorageTransfer.Deposit(source, destination, first));
+    Equal(4, StorageTransfer.Deposit(source, destination, second));
+    Equal(8, Units(destination, "wood"));
+}
 
 static void FavoriteMarker()
 {
@@ -69,7 +163,7 @@ static void ProtectedStacks()
     destination.Put(Item("shield", 1, 10), 2, 0);
     destination.Put(Item("stone", 1), 3, 0);
 
-    Equal(9, StorageTransfer.Deposit(source, destination, item => ReferenceEquals(item, queued)));
+    Equal(9, DepositAll(source, destination, item => ReferenceEquals(item, queued)));
     Equal(3, source.GetAllItems().Count);
     Same(favorite, source.GetItemAt(3, 0));
     Same(equipped, source.GetItemAt(1, 1));
@@ -101,12 +195,12 @@ static void TransferableItems()
     True(StorageTransfer.HasTransferableItems(source, protect));
     var chest = new Inventory(1, 1);
     chest.Put(Item("wood", 6, 10), 0, 0);
-    Equal(4, StorageTransfer.Deposit(source, chest, protect));
+    Equal(4, DepositAll(source, chest, protect));
     True(StorageTransfer.HasTransferableItems(source, protect));
     Same(favorite, source.GetItemAt(0, 0));
     var next = new Inventory(1, 1);
     next.Put(Item("wood", 1, 10), 0, 0);
-    Equal(4, StorageTransfer.Deposit(source, next, protect));
+    Equal(4, DepositAll(source, next, protect));
     False(StorageTransfer.HasTransferableItems(source, protect));
     equipped.m_equipped = false;
     True(StorageTransfer.HasTransferableItems(source, protect));
@@ -123,12 +217,12 @@ static void MatchingOnly()
     source.Put(stone, 0, 0);
     var destination = new Inventory(3, 1);
     destination.Put(Item("wood", 3), 0, 0);
-    Equal(4, StorageTransfer.Deposit(source, destination));
+    Equal(4, DepositAll(source, destination));
     Equal(7, Units(destination, "wood"));
     Equal(0, Units(destination, "stone"));
     Same(stone, source.GetItemAt(0, 0));
     Equal(6, stone.m_stack);
-    Equal(0, StorageTransfer.Deposit(source, destination));
+    Equal(0, DepositAll(source, destination));
     Equal(1, source.GetAllItems().Count);
 }
 
@@ -140,12 +234,12 @@ static void MatchingFullStack()
     source.Put(wood, 1, 0);
     var destination = new Inventory(2, 1);
     destination.Put(Item("wood", 10, 10), 0, 0);
-    Equal(7, StorageTransfer.Deposit(source, destination));
+    Equal(7, DepositAll(source, destination));
     Equal(17, Units(destination, "wood"));
     Same(wood, destination.GetItemAt(1, 0));
     Equal("preserved", wood.m_customData["another.mod"]);
     True(source.GetItemAt(1, 0) == null);
-    Equal(0, StorageTransfer.Deposit(source, destination));
+    Equal(0, DepositAll(source, destination));
 }
 
 static void PartialCapacity()
@@ -155,7 +249,7 @@ static void PartialCapacity()
     source.Put(wood, 3, 2);
     var destination = new Inventory(1, 1);
     destination.Put(Item("wood", 7, 10), 0, 0);
-    Equal(3, StorageTransfer.Deposit(source, destination));
+    Equal(3, DepositAll(source, destination));
     Equal(5, wood.m_stack);
     Same(wood, source.GetItemAt(3, 2));
     Equal(3, wood.m_gridPos.x);
@@ -164,7 +258,7 @@ static void PartialCapacity()
     Equal(15, Units(source, "wood") + Units(destination, "wood"));
     True(source.ChangeCount > 0);
     True(destination.ChangeCount > 0);
-    Equal(0, StorageTransfer.Deposit(source, destination));
+    Equal(0, DepositAll(source, destination));
     ValidGrid(source);
     ValidGrid(destination);
 }
@@ -173,11 +267,11 @@ static void NoCapacity()
 {
     var source = new Inventory(1, 1);
     var destination = new Inventory(1, 1);
-    Equal(0, StorageTransfer.Deposit(source, destination));
+    Equal(0, DepositAll(source, destination));
     source.Put(Item("wood", 9), 0, 0);
-    Equal(0, StorageTransfer.Deposit(source, destination));
+    Equal(0, DepositAll(source, destination));
     destination.Put(Item("stone", 10, 10), 0, 0);
-    Equal(0, StorageTransfer.Deposit(source, destination));
+    Equal(0, DepositAll(source, destination));
     Equal(9, Units(source, "wood"));
     Equal(0, source.ChangeCount);
     Equal(0, destination.ChangeCount);
@@ -195,7 +289,7 @@ static void MergeFavoriteDestination()
     StorageTransfer.ToggleFavorite(favorite);
     destination.Put(favorite, 0, 0);
 
-    Equal(2, StorageTransfer.Deposit(source, destination));
+    Equal(2, DepositAll(source, destination));
     Same(favorite, destination.GetItemAt(0, 0));
     Equal(10, favorite.m_stack);
     True(StorageTransfer.IsFavorite(favorite));
@@ -221,7 +315,7 @@ static void CompatibilityBoundaries()
         var existing = Item("arrow", 4, 10);
         existing.m_shared.m_maxQuality = 4;
         destination.Put(existing, 0, 0);
-        Equal(6, StorageTransfer.Deposit(source, destination));
+        Equal(6, DepositAll(source, destination));
         Equal(4, existing.m_stack);
         Same(incoming, destination.GetItemAt(1, 0));
         True(source.GetItemAt(0, 0) == null);
@@ -235,19 +329,19 @@ static void CompatibilityBoundaries()
     compatibleSource.Put(compatible, 0, 0);
     var compatibleDestination = new Inventory(1, 1);
     compatibleDestination.Put(Item("wood", 2, 10), 0, 0);
-    Equal(3, StorageTransfer.Deposit(compatibleSource, compatibleDestination));
+    Equal(3, DepositAll(compatibleSource, compatibleDestination));
     Equal(5, Units(compatibleDestination, "wood"));
 
     var blockedSource = new Inventory(1, 1);
     var blocked = Item("wood", 3, 10);
     blocked.m_worldLevel = 1;
     blockedSource.Put(blocked, 0, 0);
-    Equal(0, StorageTransfer.Deposit(blockedSource, compatibleDestination));
+    Equal(0, DepositAll(blockedSource, compatibleDestination));
     Same(blocked, blockedSource.GetItemAt(0, 0));
 
     blocked.m_worldLevel = 0;
     blocked.m_quality = 8;
-    Equal(0, StorageTransfer.Deposit(blockedSource, compatibleDestination));
+    Equal(0, DepositAll(blockedSource, compatibleDestination));
     Same(blocked, blockedSource.GetItemAt(0, 0));
 }
 
@@ -260,7 +354,7 @@ static void MultipleSourceStacks()
     var destination = new Inventory(3, 1);
     destination.Put(Item("wood", 1, 10), 0, 0);
     destination.Put(Item("stone", 1, 10), 1, 0);
-    Equal(12, StorageTransfer.Deposit(source, destination));
+    Equal(12, DepositAll(source, destination));
     Equal(0, source.GetAllItems().Count);
     Equal(8, Units(destination, "wood"));
     Equal(6, Units(destination, "stone"));
@@ -284,7 +378,7 @@ static void MultipleChests()
     int moved = 0;
     foreach (var chest in chests)
     {
-        moved += StorageTransfer.Deposit(source, chest);
+        moved += DepositAll(source, chest);
     }
     Equal(10, moved);
     Equal(0, spare.GetAllItems().Count);
@@ -293,7 +387,7 @@ static void MultipleChests()
     Equal(2, Units(source, "resin"));
     foreach (var chest in chests)
     {
-        moved += StorageTransfer.Deposit(source, chest);
+        moved += DepositAll(source, chest);
     }
     Equal(10, moved);
     Equal(0, spare.GetAllItems().Count);
@@ -313,7 +407,7 @@ static void SelfDeposit()
     var inventory = new Inventory(2, 1);
     var item = Item("wood", 4);
     inventory.Put(item, 1, 0);
-    Equal(0, StorageTransfer.Deposit(inventory, inventory));
+    Equal(0, DepositAll(inventory, inventory));
     Same(item, inventory.GetItemAt(1, 0));
     Equal(4, item.m_stack);
     Equal(0, inventory.ChangeCount);
@@ -356,7 +450,7 @@ static void CapacityMatrix()
                 int moved = 0;
                 foreach (var chest in new[] { first, second })
                 {
-                    moved += StorageTransfer.Deposit(source, chest,
+                    moved += DepositAll(source, chest,
                         item => ReferenceEquals(item, queued));
                 }
 

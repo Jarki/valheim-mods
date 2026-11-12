@@ -42,7 +42,7 @@ All packages require `denikson-BepInExPack_Valheim` **5.4.2351**.
 | Thunderstore package | Version | Install side | Additional dependency | Source / development notes |
 | --- | --- | --- | --- | --- |
 | `Jarki-MobThreat` | 1.0.1 | Client only | None | **Active** — [MobThreat](mods/MobThreat/README.md) |
-| `Jarki-NearbyStore` | 1.1.3 | Client only | None | **Published; early-stop optimization, controlled-ownership checks passed** — [NearbyStore](mods/NearbyStore/README.md) |
+| `Jarki-NearbyStore` | 1.1.4 candidate; 1.1.3 published | Client only | None | **Bounded main-thread storage and overlapping ownership waits; native controlled-delay checks passed** — [NearbyStore](mods/NearbyStore/README.md) |
 | `Jarki-Rotheart` | 1.0.0 | Server and every client; multiplayer unverified | `ValheimModding-Jotunn` 2.30.2 | **Published; locally tested** — [Rotheart](mods/Rotheart/README.md) |
 | `Jarki-Fitness` | 0.1.1 | Server and every client; multiplayer unverified | `ValheimModding-Jotunn` 2.30.2 | **Published; locally tested** — [Fitness](mods/Fitness/README.md) |
 | `Jarki-Firearm_Arsenal` | 1.1.0 | Server and every client; matching versions | `ValheimModding-Jotunn` 2.30.2 | **Paused** — [PistolMod](mods/PistolMod/README.md) |

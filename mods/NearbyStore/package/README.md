@@ -5,7 +5,8 @@ Stack items into nearby matching chests with one click, and favorite stacks you 
 ## Core features
 
 - **One-click stacking:** a magic-wand button beside your inventory stores items
-  in nearby placed chests, nearest first. Default range: **10 metres**.
+  in nearby placed chests. Requests start nearest first; ready chests can finish
+  before nearer chests still awaiting ownership. Default range: **10 metres**.
 - **Vanilla-style matching:** fill compatible stacks, then use free slots only in
   chests already holding that item. Empty or unrelated chests receive nothing;
   unmatched items and overflow stay carried.
@@ -15,6 +16,8 @@ Stack items into nearby matching chests with one click, and favorite stacks you 
 - **Container rules respected:** checks privacy, wards, busy state and ownership;
   excludes tombstones, dropped loot and non-Piece containers. Search includes
   chests through walls and between floors.
+- **Bounded storage work:** skip full destinations that cannot accept an item
+  and spread transfers across frames while waiting on up to four chests.
 
 ## Screenshots
 
@@ -29,6 +32,12 @@ Open your inventory and click the **magic-wand icon** to its right. Close any
 container, crafting station or blocking overlay first. The ordinary basic
 crafting list is allowed. Closing inventory or opening a blocking UI cancels
 remaining transfers without undoing completed transfers.
+
+Only stacks carried when you click are considered; newly added stacks wait for
+the next click. Favorites and chest access are checked again before each transfer.
+An unresponsive chest is skipped after five seconds of waiting; the operation
+ends after 15 seconds. Completed transfers remain stored. Click again to retry
+items left in your inventory.
 
 Favorites follow stacks when moved or split. **Manual merging keeps the
 destination stack's marker**, so merging a favorite into an unmarked stack can
@@ -73,6 +82,11 @@ already deposited items remain in their chests.
 
 ## Compatibility and troubleshooting
 
+- **Delayed chest responses:** vanilla Stack items waits while that same chest
+  has an unresolved NearbyStore request. Normal opening remains available;
+  after taking ownership by opening it, close it and retry the wand.
+- **Multiplayer:** controlled ownership-delay scenarios were checked in a local
+  world; real two-client networking and disconnect recovery remain unverified.
 - **OdinsFoodBarrels:** container restrictions remain active. Empty barrels need
   an initial item, just like vanilla Stack items. Custom barrel settings and
   other versions may differ.

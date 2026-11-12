@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.1.4
+
+- Skip native insertion and inventory notifications for guaranteed no-capacity destinations, while retaining matching overflow, useful partial transfers and native restriction hooks.
+- Keep inventory mutations on the main thread, spread work across frames with a cooperative 2 ms budget and at most 32 candidates/productive transfers per frame, and allow up to four active ownership/transfer slots. Cheap rejected items do not force extra frames.
+- Continue past individual five-second ownership timeouts and bound each operation to 15 seconds. Stop admitting work once the original carried-stack snapshot has no transferable items.
+- Process favorite input before advancing transfers. Recheck source membership, protection, access and ownership before each step; newly added stacks wait for the next click.
+- Prevent overlapping vanilla and mod stack requests to the same loaded chest. Retain unresolved response guards after cancellation/timeouts; vanilla stacking waits until the original response arrives.
+- Prune destroyed-container references and clear stale favorite markers on native grid rebuild.
+- Verify 16 standalone cases, three adversarial groups, 36 workload oracles, and a native smoke plus 11 scenario groups. Native controlled-delay/full-chest improvements and limitations are recorded in the development README; real multiplayer remains unverified.
+- Preserve the plugin ID, DLL name, configuration and favorite save keys.
+
 ## 1.1.3
 
 - Stop before chest discovery when no carried stacks are transferable; stop visiting further chests after the last transferable stack is stored.

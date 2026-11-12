@@ -9,9 +9,52 @@ The square magic-wand button and Alt+F favorites are unchanged.
 [Download NearbyStore 1.1.3](https://thunderstore.io/c/valheim/p/Jarki/NearbyStore/).
 No live profile or server deployment was performed.
 
+## 1.1.4 candidate: bounded main-thread storage
+
+The current source prepares 1.1.4 with performance and response-order fixes beyond
+published 1.1.3. The candidate is not yet published or deployed.
+
+- Skip guaranteed no-capacity transfers before invoking native inventory movement.
+  Partial merges and matching overflow into spare slots still use the native path.
+- Schedule transfers after favorite input, with up to four active chest slots.
+  Each frame admits at most 32 candidates/productive transfers with a cooperative
+  2 ms work budget. Cheap rejected items use the remaining time budget without
+  forcing extra frames. Individual native calls and initial scene discovery are
+  not preemptible.
+- Overlap ownership waiting, not inventory writes: all mutations remain sequential
+  on Unity's main thread. Ready destinations can progress while other chests wait.
+- Skip a chest after five seconds awaiting its response/ownership, continue with
+  later destinations, and stop the operation after 15 seconds. Finished transfers
+  remain stored; an explicit retry starts another bounded operation.
+- Track vanilla and NearbyStore stack requests separately. Because vanilla replies
+  have no request ID, prevent overlapping requests on the same loaded chest and
+  retain unresolved reply guards after timeout/cancellation. Vanilla stacking on
+  that chest waits for the original reply; normal opening and a locally owned
+  wand retry remain available after an unresolved NearbyStore request.
+- Remove destroyed-container references periodically and replace stale favorite
+  markers when the native inventory grid rebuilds.
+
+Current verification: 16 standalone cases, three adversarial groups and all 36
+transfer workloads pass. The gameplay DLL, before the release-version bump, also
+passed a native smoke and 11 scenario groups in a disposable local world, with
+inventory/favorite screenshots inspected.
+The [performance report](../../tests/NearbyStore.Performance/README.md#current-fix-verification)
+records before/after timings, conservation and response/lifecycle controls.
+Ownership delays were injected inside Valheim, not measured between real peers.
+No live deployment or upload was performed; the two known build warnings remain.
+
+Release preparation: pinned tcli built and the release wrapper verified the
+six-file 1.1.4 candidate; extracted-payload lint reports zero failures/warnings.
+Its gameplay matches the native-tested build across all 32 method definitions/IL
+bodies, 461 referenced metadata records and the runtime string heap; only release
+identity is intentionally updated. This is static comparison, not a fresh launch
+of the release-version DLL or a clean mod-manager ZIP import. Public-page approval
+and the deployment target are still pending.
+
+
 ## 1.1.3: stop when nothing is transferable
 
-The source now skips chest discovery when the carried inventory is empty or all
+Published 1.1.3 skips chest discovery when the carried inventory is empty or all
 stacks are protected, and finishes the chest loop as soon as no transferable
 stacks remain. If the remaining stacks become protected while waiting for
 ownership, it stops while retaining the outstanding late-response guard.
@@ -36,9 +79,10 @@ permission/ownership arrival injected at 100 ms after each request:
 
 These are native-game ownership injections, not real two-client networking.
 The historical baseline and fresh candidate are not randomized paired samples;
-timings exclude next-frame HUD redraw/rendering. Full-chest insertion cost and
-serial ownership waits while transferable items remain are not optimized.
-Actual multiplayer, disconnects and disk persistence remain unverified.
+timings exclude next-frame HUD redraw/rendering. Published 1.1.3 did not optimize
+full-chest insertion or serial waits while transferable items remained; the
+1.1.4 changes above address those paths. Actual multiplayer, disconnects
+and disk persistence remain unverified.
 The gameplay measurements used the development DLL with 1.1.2 version metadata.
 The release-version rebuild and candidate ZIP have not been separately launched
 or imported through a mod manager; release preparation adds no runtime evidence.
@@ -56,12 +100,17 @@ Private measurements and reproducible harnesses are under
   favorite status. A gold **F** marks favorites; they are never auto-deposited.
 - Equipped items, queued-for-equip items and quest items also stay carried.
   Unequipped hotbar items are eligible unless favorited.
-- Chests are visited nearest first. Like vanilla `Inventory.StackAll`, an item is
-  eligible when its name already exists in that chest. Native insertion fills
-  compatible stacks, then uses free slots for another stack, even if the original
-  stack was full. Different quality/world-level items use separate slots.
-  Empty chests and absent item types accept nothing; capacity-limited remainders
-  stay in their original player-inventory slots.
+- Chest candidates are requested nearest first, with up to four active slots;
+  ready chests may finish before nearer chests still awaiting ownership.
+  Like vanilla `Inventory.StackAll`, an item is eligible when its name already
+  exists in that chest. Native insertion fills compatible stacks, then uses free
+  slots for another stack. Different quality/world-level items use separate slots.
+  Empty chests, absent types and guaranteed zero-capacity destinations are skipped.
+  Capacity-limited remainders stay in their original player-inventory slots.
+- Each click snapshots carried stack identities, not quantities or permissions.
+  New stacks added afterward wait for the next click; existing snapshot stacks use
+  their current quantities. Removed stacks are skipped, and favorite/equipment/
+  quest protections, chest access and ownership are rechecked before each transfer.
 - Favorite markers are stored on individual stacks in vanilla item custom data,
   not on inventory slots, so moving a stack does not unprotect it. Splitting
   copies its marker. Vanilla manual merging keeps the destination stack's marker;
@@ -76,13 +125,13 @@ Private measurements and reproducible harnesses are under
   inventory does not hide it. Dragging/splitting also hide it.
   Opening a blocking UI or closing inventory cancels further transfers; already
   stored items stay in the chests. Chat, teleportation and death block storage.
-  A missing network response stops the operation after five seconds; late responses cannot trigger vanilla
-  stack-all and accidentally deposit favorites.
-  If it times out, open the affected chest normally, close it, and retry.
-  Still-remote containers with an unanswered request remain quarantined until
-  ownership arrives or they reload; vanilla replies have no request ID. Hover
-  stack-all on that same chest may be consumed during quarantine; opening the
-  chest normally avoids that RPC path.
+  A missing response/ownership handoff skips that chest after five seconds rather
+  than stopping the sweep. The operation has a 15-second total deadline.
+  Unanswered NearbyStore replies remain guarded after timeout/cancellation.
+  Do not expect a new request to that remote chest until its original reply arrives.
+  Opening it normally, closing it, then using the wand permits a locally owned retry.
+  Vanilla stack-all is blocked while that chest has an active or unresolved mod
+  request; an unresolved vanilla request similarly excludes the chest from the wand.
 - Search radius is spherical and does not require line of sight: chests behind
   walls or on another floor can be eligible. No automatic sorting on pickup.
 - **OdinsFoodBarrels 1.4.0**: all 36 restricted container types were exercised in
@@ -96,6 +145,23 @@ Configuration: `BepInEx/config/jarki.nearbystore.cfg` after first plugin load:
 `Storage.Radius` (1–50 metres, default 10) and
 `Controls.FavoriteShortcut` (default `F + LeftAlt`). Favoriting remains available,
 but no shortcut hint is displayed.
+
+## Slowdown investigation
+
+The [performance test design and runnable workload probe](../../tests/NearbyStore.Performance/README.md)
+cover full-chest insertion, serial ownership waits, discovery and idle UI cost,
+plus real-multiplayer contention, network degradation, cancellation and recovery.
+Run the local transfer-core probe with:
+
+```sh
+dotnet run --project tests/NearbyStore.Performance/NearbyStore.Performance.csproj -c Release
+```
+
+It uses the production transfer core with handwritten inventory doubles, not
+Unity or a network simulation. Its timings cannot establish native frame time or
+multiplayer latency. The real-peer protocol requires separately approved isolated
+clients/server; no game launch, profile deployment or server change is part of
+the standalone command.
 
 ## Build and standalone verification
 

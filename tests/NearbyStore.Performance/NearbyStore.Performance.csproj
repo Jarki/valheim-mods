@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <!-- Keep JIT tier changes out of the diagnostic samples. This is not Unity's runtime. -->
+    <TieredCompilation>false</TieredCompilation>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../mods/NearbyStore/StorageTransfer.cs" Link="StorageTransfer.cs" />
+    <Compile Include="../NearbyStore.Tests/GameStubs.cs" Link="GameStubs.cs" />
+  </ItemGroup>
+</Project>

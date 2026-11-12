@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using BepInEx;
 using BepInEx.Configuration;
 using HarmonyLib;
@@ -9,7 +10,7 @@ using UnityEngine.UI;
 
 namespace NearbyStore
 {
-    [BepInPlugin("jarki.nearbystore", "NearbyStore", "1.1.3")]
+    [BepInPlugin("jarki.nearbystore", "NearbyStore", "1.1.4")]
     public sealed class Plugin : BaseUnityPlugin
     {
         private static Plugin instance;
@@ -26,8 +27,28 @@ namespace NearbyStore
         private static readonly AccessTools.FieldRef<InventoryGui, float> CraftTimer =
             AccessTools.FieldRefAccess<InventoryGui, float>("m_craftTimer");
 
+        private const int MaxRequests = 4;
+        private const int MaxStepsPerFrame = 32;
+        private const float RequestTimeout = 5f;
+        private const float OperationTimeout = 15f;
+        private static readonly long FrameBudgetTicks = Math.Max(1, Stopwatch.Frequency / 500);
+        private static readonly Predicate<Container> DestroyedContainer = chest => !chest;
+
+        private struct TransferRequest
+        {
+            public Container Chest;
+            public bool Answered;
+            public bool Granted;
+            public bool Loaded;
+            public float Deadline;
+            public int ItemIndex;
+        }
+
         private readonly List<Container> chests = new List<Container>();
         private readonly HashSet<Container> outstanding = new HashSet<Container>();
+        private readonly HashSet<Container> vanillaOutstanding = new HashSet<Container>();
+        private readonly TransferRequest[] requests = new TransferRequest[MaxRequests];
+        private readonly List<ItemDrop.ItemData> transferItems = new List<ItemDrop.ItemData>();
         private readonly Dictionary<InventoryElement, TMP_Text> markers = new Dictionary<InventoryElement, TMP_Text>();
         private ConfigEntry<float> radius;
         private ConfigEntry<KeyboardShortcut> favoriteKey;
@@ -35,13 +56,16 @@ namespace NearbyStore
         private GameObject panel;
         private Button storeButton;
         private Player actor;
-        private Container pending;
         private bool running;
-        private bool answered;
-        private bool granted;
+        private bool skippedTimeout;
         private int index;
         private int moved;
+        private int nextRequest;
         private float deadline;
+        private float nextPrune;
+        private InventoryGrid markerGrid;
+        private InventoryElement firstMarkerCell;
+        private int markerCellCount;
         private Func<ItemDrop.ItemData, bool> protectedItem;
 
         private void Awake()
@@ -81,6 +105,12 @@ namespace NearbyStore
 
         private void LateUpdate()
         {
+            if (Time.unscaledTime >= nextPrune)
+            {
+                outstanding.RemoveWhere(DestroyedContainer);
+                vanillaOutstanding.RemoveWhere(DestroyedContainer);
+                nextPrune = Time.unscaledTime + 1f;
+            }
             var gui = InventoryGui.instance;
             if (!gui || !InventoryGui.IsVisible())
             {
@@ -93,7 +123,6 @@ namespace NearbyStore
             if (panel.activeSelf != storageReady) panel.SetActive(storageReady);
             storeButton.interactable = storageReady && !running;
             if (running && (!storageReady || actor != Player.m_localPlayer)) Finish();
-            if (running) Advance();
             if (Ready(false) && favoriteKey.Value.IsDown())
             {
                 var cursor = ZInput.pointerPosition;
@@ -106,6 +135,7 @@ namespace NearbyStore
                         (favorite ? "Favorited: " : "Unfavorited: ") + Localization.instance.Localize(item.m_shared.m_name));
                 }
             }
+            if (running) Advance();
             UpdateMarkers(gui.m_playerGrid);
         }
 
@@ -113,7 +143,7 @@ namespace NearbyStore
         private void EnsurePanel(InventoryGui gui)
         {
             if (panel) return;
-            markers.Clear();
+            ClearMarkers();
             panel = new GameObject("NearbyStore", typeof(RectTransform));
             var root = (RectTransform)panel.transform;
             root.SetParent(gui.m_player, false);
@@ -187,11 +217,28 @@ namespace NearbyStore
             return label;
         }
 
+        private void ClearMarkers()
+        {
+            foreach (var marker in markers.Values)
+                if (marker) Destroy(marker.gameObject);
+            markers.Clear();
+        }
+
         private void UpdateMarkers(InventoryGrid grid)
         {
             var inventory = grid.GetInventory();
             if (inventory == null) return;
-            foreach (var element in Elements(grid))
+            var cells = Elements(grid);
+            var first = cells.Count == 0 ? null : cells[0];
+            // Native grid rebuilds replace every element, including same-size rebuilds.
+            if (grid != markerGrid || cells.Count != markerCellCount || first != firstMarkerCell)
+            {
+                ClearMarkers();
+                markerGrid = grid;
+                firstMarkerCell = first;
+                markerCellCount = cells.Count;
+            }
+            foreach (var element in cells)
             {
                 var item = inventory.GetItemAt(element.Position.x, element.Position.y);
                 bool favorite = item != null && StorageTransfer.IsFavorite(item);
@@ -220,93 +267,184 @@ namespace NearbyStore
                 (!chest.m_checkGuardStone || PrivateArea.CheckAccess(chest.transform.position, 0f, false));
         }
 
+        private bool HasWork()
+        {
+            var items = actor.GetInventory().GetAllItems();
+            foreach (var item in transferItems)
+                if (items.Contains(item) && StorageTransfer.CanTransfer(item, protectedItem)) return true;
+            return false;
+        }
+
         private void Begin()
         {
             if (running || !Ready()) return;
             actor = Player.m_localPlayer;
-            index = moved = 0;
+            index = moved = nextRequest = 0;
+            skippedTimeout = false;
+            transferItems.Clear();
             if (!StorageTransfer.HasTransferableItems(actor.GetInventory(), protectedItem))
             {
                 Finish();
                 return;
             }
+            // Snapshot identities, not permissions: input and access remain live at each step.
+            transferItems.AddRange(actor.GetInventory().GetAllItems());
             chests.Clear();
+            outstanding.RemoveWhere(DestroyedContainer);
+            vanillaOutstanding.RemoveWhere(DestroyedContainer);
             foreach (var chest in FindObjectsByType<Container>(FindObjectsSortMode.None))
-                if (Eligible(chest) && (!outstanding.Contains(chest) || chest.IsOwner())) chests.Add(chest);
+                if (Eligible(chest) && !vanillaOutstanding.Contains(chest) &&
+                    (!outstanding.Contains(chest) || chest.IsOwner())) chests.Add(chest);
             chests.Sort((a, b) => (a.transform.position - actor.transform.position).sqrMagnitude.CompareTo(
                 (b.transform.position - actor.transform.position).sqrMagnitude));
+            deadline = Time.unscaledTime + OperationTimeout;
             running = true;
-            Advance();
+            // Defer mutations until LateUpdate, after this frame's favorite input.
         }
 
         private void Advance()
         {
-            if (pending)
+            if (Time.unscaledTime >= deadline) { Finish(true); return; }
+            if (!HasWork()) { Finish(); return; }
+            long stop = Stopwatch.GetTimestamp() + FrameBudgetTicks;
+            int idleSlots = 0;
+            // Cheap no-op checks use the clock budget, not an artificial frame delay.
+            for (int step = 0; step < MaxStepsPerFrame && Stopwatch.GetTimestamp() < stop;)
             {
-                if (!StorageTransfer.HasTransferableItems(actor.GetInventory(), protectedItem))
+                int slot = nextRequest;
+                nextRequest = (nextRequest + 1) % requests.Length;
+                ref var request = ref requests[slot];
+                bool progressed = false;
+                if (!request.Chest)
                 {
-                    // Finish keeps the outstanding request guard so its late reply stays harmless.
-                    Finish();
-                    return;
+                    request = default;
+                    if (index < chests.Count)
+                    {
+                        var chest = chests[index++];
+                        step++;
+                        progressed = true;
+                        if (Eligible(chest) && !vanillaOutstanding.Contains(chest))
+                        {
+                            if (chest.IsOwner())
+                            {
+                                request.Chest = chest;
+                                request.Answered = request.Granted = true;
+                                request.Deadline = Time.unscaledTime + RequestTimeout;
+                            }
+                            else if (!outstanding.Contains(chest))
+                            {
+                                request.Chest = chest;
+                                request.Deadline = Time.unscaledTime + RequestTimeout;
+                                outstanding.Add(chest);
+                                View(chest).InvokeRPC("RPC_RequestStack", actor.GetPlayerID());
+                            }
+                        }
+                    }
                 }
-                // A granted RPC can precede its queued ownership/inventory ZDO.
-                if (!answered || (granted && Eligible(pending) && !pending.IsOwner()))
+                else if (!request.Loaded && Time.unscaledTime >= request.Deadline)
                 {
-                    if (Time.unscaledTime > deadline) Finish(true);
-                    return;
+                    // Keep an unanswered guard, but free the slot for another destination.
+                    skippedTimeout = true;
+                    request = default;
+                    progressed = true;
                 }
-                var chest = pending;
-                pending = null;
-                if (granted && Eligible(chest) && chest.IsOwner())
+                else if (request.Answered)
                 {
-                    // Refresh the synchronized inventory only after ownership has arrived.
-                    LoadContainer(chest);
-                    moved += StorageTransfer.Deposit(actor.GetInventory(), chest.GetInventory(), protectedItem);
+                    var chest = request.Chest;
+                    if (!request.Granted || !Eligible(chest) || vanillaOutstanding.Contains(chest))
+                    {
+                        request = default;
+                        progressed = true;
+                    }
+                    else if (chest.IsOwner())
+                    {
+                        if (!request.Loaded)
+                        {
+                            LoadContainer(chest);
+                            request.Loaded = true;
+                        }
+                        if (request.ItemIndex < transferItems.Count)
+                        {
+                            var item = transferItems[request.ItemIndex++];
+                            int transferred = StorageTransfer.Deposit(actor.GetInventory(), chest.GetInventory(), item, protectedItem);
+                            moved += transferred;
+                            if (transferred > 0) step++;
+                            if (transferred > 0 && !HasWork()) { Finish(); return; }
+                        }
+                        if (request.ItemIndex >= transferItems.Count) request = default;
+                        progressed = true;
+                    }
+                    else if (request.Loaded)
+                    {
+                        // Authority lost after a partial transfer: never reuse that inventory.
+                        request = default;
+                        progressed = true;
+                    }
                 }
+                idleSlots = progressed ? 0 : idleSlots + 1;
+                if (idleSlots >= requests.Length) break;
             }
-            while (index < chests.Count && StorageTransfer.HasTransferableItems(actor.GetInventory(), protectedItem))
-            {
-                var chest = chests[index++];
-                if (!Eligible(chest)) continue;
-                if (chest.IsOwner())
-                {
-                    LoadContainer(chest);
-                    moved += StorageTransfer.Deposit(actor.GetInventory(), chest.GetInventory(), protectedItem);
-                    continue;
-                }
-                // Do not overlap uncorrelatable vanilla requests after a timeout.
-                if (outstanding.Contains(chest)) continue;
-                pending = chest;
-                answered = granted = false;
-                deadline = Time.unscaledTime + 5f;
-                outstanding.Add(chest);
-                View(chest).InvokeRPC("RPC_RequestStack", actor.GetPlayerID());
-                return;
-            }
-            Finish();
+            bool active = false;
+            foreach (var request in requests)
+                if (request.Chest) { active = true; break; }
+            if ((!active && index >= chests.Count) || !HasWork()) Finish();
         }
 
         private void Finish(bool timedOut = false)
         {
             running = false;
-            pending = null;
+            Array.Clear(requests, 0, requests.Length);
+            bool incomplete = timedOut || skippedTimeout;
             if (actor) actor.Message(MessageHud.MessageType.TopLeft,
-                timedOut ? "Stacking timed out. Open the chest normally, close it, then retry." :
+                incomplete ? "Stacked " + moved + " items nearby; some chests timed out. Retry to continue." :
                 moved > 0 ? "Stacked " + moved + " items nearby." : "Nothing stacked: no room in matching chests or eligible items.");
             actor = null;
             chests.Clear();
+            transferItems.Clear();
+        }
+
+        private bool HasRequest(Container chest)
+        {
+            foreach (var request in requests)
+                if (request.Chest == chest) return true;
+            return false;
+        }
+
+        [HarmonyPatch(typeof(Container), nameof(Container.StackAll)), HarmonyPrefix]
+        private static bool VanillaStack(Container __instance)
+        {
+            if (!instance) return true;
+            // Native replies have no request ID. Never let two callers share one container.
+            if (instance.outstanding.Contains(__instance) || instance.HasRequest(__instance) ||
+                instance.vanillaOutstanding.Contains(__instance))
+            {
+                if (Player.m_localPlayer) Player.m_localPlayer.Message(MessageHud.MessageType.TopLeft,
+                    "Waiting for this chest's previous stack response.");
+                return false;
+            }
+            instance.vanillaOutstanding.Add(__instance);
+            return true;
         }
 
         [HarmonyPatch(typeof(Container), "RPC_StackResponse"), HarmonyPrefix]
         private static bool StackResponse(Container __instance, bool granted)
         {
-            if (!instance || !instance.outstanding.Remove(__instance)) return true;
-            if (instance.running && instance.pending == __instance)
+            if (!instance) return true;
+            if (instance.vanillaOutstanding.Remove(__instance)) return true;
+            if (!instance.outstanding.Remove(__instance)) return true;
+            if (instance.running)
             {
-                instance.answered = true;
-                instance.granted = granted;
+                for (int i = 0; i < instance.requests.Length; i++)
+                {
+                    ref var request = ref instance.requests[i];
+                    // An owned retry may coexist with an older unanswered guard.
+                    if (request.Chest != __instance || request.Answered) continue;
+                    request.Answered = true;
+                    request.Granted = granted;
+                    break;
+                }
             }
-            // Also consume late responses after cancellation, never run vanilla StackAll on favorites.
+            // Consume the original response even after cancellation or timeout.
             return false;
         }
 
@@ -315,8 +453,7 @@ namespace NearbyStore
             if (running) Finish();
             harmony?.UnpatchSelf();
             if (panel) Destroy(panel);
-            foreach (var marker in markers.Values)
-                if (marker) Destroy(marker.gameObject);
+            ClearMarkers();
             if (instance == this) instance = null;
         }
     }

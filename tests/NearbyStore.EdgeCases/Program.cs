@@ -235,7 +235,9 @@ static int CheckedDeposit(Inventory source, Inventory destination, Inventory[] w
     var destinationItems = destination.GetAllItems().ToArray();
     int sourceBefore = sourceItems.Sum(item => item.m_stack);
     int destinationBefore = destination.GetAllItems().Sum(item => item.m_stack);
-    int moved = StorageTransfer.Deposit(source, destination, protectedItems.Contains);
+    int moved = 0;
+    foreach (var item in sourceItems)
+        moved += StorageTransfer.Deposit(source, destination, item, protectedItems.Contains);
 
     Equal(sourceBefore - source.GetAllItems().Sum(item => item.m_stack), moved, "returned count equals source loss");
     Equal(destination.GetAllItems().Sum(item => item.m_stack) - destinationBefore, moved, "returned count equals chest gain");
