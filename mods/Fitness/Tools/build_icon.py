@@ -1,10 +1,18 @@
-"""Render the original treadmill icon. Run: blender-3.6 -b -t 2 -P this_file.
+"""Render the package icon, or transparent build-menu options with -- --piece-variants.
+Run: blender -b -t 2 -P this_file [-- --piece-variants --output-dir PATH].
 Geometry follows TreadmillVisual.cs; all materials are procedural, not game assets.
 """
 from pathlib import Path
 import math
+import argparse
+import sys
 import bpy
 from mathutils import Vector
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--piece-variants', action='store_true')
+parser.add_argument('--output-dir', type=Path)
+args = parser.parse_args(sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else [])
 
 bpy.ops.object.select_all(action='SELECT')
 bpy.ops.object.delete(use_global=False)
@@ -61,7 +69,8 @@ def box(name, unity_position, unity_size, mat):
     obj.dimensions = (sx,sz,sy)
     bpy.ops.object.transform_apply(location=False,rotation=False,scale=True)
     obj.data.materials.append(mat)
-    obj.data.use_auto_smooth = True
+    if hasattr(obj.data, 'use_auto_smooth'):
+        obj.data.use_auto_smooth = True
     bevel = obj.modifiers.new('Worn edges','BEVEL')
     bevel.width = 0.018
     bevel.segments = 2
@@ -128,8 +137,72 @@ for name,location,power,size,color in [
     lamp.data.size=size
     lamp.data.color=color
     aim(lamp,(0,0,.7))
-output=Path(__file__).resolve().parents[1]/'package/icon.png'
-output.parent.mkdir(parents=True,exist_ok=True)
-scene.render.filepath=str(output)
-bpy.ops.render.render(write_still=True)
-print(output)
+if args.piece_variants:
+    # Match the native thumbnails: compact, faceted and weathered, not a softbox product shot.
+    bpy.data.objects['Ground'].hide_render = True
+    for obj in scene.objects:
+        if obj.type == 'MESH':
+            for modifier in obj.modifiers:
+                modifier.show_render = False
+            if obj.name.startswith('Hide edge'):
+                obj.hide_render = True
+        elif obj.type == 'LIGHT':
+            obj.hide_render = True
+    for mat, colors in [
+        (wood, [(0.045, .018, .006), (.17, .065, .018), (.32, .15, .042), (.46, .26, .09)]),
+        (hide, [(.025, .009, .004), (.07, .025, .009), (.13, .055, .018), (.21, .105, .035)]),
+    ]:
+        ramp = next(node for node in mat.node_tree.nodes if node.type == 'VALTORGB').color_ramp
+        ramp.interpolation = 'CONSTANT'
+        ramp.elements[0].position = .2
+        ramp.elements[0].color = (*colors[0], 1)
+        ramp.elements[1].position = .8
+        ramp.elements[1].color = (*colors[-1], 1)
+        for position, color in zip([.4, .6], colors[1:-1]):
+            ramp.elements.new(position).color = (*color, 1)
+        noise = next(node for node in mat.node_tree.nodes if node.type == 'TEX_NOISE')
+        noise.inputs['Detail'].default_value = 1
+        # Quantized generated coordinates give the grain a low-resolution texture feel.
+        nodes, links = mat.node_tree.nodes, mat.node_tree.links
+        coords = next(node for node in nodes if node.type == 'TEX_COORD')
+        mapping = next(node for node in nodes if node.type == 'VECT_MATH')
+        snap = nodes.new('ShaderNodeVectorMath')
+        snap.operation = 'SNAP'
+        snap.inputs[1].default_value = (.045, .045, .045)
+        links.new(coords.outputs['Generated'], snap.inputs[0])
+        links.new(snap.outputs['Vector'], mapping.inputs[0])
+    bpy.ops.object.light_add(type='SUN', location=(-3, -4, 6))
+    key = bpy.context.object
+    key.data.energy = 2.2
+    key.data.angle = math.radians(4)
+    key.data.color = (1, .87, .69)
+    aim(key, (0, 0, .7))
+    fill = bpy.data.objects['Front fill']
+    fill.hide_render = False
+    fill.data.energy = 100
+    scene.world.color = (.16, .18, .2)
+    scene.view_settings.view_transform = 'Standard'
+    scene.view_settings.look = 'Medium High Contrast'
+    scene.render.film_transparent = True
+    scene.render.image_settings.color_mode = 'RGBA'
+    scene.render.resolution_x = scene.render.resolution_y = 128
+    scene.cycles.samples = 96
+    output_dir = args.output_dir or Path(__file__).resolve().parents[3] / '.dev/fitness-icon-options'
+    output_dir.mkdir(parents=True, exist_ok=True)
+    for name, position, scale, exposure in [
+        ('A-warm-three-quarter', (3.6, -4.5, 3.4), 3.7, .8),
+        ('B-elevated-belt', (-2.4, -4.6, 4.7), 3.65, .8),
+    ]:
+        camera.location = position
+        camera.data.ortho_scale = scale
+        aim(camera, (0, 0, .85))
+        scene.view_settings.exposure = exposure
+        scene.render.filepath = str(output_dir / (name + '.png'))
+        bpy.ops.render.render(write_still=True)
+        print(scene.render.filepath)
+else:
+    output = args.output_dir / 'icon.png' if args.output_dir else Path(__file__).resolve().parents[1] / 'package/icon.png'
+    output.parent.mkdir(parents=True, exist_ok=True)
+    scene.render.filepath = str(output)
+    bpy.ops.render.render(write_still=True)
+    print(output)

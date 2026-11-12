@@ -30,6 +30,8 @@ namespace Fitness.InGameTests
         Harmony observer;
         int passes, nativeErrors;
         float started, fixedSkill = -1f;
+        float nativeBaseStamina, nativeStaminaRegen, recoveryResumeStamina = -1f;
+        bool observeRecoveryResume;
         bool drive, sprint, recordVideo, biomeShowcase;
         Vector3 arena, placedAt;
         readonly List<float> xp = new List<float>();
@@ -310,7 +312,17 @@ namespace Fitness.InGameTests
             Check(((Interactable)treadmill).Interact(player, false, false), label + " ordinary interact stop accepted");
             yield return Detached(label, treadmill, colliders);
         }
-        // These observers read real native skill state before/after its mutation. They never alter factors or results.
+        // Read-only native gameplay observers; never alter factors, inputs or results.
+        static void ObserveRecoveryRun(Player __instance)
+        {
+            if (!active || !active.observeRecoveryResume || __instance != active.player
+                || !(bool)Call(active.treadmillType, "IsTrainingRun", __instance)) return;
+            active.recoveryResumeStamina = __instance.GetStamina();
+            active.observeRecoveryResume = false;
+            active.Log("RECOVERY_NATIVE_RESUME staminaBeforeRun=" + active.recoveryResumeStamina.ToString("R", CultureInfo.InvariantCulture)
+                + " max=" + __instance.GetMaxStamina().ToString("R", CultureInfo.InvariantCulture));
+        }
+
         static void XpBefore(Skills __instance, Skills.SkillType skillType, out float __state)
         {
             __state = float.NaN;
@@ -491,7 +503,7 @@ namespace Fitness.InGameTests
             float trainingStarted = Time.realtimeSinceStartup, nextLog = trainingStarted;
             bool noRunInput = true, sawRunning = false, sawStaminaHud = false, sawStrainHud = false;
             int maximumSeverity = 0;
-            while (player.IsAttached())
+            while (player.IsAttached() && !(bool)Get(treadmill, "recovering"))
             {
                 noRunInput &= !(bool)Get(player, "m_run");
                 sawRunning |= player.IsRunning() && player.GetComponentInChildren<Animator>().GetFloat(ZSyncAnimation.GetHash("forward_speed")) > 1f;
@@ -510,28 +522,29 @@ namespace Fitness.InGameTests
                 yield return null;
             }
             float exhaustedStamina = player.GetStamina(), elapsed = Time.realtimeSinceStartup - trainingStarted;
-            Check(!player.HaveStamina() && exhaustedStamina < 1f && exhaustedStamina < staminaBefore - 100f,
-                "continuous native treadmill running naturally exhausts the legitimate food stamina pool without any forced drain or refill");
+            Check(player.IsAttached() && (bool)Get(treadmill, "recovering") && !player.IsRunning()
+                && exhaustedStamina < 1f && exhaustedStamina < staminaBefore - 100f,
+                "natural food stamina exhaustion transitions to attached recovery walking without forced drain or refill");
             Check(noRunInput && !(bool)Get(player, "m_run") && sawRunning,
                 "native treadmill running animation and stamina drain require no held Run input throughout");
             Check(xp.Count > 0 && (Skill().m_level > skillBefore || Skill().m_accumulator > accumulatorBefore),
                 "unfrozen native Run skill level or XP accumulator genuinely progresses during the movie");
             Check(sawStaminaHud && sawStrainHud && maximumSeverity >= 2,
                 "native visible stamina bar and actual strain status HUD accompany continuous training");
-            yield return Detached("video natural stamina exhaustion", treadmill, collisions);
             Check(player.m_baseHP == baseHealth && player.m_baseStamina == baseStamina && player.m_staminaRegen == regen &&
                 !(bool)Get(player, "m_godMode") && !player.IsDead(), "video finishes alive with ordinary unchanged base resources and regeneration");
             Log("VIDEO_NATIVE_EXHAUSTION trainingSeconds=" + elapsed.ToString("F2", CultureInfo.InvariantCulture) +
                 " staminaBefore=" + staminaBefore + " staminaAtExhaustion=" + exhaustedStamina + " RunBefore=" + skillBefore +
                 " RunAfter=" + Skill().m_level + " accumulatorAfter=" + Skill().m_accumulator + " xpPulses=" + xp.Count);
             yield return new WaitForSecondsRealtime(Mathf.Max(4f, 26f - (Time.realtimeSinceStartup - movieStarted)));
+            yield return Stop("video recovery-walk interact stop");
             Check(Time.realtimeSinceStartup - movieStarted >= 25f && Time.realtimeSinceStartup - movieStarted <= 40f,
                 "continuous actual-game movie lasts 25-40 seconds, including readable native exhaustion hold");
             Stage("video-finished");
             rig.transform.SetPositionAndRotation(oldPosition, oldRotation); rig.enabled = oldEnabled;
             Check(nativeErrors == 0, "no Unity native error/exception/assert logs during video scenario");
             Log("BOUNDARY: actual native single-player treadmill gameplay and real food/resources/Run progression; fixed showcase camera, accelerated 10-second strain onset, " +
-                "180-second recovery and 1.5x treadmill XP explicitly disclosed. Native Hammer placement/ConsumeResources are the fixture, not OS input.");
+                "600-second recovery and 1.5x treadmill XP explicitly disclosed. Native Hammer placement/ConsumeResources are the fixture, not OS input.");
         }
         IEnumerator Run()
         {
@@ -544,9 +557,13 @@ namespace Fitness.InGameTests
             observer = new Harmony("local.fitness.ingame-tests.observer");
             observer.Patch(typeof(Skills).GetMethod("RaiseSkill", new[] { typeof(Skills.SkillType), typeof(float) }),
                 prefix: new HarmonyMethod(typeof(Host), nameof(XpBefore)), postfix: new HarmonyMethod(typeof(Host), nameof(XpAfter)));
+            observer.Patch(AccessTools.DeclaredMethod(typeof(Player), "CheckRun"),
+                prefix: new HarmonyMethod(typeof(Host), nameof(ObserveRecoveryRun)));
             Config("Treadmill", "RunExperienceMultiplier", 1.5f);
-            Config("Muscle strain", "SecondsPerLevel", biomeShowcase ? 90f : 10f);
-            Config("Muscle strain", "RecoverySecondsPerLevel", recordVideo || biomeShowcase ? 180f : 10f);
+            // Existing diagnostic onset/ratio scenarios use a controlled unit multiplier.
+            Config("Treadmill", "StrainBuildupMultiplier", biomeShowcase ? 2f : 1f);
+            Config("Muscle strain", "SecondsPerLevel", biomeShowcase ? 60f : 10f);
+            Config("Muscle strain", "RecoverySecondsPerLevel", recordVideo || biomeShowcase ? 600f : 10f);
             Config("Muscle strain", "StrainFreeRunSkill", 75f);
             Stage("disposable-world");
             var menu = FejdStartup.instance;
@@ -565,6 +582,8 @@ namespace Fitness.InGameTests
             Check(ZNet.IsSinglePlayer && ZNet.instance.GetWorld().m_name == worldName && ZNet.instance.GetWorld().m_fileSource == FileHelpers.FileSource.Local,
                 "local single-player disposable world guard; no multiplayer claim");
             player = Player.m_localPlayer; player.SetGodMode(false); player.GetInventory().RemoveAll();
+            nativeBaseStamina = player.m_baseStamina;
+            nativeStaminaRegen = player.m_staminaRegen;
             if (TextViewer.instance) TextViewer.instance.Hide();
             yield return new WaitForSeconds(3f);
             if (biomeShowcase)
@@ -742,11 +761,96 @@ namespace Fitness.InGameTests
             yield return Begin(); collisions = AttachedColliders();
             Controls(Vector3.zero, false, true);
             yield return Detached("jump SetControls", treadmill, collisions);
-            Stage("16-exhaustion");
+            Stage("16-exhaustion-recovery");
+            SetSkill(0f);
             yield return Begin(); collisions = AttachedColliders();
+            yield return new WaitForSeconds(.5f);
             player.UseStamina(player.GetStamina() + 1f);
-            Check(!player.HaveStamina(), "native UseStamina exhausts fixture before cancellation observation");
-            yield return Detached("exhaustion", treadmill, collisions); FillStamina();
+            yield return Wait(() => (bool)Get(treadmill, "recovering") && !player.IsRunning(),
+                "exhaustion switches to walking instead of dismounting");
+            Check(player.IsAttached() && Reserved(treadmill), "recovery retains attachment and reservation");
+            float recoveryXp = Skill().m_accumulator, recoveryLoad = PersistedLoad();
+            int recoveryPulses = xp.Count;
+            Set(player, "m_stamina", player.GetMaxStamina() - 1f);
+            yield return new WaitForSeconds(1.2f);
+            Check(player.IsAttached() && !player.IsRunning() && (bool)Get(treadmill, "recovering"),
+                "nearly full stamina does not resume running");
+            Check(player.GetStamina() == player.GetMaxStamina() - 1f,
+                "recovery walking neither consumes nor refunds stamina with fixture regeneration disabled");
+            Check(Skill().m_accumulator == recoveryXp && xp.Count == recoveryPulses,
+                "recovery walking grants no Run XP");
+            Check(PersistedLoad() < recoveryLoad, "recovery walking heals strain rather than building sprint effort");
+            Check(Mathf.Abs(player.GetComponentInChildren<Animator>().GetFloat(ZSyncAnimation.GetHash("forward_speed"))
+                - player.m_walkSpeed) < .1f, "native animation uses walking speed during recovery");
+            FillStamina();
+            yield return Wait(() => player.IsRunning() && !(bool)Get(treadmill, "recovering"),
+                "full stamina automatically resumes native running without interaction");
+            Check(player.IsAttached() && Reserved(treadmill) && player.GetStamina() < player.GetMaxStamina(),
+                "resumed running retains occupancy and consumes native stamina");
+            player.UseStamina(player.GetStamina() + 1f);
+            yield return Wait(() => (bool)Get(treadmill, "recovering"), "second exhaustion returns to recovery");
+            Controls(Vector3.forward);
+            yield return Detached("movement while recovering", treadmill, collisions);
+            FillStamina();
+            yield return Begin();
+            yield return Wait(() => player.IsRunning(), "new session after recovery cancellation starts running");
+            yield return Stop("recovery-reuse-stop");
+            Stage("16a-natural-recovery-cycles");
+            Check(nativeBaseStamina > 0f && nativeStaminaRegen > 0f && player.GetFoods().Count == 0,
+                "natural recovery fixture preserves original unfed base stamina and native regeneration");
+            float fixtureBase = player.m_baseStamina, fixtureRegen = player.m_staminaRegen;
+            float fixtureOnset = (float)fitness.Config[new ConfigDefinition("Muscle strain", "SecondsPerLevel")].BoxedValue;
+            float fixtureRecovery = (float)fitness.Config[new ConfigDefinition("Muscle strain", "RecoverySecondsPerLevel")].BoxedValue;
+            Config("Treadmill", "StrainBuildupMultiplier", 2f);
+            Config("Muscle strain", "SecondsPerLevel", 60f);
+            Config("Muscle strain", "RecoverySecondsPerLevel", 600f);
+            player.m_baseStamina = nativeBaseStamina;
+            player.SetMaxStamina(nativeBaseStamina, false);
+            player.m_staminaRegen = nativeStaminaRegen;
+            Set(player, "m_stamina", nativeBaseStamina);
+            SetSkill(0f);
+            yield return Begin();
+            for (int cycle = 1; cycle <= 2; ++cycle)
+            {
+                yield return Wait(() => player.IsRunning(), "natural cycle starts running");
+                yield return Wait(() => (bool)Get(treadmill, "recovering") && !player.IsRunning(),
+                    "native consumption naturally exhausts stamina and starts walking", 60f);
+                float startStamina = player.GetStamina(), walkingXp = Skill().m_accumulator;
+                float walkingLoad = PersistedLoad();
+                int walkingPulses = xp.Count;
+                Check(player.IsAttached() && Reserved(treadmill) && startStamina < 1f,
+                    "natural exhaustion remains attached and reserved with nearly empty stamina");
+                recoveryResumeStamina = -1f;
+                observeRecoveryResume = true;
+                yield return FramedCapture("16a-natural-walking-" + cycle);
+                yield return new WaitForSeconds(1f);
+                Check((bool)Get(treadmill, "recovering") && !player.IsRunning(),
+                    "natural walking continues while stamina is only partly recovered");
+                Check(Skill().m_accumulator == walkingXp && xp.Count == walkingPulses,
+                    "natural recovery walking pauses native Run XP pulses");
+                Check(PersistedLoad() < walkingLoad, "natural recovery walking heals strain at production recovery rate");
+                yield return Wait(() => player.GetStamina() > startStamina + 1f,
+                    "native regeneration restores stamina without fixture writes", 15f);
+                Log("RECOVERY_NATIVE_WALK cycle=" + cycle + " staminaFrom=" + startStamina
+                    + " staminaNow=" + player.GetStamina() + " max=" + player.GetMaxStamina()
+                    + " xpPulses=" + xp.Count + " loadFrom=" + walkingLoad + " loadNow=" + PersistedLoad());
+                yield return Wait(() => recoveryResumeStamina >= 0f && player.IsRunning(),
+                    "native regeneration automatically resumes running without interaction or refill", 60f);
+                Check(recoveryResumeStamina == player.GetMaxStamina(),
+                    "first resumed native CheckRun observes exactly full current maximum stamina");
+                Check(player.IsAttached() && Reserved(treadmill), "natural automatic resume retains occupancy");
+                yield return FramedCapture("16a-natural-running-" + cycle);
+                Check(player.m_baseStamina == nativeBaseStamina && player.m_staminaRegen == nativeStaminaRegen,
+                    "natural cycles never alter original stamina pool or regeneration");
+            }
+            yield return Stop("natural-recovery-interact-stop");
+            player.m_baseStamina = fixtureBase;
+            player.SetMaxStamina(fixtureBase, false);
+            player.m_staminaRegen = fixtureRegen;
+            Config("Treadmill", "StrainBuildupMultiplier", 1f);
+            Config("Muscle strain", "SecondsPerLevel", fixtureOnset);
+            Config("Muscle strain", "RecoverySecondsPerLevel", fixtureRecovery);
+            FillStamina();
             Stage("16b-inventory-training");
             SetSkill(30f); FillStamina();
             yield return Begin(); collisions = AttachedColliders();

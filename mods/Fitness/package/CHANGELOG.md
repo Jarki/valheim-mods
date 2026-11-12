@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.2
+
+- Stay attached and walk in place on treadmill exhaustion; automatically resume running only when native stamina reaches its current maximum.
+- Pause Run XP, running stamina costs and sprint strain during recovery walking; heal strain as during ordinary walking. Existing dismount and cancellation controls remain available.
+- Rebalance default strain onset from 90 to 60 sprint seconds at Run 0 and recovery from 180 to 600 non-sprinting seconds per load unit, so ordinary sprint breaks no longer erase fatigue as easily. Skill scaling, Run-75 immunity and severity penalties remain unchanged.
+- Preserve existing config values; set `SecondsPerLevel = 60` and `RecoverySecondsPerLevel = 600` manually to adopt the new balance.
+- Increase default treadmill `StrainBuildupMultiplier` from 1 to 2: active treadmill running builds strain twice as fast as ordinary sprinting, without changing recovery or severity penalties. Existing configs must set `StrainBuildupMultiplier = 2` under `[Treadmill]` to adopt it.
+
 ## 0.1.1
 
 - Keep active treadmill training running while inventory is open, including stamina consumption, Run XP and muscle strain.

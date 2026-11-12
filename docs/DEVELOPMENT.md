@@ -11,15 +11,18 @@ verification: [PistolMod](../mods/PistolMod/README.md),
 runtime records as fresh verification of a release archive.
 
 **Active development: Fitness, MobThreat, NearbyStore and Rotheart.**
-[Fitness](../mods/Fitness/README.md) 0.1.1 adds configurable treadmill training and
-running muscle strain; its build/model checks and 619 native assertions passed on
-Valheim l-1.0.21 in a separate private-display, disposable single-player instance.
-Multiplayer remains unverified. Fitness 0.1.1 is published; its public ZIP matches
-the owner-approved candidate. All four active mods have release-wrapper metadata
-and published releases. Rotheart 1.0.0's original Blender art and isolated
-native-trinket test harness are documented in its README.
-Fitness 0.1.1 permits inventory during active training while retaining other
-cancellation guards. Starting training still requires ordinary native input.
+[Fitness](../mods/Fitness/README.md) **0.1.2 is published**, with automatic treadmill
+recovery walking and revised strain defaults. The public ZIP matches the approved
+candidate; all 91 release method bodies match the gameplay build that passed
+**711 native assertions** on Valheim l-1.0.21 in an isolated disposable instance.
+Its **14 standalone strain scenarios** pass. Two measured cycles used original
+stamina/regen, paused XP while walking and resumed at exactly full stamina.
+Multiplayer and fresh mod-manager ZIP import remain unverified. Existing configs
+keep saved settings; the new defaults are 60/600 seconds and 2× treadmill buildup.
+All four active mods have release-wrapper metadata and published releases.
+Rotheart 1.0.0's original Blender art and isolated native-trinket harness are
+documented in its README. Fitness retains inventory-open training and existing
+cancellation guards. No gameplay-profile/server deployment.
 The current release workflow is in [RELEASING.md](RELEASING.md).
 Firearm Arsenal, Startup Helper
 (including server joining), and Server Metrics remain paused by the owner. Their

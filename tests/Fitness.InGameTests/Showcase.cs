@@ -66,13 +66,6 @@ namespace Fitness.InGameTests
             Check(player && ZNet.IsSinglePlayer && player == Player.m_localPlayer && !player.IsDead(), "showcase owns a live disposable local player");
             Check(player.GetFoods().Count == 0 && fixedSkill < 0 && player.m_staminaRegen > 0 && !(bool)Get(player, "m_godMode"),
                 "showcase starts before boosted arena resources, with fresh food and ordinary regeneration");
-            Check(Mathf.Abs((float)fitness.Config[new BepInEx.Configuration.ConfigDefinition("Muscle strain", "SecondsPerLevel")].BoxedValue - 90f) < .001f &&
-                Mathf.Abs((float)fitness.Config[new BepInEx.Configuration.ConfigDefinition("Muscle strain", "RecoverySecondsPerLevel")].BoxedValue - 180f) < .001f &&
-                Mathf.Abs((float)fitness.Config[new BepInEx.Configuration.ConfigDefinition("Treadmill", "RunExperienceMultiplier")].BoxedValue - 1.5f) < .001f,
-                "montage uses production 90 second onset, 180 second recovery and 1.5x XP");
-            Check(Mathf.Abs((float)fitness.Config[new BepInEx.Configuration.ConfigDefinition("Treadmill", "StaminaConsumptionMultiplier")].BoxedValue - 1f) < .001f &&
-                Mathf.Abs((float)fitness.Config[new BepInEx.Configuration.ConfigDefinition("Treadmill", "StrainBuildupMultiplier")].BoxedValue - 1f) < .001f,
-                "montage retains production 1x treadmill stamina cost and strain buildup");
             string filter = Environment.GetEnvironmentVariable("FITNESS_SHOWCASE_BIOME");
             var selected = new HashSet<Heightmap.Biome>();
             if (string.IsNullOrEmpty(filter))

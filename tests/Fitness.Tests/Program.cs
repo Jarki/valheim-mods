@@ -17,6 +17,7 @@ var tests = new (string Name, Action Run)[]
     ("20ms ticks preserve onset and full recovery boundaries", FixedTimeSteps),
     ("configured onset, recovery, and immunity affect behavior", ConfiguredRates),
     ("stamina penalties are bounded by level", PenaltyLevels),
+    ("balanced sprint and walking cycles retain useful fatigue", BalancedTravelCycles),
 };
 
 int failures = 0;
@@ -339,6 +340,36 @@ static void PenaltyLevels()
         (2, 0.30f), (3, 0.50f), (4, 0.50f), (int.MaxValue, 0.50f),
     })
         Near(penalty, StrainState.StaminaPenalty(level), $"penalty at level {level}");
+}
+
+static void BalancedTravelCycles()
+{
+    // Fixed-skill travel scenarios: 20s sprint / 40s walk, not uninterrupted sprinting.
+    foreach ((float skill, int firstMildSecond) in new[] { (30f, 380), (50f, 1220) })
+    {
+        var state = new StrainState();
+        for (int tick = 0; tick < firstMildSecond * 50; tick++)
+        {
+            state.Advance(.02f, tick % 3000 < 1000, skill, 60f, 600f, 75f);
+            if (tick < firstMildSecond * 50 - 1)
+                Equal(0, state.Level, $"Run {skill}: travel before first mild strain");
+        }
+        Equal(1, state.Level, $"Run {skill}: travel reaches mild strain");
+        state.Advance(180f, false, skill, 60f, 600f, 75f);
+        Equal(1, state.Level, "a three-minute stop does not erase earned strain");
+        state.Advance(420f, false, skill, 60f, 600f, 75f);
+        State(state, 0f, 0, "ten minutes of recovery heals the first load unit");
+    }
+    var lightTravel = new StrainState();
+    var immune = new StrainState();
+    for (int tick = 0; tick < 90000; tick++)
+    {
+        lightTravel.Advance(.02f, tick % 3000 < 500, 50f, 60f, 600f, 75f);
+        immune.Advance(.02f, true, 75f, 60f, 600f, 75f);
+        Equal(0, lightTravel.Level, "Run 50 light travel remains injury-free");
+    }
+    State(lightTravel, 0f, 0, "light travel recovers fully between short sprints");
+    State(immune, 0f, 0, "Run 75 immunity remains unchanged");
 }
 
 static void Advance(StrainState state, float seconds, bool sprinting, float runSkill = 0f)

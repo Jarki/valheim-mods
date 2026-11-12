@@ -1,15 +1,27 @@
 # Fitness
 
-Independent Valheim BepInEx/Jotunn mod. **0.1.1 is [published on Thunderstore](https://thunderstore.io/c/valheim/p/Jarki/Fitness/).** Adds a buildable wood-frame treadmill with a deer-hide belt and running muscle strain. Native single-player verified on Valheim l-1.0.21, including inventory-open training; multiplayer remains unverified. Public ZIP SHA-256: **4ee4e8c675fb47d68a02a993241a06809c69158a2f961556e18a7e830407ae8e**, matching the approved candidate and its native-tested DLL. Not deployed to a gameplay profile or server.
+Independent Valheim BepInEx/Jotunn mod. **0.1.2 is [published on Thunderstore](https://thunderstore.io/c/valheim/p/Jarki/Fitness/).** Adds a buildable wood-frame treadmill with a deer-hide belt and running muscle strain, automatic recovery walking and revised strain defaults. Gameplay passed 711 isolated native assertions on Valheim l-1.0.21; all 91 method bodies in the version-bumped release match the tested build. Multiplayer remains unverified. Public ZIP SHA-256: **df0bba16e0988923a5773897b8e385beaa4f34a1ceb395ffdc6fe3b76c577781**, matching the owner-approved candidate. Not deployed to a gameplay profile or server.
 
 [Watch the public six-biome showcase](https://jarki.github.io/valheim-mods/).
 The Thunderstore page uses its thumbnail and the captured native recipe UI;
 media is hosted separately and is not bundled in the mod ZIP. A fresh
 mod-manager ZIP-import runtime test remains unverified.
 
+The 0.1.2 public ZIP, dependencies, package icon and live page were verified after
+upload; the new in-game icon options remain proposals and are not included.
+
 The original package icon is reproducible with Blender 3.6:
 `blender -b -t 2 -P mods/Fitness/Tools/build_icon.py`. Materials are procedural;
 no native icon textures or game models are extracted or packaged.
+
+Build-menu icon candidates (Blender 3.6, transparent PNGs, no game launch or installation):
+`blender -b -t 2 -P mods/Fitness/Tools/build_icon.py -- --piece-variants`.
+Outputs go to ignored `.dev/fitness-icon-options/`; `--output-dir PATH` overrides
+that destination. Both 128×128 RGBA options use original procedural geometry,
+faceted edges, quantized weathered wood/hide shading and directional lighting,
+guided by native workbench, Hammer and wood-floor thumbnails. The package-icon
+render remains unchanged. These are proposals only; neither is assigned to the
+treadmill prefab, and native UI integration remains unverified.
 
 ## Gameplay
 
@@ -25,16 +37,16 @@ Only sprinting uses this mechanic. Successful native running checks accumulate e
 
 Penalties use vanilla status effects: percentages are added to the skill/equipment-adjusted base running drain, alongside other native run-drain modifiers. They do not increase every stamina cost. The HUD uses the native Run skill icon and a named severity effect.
 
-Default buildup is one load unit per **90 cumulative sprint seconds at Run 0**, slowing linearly with skill: Run 25 takes 135 seconds, Run 30 takes 150 seconds and Run 50 takes 270 seconds per unit. At Run 75+, no new strain accumulates. Those timings hold skill constant and exclude recovery; actual training raises the skill while exercising. Unsuccessful running checks do not accumulate strain. `Treadmill / StrainBuildupMultiplier` scales only active treadmill sprint effort: `2` doubles its buildup and `0.5` halves it, without changing ordinary sprinting, recovery or native Run XP timing.
+Default ordinary-sprint buildup is one load unit per **60 cumulative sprint seconds at Run 0**, slowing linearly with skill: Run 25 takes 90 seconds, Run 30 takes 100 seconds and Run 50 takes 180 seconds per unit. At Run 75+, no new strain accumulates. Those timings hold skill constant and exclude recovery; actual training raises the skill while exercising. Unsuccessful running checks do not accumulate strain. `Treadmill / StrainBuildupMultiplier` defaults to **2×**, halving those active running times on the treadmill: **30 seconds at Run 0, 50 seconds at Run 30 and 90 seconds at Run 50**. It changes neither ordinary sprinting, recovery nor native Run XP timing.
 
-Alive, non-sprinting time recovers one load unit per **180 seconds**. Walking is sufficient; treadmill use is not rest. Sprinting pauses recovery even at an immune skill level. Teleporting, death and offline time do not heal strain. A newly triggered injury must heal a full unit before losing its severity: mild strain does not vanish immediately on stopping. Uninjured fractional fatigue also recovers gradually. Short rests retain unrecovered fatigue. Maximum load is 3.999 units, preventing unlimited recovery debt. Both load and earned healing severity persist in character custom data under `jarki.fitness.runStrain` and `jarki.fitness.runStrainLevel`.
+Alive, non-sprinting time recovers one load unit per **600 seconds**. Walking is sufficient, including treadmill recovery walking. Active treadmill sprinting pauses recovery, even at an immune skill level. Teleporting, death and offline time do not heal strain. A newly triggered injury must heal a full unit before losing its severity: mild strain does not vanish immediately on stopping. Uninjured fractional fatigue also recovers gradually. Short rests retain unrecovered fatigue. Maximum load is 3.999 units, preventing unlimited recovery debt. Both load and earned healing severity persist in character custom data under `jarki.fitness.runStrain` and `jarki.fitness.runStrainLevel`.
 
 ### Wooden treadmill
 
 - Build with the **Hammer → Furniture**, near a workbench: **20 Wood, 10 Core wood, 10 Bronze nails, 6 Deer hide, 10 Leather scraps**. Materials are recoverable through normal building removal.
 - Interact to train Run in place. Default **1.5× Run XP** applies only to active treadmill training; ordinary running XP is unchanged.
-- Uses native running stamina, including equipment, status effects and world modifiers; builds the same muscle strain as sprinting at default settings. `StaminaConsumptionMultiplier` scales the final native treadmill running cost before consumption; `StrainBuildupMultiplier` independently scales treadmill strain buildup. Both default to **1×** and accept **0.1–5×**; neither changes ordinary running, recovery or the XP multiplier. **No free stamina, stamina refunds or AFK endless training.** Native exhaustion stops training, which must be restarted after recovery.
-- Move or jump to dismount; interact again to stop. Blocking/attack inputs use native attachment cancellation too. **Inventory may remain open during active training**: stamina, XP and strain keep progressing; closing inventory does not restart the session. Other native input blockers (escape menu, chat/console focus, text/store/map/barber interfaces, text viewer, free camera and focused build search) still stop it, even with inventory open. Damage, death, teleporting, treadmill destruction and plugin shutdown terminate training. Starting a new session still requires ordinary gameplay input.
+- Uses native running stamina, including equipment, status effects and world modifiers; builds muscle strain **2× faster** than ordinary sprinting by default. `StaminaConsumptionMultiplier` defaults to **1×** and scales the final native treadmill running cost before consumption; `StrainBuildupMultiplier` defaults to **2×** and independently scales treadmill strain buildup. Both accept **0.1–5×**; neither changes ordinary running, recovery or the XP multiplier. **Exhaustion switches to walking in place while native stamina regenerates. Running resumes automatically only at full current maximum stamina.** Recovery walking grants no Run XP, incurs no running stamina cost and heals strain normally. No free stamina or stamina refunds; without native regeneration the player stays walking.
+- Move or jump to dismount; interact again to stop, during either running or recovery walking. Blocking/attack inputs use native attachment cancellation too. **Inventory may remain open during the workout**: running still consumes stamina and earns XP/strain, while recovery walking still regenerates stamina and heals strain. Closing inventory does not restart the session. Other native input blockers (escape menu, chat/console focus, text/store/map/barber interfaces, text viewer, free camera and focused build search) still stop it, even with inventory open. Damage, death, teleporting, treadmill destruction and plugin shutdown terminate training. Starting a new session still requires ordinary gameplay input.
 - Original procedural frame, handrails and rollers borrow native wood; the moving belt borrows the native `rug_deer` hide material. Belt UVs use its opaque body rather than the texture's transparent outline. No game assets are redistributed. The placed model, running pose and native status HUD were inspected in actual game screenshots/video.
 - Network-owner reservations prevent simultaneous occupancy, with short renewable leases to release disconnected users. This network path has not been tested in multiplayer.
 
@@ -43,8 +55,8 @@ Alive, non-sprinting time recovers one load unit per **180 seconds**. Walking is
 1. Close Valheim. Create a separate **Fitness Test** profile in r2modman/Thunderstore Mod Manager; keep the normal profile untouched. Install the dependency versions below.
 2. Open that profile's folder and copy only the built/downloaded `Fitness.dll` to `BepInEx/plugins/Fitness/Fitness.dll` (create the last directory). Never install `Fitness.InGameTests.dll`, lab profiles or development saves. Launch through the manager's **Start modded** route; native Linux needs Linux Doorstop, not Proton DLL overrides.
 3. Create a **new disposable local character and world**. A mod-manager profile isolates mods/configuration, **not Valheim characters or worlds**. Do not join a live server for this first test; multiplayer has not been verified.
-4. Play with ordinary health/stamina and real food, without god/debug resource cheats. Build a workbench, then use **Hammer → Furniture → Treadmill**, supplying the five ingredients listed above. Interact, observe native stamina draining and Run gaining experience; move/jump to dismount, or continue until exhaustion. Try ordinary sprinting too, and check that only running gets the strain penalty.
-5. For a short strain test, first launch once to generate `BepInEx/config/jarki.fitness.cfg`, exit the game, and set `SecondsPerLevel = 10` under `[Muscle strain]`. Optionally set `RecoverySecondsPerLevel = 30`. Leave `RunExperienceMultiplier = 1.5` under `[Treadmill]`. Relaunch; low-Run training should show the named strain levels, then recover while resting/walking. These are configuration changes, not health/stamina overrides. Restore the production defaults **90 / 180** afterward.
+4. Play with ordinary health/stamina and real food, without god/debug resource cheats. Build a workbench, then use **Hammer → Furniture → Treadmill**, supplying the five ingredients listed above. Interact, observe native stamina draining and Run gaining experience; continue until exhaustion switches to walking without dismounting. Verify stamina recovers, Run XP pauses, then running resumes only at full stamina. Move/jump or interact to stop during either phase. Try ordinary sprinting too, and check that only running gets the strain penalty.
+5. For a short strain test, first launch once to generate `BepInEx/config/jarki.fitness.cfg`, exit the game, and set `SecondsPerLevel = 10` under `[Muscle strain]`. Optionally set `RecoverySecondsPerLevel = 30`. Leave `RunExperienceMultiplier = 1.5` under `[Treadmill]`. Relaunch; low-Run training should show the named strain levels, then recover while resting/walking. These are configuration changes, not health/stamina overrides. Restore the production defaults **60 / 600** afterward.
 6. Remove treadmill pieces before removing Fitness from any world you intend to keep. Keep this experimental profile away from valued saves and multiplayer until those paths are verified.
 
 ## Configuration
@@ -55,12 +67,39 @@ BepInEx creates `BepInEx/config/jarki.fitness.cfg` on a modded launch.
 | --- | --- | --- |
 | `Treadmill / RunExperienceMultiplier` | `1.5` | Treadmill-only Run XP multiplier; range 0.1–10 |
 | `Treadmill / StaminaConsumptionMultiplier` | `1.0` | Active treadmill-only native running stamina cost multiplier, applied once before consumption; range 0.1–5 |
-| `Treadmill / StrainBuildupMultiplier` | `1.0` | Active treadmill-only sprint effort multiplier for strain buildup; ordinary running and recovery unchanged; range 0.1–5 |
-| `Muscle strain / SecondsPerLevel` | `90` | Sprint seconds per exertion unit at Run 0; range 10–3600 |
-| `Muscle strain / RecoverySecondsPerLevel` | `180` | Non-sprinting alive seconds to heal one exertion unit; range 10–3600 |
+| `Treadmill / StrainBuildupMultiplier` | `2.0` | Active treadmill-only sprint effort multiplier for strain buildup; ordinary running and recovery unchanged; range 0.1–5 |
+| `Muscle strain / SecondsPerLevel` | `60` | Sprint seconds per exertion unit at Run 0; range 10–3600 |
+| `Muscle strain / RecoverySecondsPerLevel` | `600` | Non-sprinting alive seconds to heal one exertion unit; range 10–3600 |
 | `Muscle strain / StrainFreeRunSkill` | `75` | Run skill where new strain stops; range 1–100 |
 
 Values are read during simulation; the mod does not synchronize configurations. Use matching settings on all clients. Fixed severity penalties are not configurable.
+
+Existing configuration files retain their saved values. To adopt the new balance,
+close the game and set `SecondsPerLevel = 60` and `RecoverySecondsPerLevel = 600`
+under `[Muscle strain]`, plus `StrainBuildupMultiplier = 2` under `[Treadmill]`;
+other custom settings are not overwritten.
+
+### Balance rationale
+
+The previous 90/180 defaults erased a 20-second sprint during the following
+40-second walk even at Run 0. At Run 30, net fatigue required over 45% sprint
+time; at Run 50, over 60%. The new 60/600 defaults lower those thresholds to
+14.3% and 23.1%, retaining meaningful skill protection and Run-75 immunity.
+
+Fixed-skill, 20ms production-model simulation; repeated **20s sprint / 40s walk**:
+
+| Run skill | Previous first mild strain | Revised first mild strain |
+| --- | --- | --- |
+| 0 | Never in this repeating cycle | 3m12s |
+| 25 | Never in this repeating cycle | 5m20s |
+| 30 | Never in this repeating cycle | 6m20s |
+| 50 | Never in this repeating cycle | 20m20s |
+
+These are assumed travel cycles, not measured player habits or native stamina
+simulations. They hold skill and duty cycle constant; food, terrain, increasing
+Run skill and strain penalties change real sprint/rest timing. At Run 50,
+10s sprint / 50s walking remains injury-free. Camping or crafting still heals;
+elapsed play time alone is not an injury trigger.
 
 ## Dependencies and build
 
@@ -74,7 +113,74 @@ dotnet build mods/Fitness/Fitness.csproj -c Release \
 dotnet run --project tests/Fitness.Tests/Fitness.Tests.csproj -c Release
 ```
 
-The build produces `mods/Fitness/bin/Release/netstandard2.1/Fitness.dll`. No dependency/game assemblies are copied into the output for redistribution. Fitness is also supported by `uv run python tools/release.py check Fitness`, `build Fitness` and `verify dist/Jarki-Fitness-0.1.1.zip`; follow [the release gates](../../docs/RELEASING.md). These commands neither install nor publish it. Existing paused projects are unchanged.
+The build produces `mods/Fitness/bin/Release/netstandard2.1/Fitness.dll`. No dependency/game assemblies are copied into the output for redistribution. Fitness is also supported by `uv run python tools/release.py check Fitness`, `build Fitness` and `verify dist/Jarki-Fitness-0.1.2.zip`; follow [the release gates](../../docs/RELEASING.md). These commands neither install nor publish it. Existing paused projects are unchanged.
+
+## Verification — 0.1.2 recovery walking and balance
+
+- **2026-11-12 native run passed 711 assertions**, `nativeErrors=0`, game exit 0,
+  on Valheim **l-1.0.21**, Unity **6000.0.75f1**, BepInExPack **5.4.2351** and
+  Jotunn **2.30.2**. Waited for the other agent's BigBatch game to exit, then
+  used a new private desktop **`:92`**, UDP **24886/24887**, fresh saves/XDG/profile
+  trees and PID-scoped control. Only this run's desktop was stopped afterward;
+  shared Steam and other desktops were left untouched.
+- Two consecutive natural exhaustion/recovery cycles used the avatar's original
+  unfed **50-stamina pool and native regeneration**, with production **60/600**
+  strain rates and **2× treadmill buildup**. No stamina writes or interactions
+  occurred between exhaustion and automatic resume. Native stamina rose from
+  **0 to 6.506732** during each early walking sample; a read-only `CheckRun`
+  observer measured **50/50 before the first resumed running cost** in both cycles.
+  Walking paused native Run XP pulses and healed persisted strain; attachment and
+  reservation remained intact. Walking and resumed-running screenshots were inspected.
+- Controlled boundary checks also passed: max-minus-one stamina stays walking,
+  no walking drain/refund with regeneration disabled, native walking animation
+  speed, movement cancellation during recovery, repeated exhaustion and clean reuse.
+  Existing configuration, strain, persistence, inventory, damage, menu, disable,
+  destruction and replacement scenarios passed in the same run. No gameplay fix
+  was needed after native verification.
+- Tested gameplay DLL SHA-256:
+  `5ca6930f3bdd7642b92326bfe7fad3c3f58e7e0212c5693353b4ac8c2ff53e1b`,
+  from the pre-version-bump native-tested build. Evidence:
+  `.dev/fitness-lab/runs/20261112211557517384-3c5f4749/evidence/`
+  (`result.json`, `runtime.log`, loader/player logs and `16a-natural-*.png`).
+  The 0.1.2 package rebuild changes version metadata; a Mono.Cecil comparison of
+  all **91 method bodies**, local types and exception-handler layouts against
+  that native-tested DLL found **no differences**. This is not a fresh ZIP-import
+  runtime test.
+- Limits: native APIs, not keyboard input; granted materials/platform, disabled
+  local controller and boosted HP. Other diagnostic stages use enlarged stamina,
+  disabled regeneration and accelerated strain rates; only the natural-cycle
+  stage restores original stamina/regen and production balance. Initial stamina
+  was set once before mounting, not during either recovery interval. Audio fell
+  back to emulated output before plugin startup; world-generation placement
+  warnings remain. Multiplayer, long-session balance and mod-manager ZIP import
+  are unverified. That native run did not package, publish or deploy to a gameplay profile/server.
+- **0.1.2 publication:** package checks and archive verification passed; extracted
+  payload lint passed with **6 files, 0 failures, 0 warnings**. The public ZIP
+  downloaded after the approved upload matches the candidate SHA-256 above;
+  packaged README/icon bytes match, and the live icon/showcase/recipe images load.
+  Dependencies remain BepInExPack 5.4.2351 and Jotunn 2.30.2; categories remain
+  Mods and AI Generated, NSFW false. The listing is active and **unreviewed**.
+  The release-page preview was approved before upload. Detailed publication
+  records are ignored under `.dev/release/fitness-0.1.2/`. No live deployment.
+
+- Release gameplay DLL and native harness compile with **zero errors**. The plugin
+  retains two existing framework-reference warnings; the harness retains those
+  plus its existing hidden-member and obsolete-API warnings.
+
+- Production-method smoke: **13 simulated checks** passed for last-stamina walking,
+  partial/full recovery, XP pause, strain recovery, walk animation speed selection,
+  changed maximum stamina, cancellation, reuse, failed running and input-flag cleanup.
+  This compiles the actual `Train` method against a stubbed host; it does not prove
+  native regeneration, rendered animation, attachment or network behavior.
+- **14/14 standalone strain scenarios pass**, including fixed-skill travel onset,
+  sustained recovery, light-travel protection and Run-75 immunity. Historical
+  90/180 model scenarios remain explicit rate tests, not assertions of new defaults.
+- Native harness now covers recovery walking, partial/full stamina boundaries,
+  paused XP, healing, automatic resume, repeated exhaustion and recovery dismount.
+  The movie fixture stops explicitly after showing exhaustion recovery walking.
+- Native results above supersede the earlier simulation-only limit for the
+  exercised single-player paths; older evidence below applies only to its builds.
+
 
 ## Verification — 2026-11-12 inventory continuation
 

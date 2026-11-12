@@ -4,7 +4,7 @@ schemaVersion = "0.0.1"
 [package]
 namespace = "Jarki"
 name = "Fitness"
-versionNumber = "0.1.1"
+versionNumber = "0.1.2"
 description = "Train Run on a buildable deer-hide treadmill. Push low-skill sprinting too far and gain three levels of muscle strain, increasing running stamina costs. Configurable training multipliers."
 websiteUrl = "https://github.com/Jarki/valheim-mods"
 containsNsfwContent = false

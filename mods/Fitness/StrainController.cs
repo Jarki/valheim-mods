@@ -34,6 +34,8 @@ namespace Fitness
             Apply(player, state.Level);
         }
 
+        internal static void RecoverTraining(Player player, float dt) => Advance(player, dt, false);
+
         private static void Apply(Player player, int level)
         {
             var effects = player.GetSEMan();
@@ -85,7 +87,7 @@ namespace Fitness
             {
                 var player = Player.m_localPlayer;
                 if (!player || __instance != player || player.IsDead() || player.IsTeleporting()) return;
-                // Attached treadmill users train outside normal locomotion; do not also recover.
+                // The treadmill owns both sprint effort and walking recovery.
                 if (!player.IsRunning() && !Treadmill.IsTraining(player)) Advance(player, dt, false);
                 else Apply(player, State(player).Level);
             }

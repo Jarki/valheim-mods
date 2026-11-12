@@ -3,7 +3,7 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <LangVersion>latest</LangVersion>
     <AssemblyName>Fitness</AssemblyName>
-    <Version>0.1.1</Version>
+    <Version>0.1.2</Version>
     <GameDir Condition="'$(GameDir)' == ''">$(HOME)/.local/share/Steam/steamapps/common/Valheim</GameDir>
     <ReferenceProfile Condition="'$(ReferenceProfile)' == ''">$(MSBuildProjectDirectory)/../../.dev/release/reference-profile</ReferenceProfile>
     <ManagedDir Condition="'$(ManagedDir)' == ''">$(GameDir)/valheim_Data/Managed</ManagedDir>

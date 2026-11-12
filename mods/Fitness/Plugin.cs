@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace Fitness
 {
-    [BepInPlugin(Guid, "Fitness", "0.1.1")]
+    [BepInPlugin(Guid, "Fitness", "0.1.2")]
     [BepInDependency(Jotunn.Main.ModGuid)]
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.Minor)]
     public sealed class Plugin : BaseUnityPlugin
@@ -35,13 +35,13 @@ namespace Fitness
             staminaMultiplier = Config.Bind("Treadmill", "StaminaConsumptionMultiplier", 1f,
                 new ConfigDescription("Final native running stamina cost multiplier while actively training; ordinary running is unchanged.",
                     new AcceptableValueRange<float>(.1f, 5f)));
-            strainMultiplier = Config.Bind("Treadmill", "StrainBuildupMultiplier", 1f,
+            strainMultiplier = Config.Bind("Treadmill", "StrainBuildupMultiplier", 2f,
                 new ConfigDescription("Sprint effort multiplier for treadmill strain buildup only; ordinary running and recovery are unchanged.",
                     new AcceptableValueRange<float>(.1f, 5f)));
-            onset = Config.Bind("Muscle strain", "SecondsPerLevel", 90f,
+            onset = Config.Bind("Muscle strain", "SecondsPerLevel", 60f,
                 new ConfigDescription("Cumulative sprint seconds per strain level at Run 0. Higher Run skill slows buildup.",
                     new AcceptableValueRange<float>(10f, 3600f)));
-            recovery = Config.Bind("Muscle strain", "RecoverySecondsPerLevel", 180f,
+            recovery = Config.Bind("Muscle strain", "RecoverySecondsPerLevel", 600f,
                 new ConfigDescription("Non-sprinting, alive seconds to recover one full strain level. No offline recovery.",
                     new AcceptableValueRange<float>(10f, 3600f)));
             immuneSkill = Config.Bind("Muscle strain", "StrainFreeRunSkill", 75f,

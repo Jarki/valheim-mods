@@ -63,6 +63,7 @@ namespace Fitness
         private float nextHeartbeat;
         private object[] userArguments;
         private bool initialized;
+        private bool recovering;
 
         internal static void Register()
         {
@@ -329,6 +330,7 @@ namespace Fitness
             if (active) active.StopTraining();
             active = this;
             runner = player;
+            recovering = false;
             runner.m_onDamaged += OnRunnerDamaged;
             runner.m_onDeath += OnRunnerDeath;
             runner.m_autoRun = false;
@@ -370,7 +372,7 @@ namespace Fitness
                 ClearReservation();
             if (requestingPlayer && (Time.time > requestTimeout || !CanStart(requestingPlayer)))
                 CancelRequest();
-            if (runner && (!IsTraining(runner) || !CanContinueTraining(runner) || !runner.HaveStamina()
+            if (runner && (!IsTraining(runner) || !CanContinueTraining(runner)
                 || confirmedLease <= NetworkTicks))
                 StopTraining();
             if (runner && Time.time >= nextHeartbeat)
@@ -379,7 +381,7 @@ namespace Fitness
                 view.InvokeRPC(HeartbeatRpc, userArguments);
             }
             if (visual && HasOccupant())
-                visual.Advance(runner ? runner.m_runSpeed * RunSpeedFactor(runner) : 6f, Time.deltaTime);
+                visual.Advance(runner ? (recovering ? runner.m_walkSpeed : runner.m_runSpeed * RunSpeedFactor(runner)) : 6f, Time.deltaTime);
         }
 
         private static bool CanContinueTraining(Player player)
@@ -399,39 +401,41 @@ namespace Fitness
         private void Train(Player player, float dt)
         {
             if (!IsTraining(player) || !view || !view.IsValid() || confirmedLease <= NetworkTicks
-                || !CanContinueTraining(player) || !player.HaveStamina() || player.IsEncumbered()
+                || !CanContinueTraining(player) || player.IsEncumbered()
                 || player.IsCrouching() || player.InDodge() || !player.CanMove()
                 || player.IsSwimming() || player.IsFlying() || player.IsDebugFlying())
             {
                 StopTraining();
                 return;
             }
-            bool wasRun = RunInput(player);
-            bool success;
-            try
+            if (!player.HaveStamina()) recovering = true;
+            else if (recovering && player.GetStamina() >= player.GetMaxStamina()) recovering = false;
+
+            bool success = false;
+            if (!recovering)
             {
-                checkingRun = true;
-                RunInput(player) = true;
-                // Enter the patched native virtual method: equipment, SE_Stats, world
-                // drain modifiers and the native >1-second Run XP timer remain intact.
-                success = CheckRun(player, attachPoint.forward, dt);
+                bool wasRun = RunInput(player);
+                try
+                {
+                    checkingRun = true;
+                    RunInput(player) = true;
+                    // Keep native drain modifiers and the native Run XP timer intact.
+                    success = CheckRun(player, attachPoint.forward, dt);
+                }
+                finally
+                {
+                    RunInput(player) = wasRun;
+                    checkingRun = false;
+                }
+                if (!success || !player.HaveStamina()) recovering = true;
             }
-            finally
-            {
-                RunInput(player) = wasRun;
-                checkingRun = false;
-            }
-            if (!success)
-            {
-                StopTraining();
-                return;
-            }
-            Running(player) = true;
+            Running(player) = success && !recovering;
+            if (recovering && !success) StrainController.RecoverTraining(player, dt);
             // Character.UpdateWalking writes zero-speed animation/gravity for a fixed
             // attachment. Restore native attachment after that pass, then its run blend.
             UpdateAttach(player);
             var animation = player.GetZAnim();
-            animation.SetFloat(ForwardSpeed, player.m_runSpeed * RunSpeedFactor(player));
+            animation.SetFloat(ForwardSpeed, recovering ? player.m_walkSpeed : player.m_runSpeed * RunSpeedFactor(player));
             animation.SetFloat(SideSpeed, 0f);
             animation.SetFloat(TurnSpeed, 0f);
             animation.SetBool(OnGround, true);
@@ -462,6 +466,7 @@ namespace Fitness
             var player = runner;
             // Clear identity before AttachStop's postfix re-enters this method.
             runner = null;
+            recovering = false;
             if (active == this) active = null;
             if (!ReferenceEquals(player, null))
             {
