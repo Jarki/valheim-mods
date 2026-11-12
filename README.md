@@ -2,7 +2,7 @@
 
 A source collection of independent Valheim BepInEx plugins under the confirmed
 **Jarki** Thunderstore team.
-**Published: [MobThreat 1.0.1](https://thunderstore.io/c/valheim/p/Jarki/MobThreat/) · [NearbyStore 1.1.3](https://thunderstore.io/c/valheim/p/Jarki/NearbyStore/) · [Rotheart 1.0.0](https://thunderstore.io/c/valheim/p/Jarki/Rotheart/) · [Fitness 0.1.0](https://thunderstore.io/c/valheim/p/Jarki/Fitness/).**
+**Published: [MobThreat 1.0.1](https://thunderstore.io/c/valheim/p/Jarki/MobThreat/) · [NearbyStore 1.1.3](https://thunderstore.io/c/valheim/p/Jarki/NearbyStore/) · [Rotheart 1.0.0](https://thunderstore.io/c/valheim/p/Jarki/Rotheart/) · [Fitness 0.1.1](https://thunderstore.io/c/valheim/p/Jarki/Fitness/).**
 Publication and packaging checks are not fresh clean-profile runtime verification.
 
 ## Packages
@@ -29,14 +29,13 @@ remain paused; their source, tests, assets and historical package definitions ar
 preserved.
 
 
-[Fitness](mods/Fitness/README.md) **0.1.0 is published**: a wood-frame,
+[Fitness](mods/Fitness/README.md) **0.1.1 is published**: a wood-frame,
 deer-hide-belt treadmill with configurable Run XP, stamina cost and strain buildup,
-plus three running muscle-strain levels. Its gameplay passed 13 standalone
-scenarios and 562 native assertions on Valheim l-1.0.21 in an isolated
-single-player instance. The public ZIP matches the approved candidate.
+plus three running muscle-strain levels. Inventory can stay open while stamina,
+XP and strain continue. Its gameplay passed 13 standalone scenarios and 619 native
+assertions on Valheim l-1.0.21 in an isolated single-player instance.
+The public ZIP matches the approved, native-tested candidate.
 Multiplayer and fresh mod-manager ZIP import remain unverified.
-Development **0.1.1** narrows treadmill cancellation so inventory can remain open
-while stamina, XP and strain continue; this patch is not published.
 
 All packages require `denikson-BepInExPack_Valheim` **5.4.2351**.
 
@@ -45,7 +44,7 @@ All packages require `denikson-BepInExPack_Valheim` **5.4.2351**.
 | `Jarki-MobThreat` | 1.0.1 | Client only | None | **Active** — [MobThreat](mods/MobThreat/README.md) |
 | `Jarki-NearbyStore` | 1.1.3 | Client only | None | **Published; early-stop optimization, controlled-ownership checks passed** — [NearbyStore](mods/NearbyStore/README.md) |
 | `Jarki-Rotheart` | 1.0.0 | Server and every client; multiplayer unverified | `ValheimModding-Jotunn` 2.30.2 | **Published; locally tested** — [Rotheart](mods/Rotheart/README.md) |
-| `Jarki-Fitness` | 0.1.0 | Server and every client; multiplayer unverified | `ValheimModding-Jotunn` 2.30.2 | **Published; locally tested** — [Fitness](mods/Fitness/README.md) |
+| `Jarki-Fitness` | 0.1.1 | Server and every client; multiplayer unverified | `ValheimModding-Jotunn` 2.30.2 | **Published; locally tested** — [Fitness](mods/Fitness/README.md) |
 | `Jarki-Firearm_Arsenal` | 1.1.0 | Server and every client; matching versions | `ValheimModding-Jotunn` 2.30.2 | **Paused** — [PistolMod](mods/PistolMod/README.md) |
 | `Jarki-Startup_Helper` | 1.0.0 | Client only; optional, disabled by default | None | **Paused** — [StartupHelper](mods/StartupHelper/README.md) |
 | `Jarki-Server_Metrics` | 1.4.0 | Dedicated server only | None | **Paused** — [ServerMetrics](mods/ServerMetrics/README.md) |

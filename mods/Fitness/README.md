@@ -1,6 +1,6 @@
 # Fitness
 
-Independent Valheim BepInEx/Jotunn mod. **0.1.0 is [published on Thunderstore](https://thunderstore.io/c/valheim/p/Jarki/Fitness/); development version 0.1.1 is unreleased.** Adds a buildable wood-frame treadmill with a deer-hide belt and running muscle strain. Original mechanics were native single-player verified on Valheim l-1.0.21; multiplayer remains unverified. The 0.1.1 inventory-continuation patch has separate verification recorded below. Not deployed to a gameplay profile or server.
+Independent Valheim BepInEx/Jotunn mod. **0.1.1 is [published on Thunderstore](https://thunderstore.io/c/valheim/p/Jarki/Fitness/).** Adds a buildable wood-frame treadmill with a deer-hide belt and running muscle strain. Native single-player verified on Valheim l-1.0.21, including inventory-open training; multiplayer remains unverified. Public ZIP SHA-256: **4ee4e8c675fb47d68a02a993241a06809c69158a2f961556e18a7e830407ae8e**, matching the approved candidate and its native-tested DLL. Not deployed to a gameplay profile or server.
 
 [Watch the public six-biome showcase](https://jarki.github.io/valheim-mods/).
 The Thunderstore page uses its thumbnail and the captured native recipe UI;
@@ -78,7 +78,7 @@ The build produces `mods/Fitness/bin/Release/netstandard2.1/Fitness.dll`. No dep
 
 ## Verification — 2026-11-12 inventory continuation
 
-- Unreleased **0.1.1** Release build and native harness compile with zero errors; existing framework-reference warnings remain unsuppressed. The 13 standalone strain scenarios pass, including Run-0 onset at90/180/270 seconds.
+- **0.1.1** Release build and native harness compile with zero errors; existing framework-reference warnings remain unsuppressed. The 13 standalone strain scenarios pass, including Run-0 onset at90/180/270 seconds.
 - With the owner's explicit isolated-test approval, the full native run passed **619 assertions**, nativeErrors=0, game exit0. Native inventory visibility blocked ordinary `TakeInput` while the treadmill stayed attached/running/reserved for2.2 seconds; stamina fell, Run XP accumulated in native0.3 pulses, and persisted strain load increased. Closing inventory preserved the session. The inventory-open screenshot was inspected.
 - A blocking menu still detached and released the treadmill after inventory had been opened. Existing interact/move/jump, exhaustion, damage, disable/re-enable, destruction/replacement, configuration, XP, strain and persistence checks also passed.
 - Tested and built DLL SHA-256: **29fe7dc03bd5bb0fe5ce8b65c9a1cd2ed7d63ddddcfc6f250651760aee06b4ef**. Evidence: ignored `.dev/fitness-lab/runs/20261112122501404452-18966be0/evidence/`. This is a disposable, directly installed development DLL test, not a mod-manager ZIP-import or multiplayer test.

@@ -11,16 +11,15 @@ verification: [PistolMod](../mods/PistolMod/README.md),
 runtime records as fresh verification of a release archive.
 
 **Active development: Fitness, MobThreat, NearbyStore and Rotheart.**
-[Fitness](../mods/Fitness/README.md) 0.1.0 adds configurable treadmill training and
-running muscle strain; its build/model checks and 562 native assertions passed on
+[Fitness](../mods/Fitness/README.md) 0.1.1 adds configurable treadmill training and
+running muscle strain; its build/model checks and 619 native assertions passed on
 Valheim l-1.0.21 in a separate private-display, disposable single-player instance.
-Multiplayer remains unverified. Fitness 0.1.0 is published; its public ZIP matches
+Multiplayer remains unverified. Fitness 0.1.1 is published; its public ZIP matches
 the owner-approved candidate. All four active mods have release-wrapper metadata
 and published releases. Rotheart 1.0.0's original Blender art and isolated
 native-trinket test harness are documented in its README.
-Fitness development **0.1.1** narrows the active-session inventory guard and passed
-619 isolated native assertions; it is not published. Starting training still
-requires ordinary native gameplay input.
+Fitness 0.1.1 permits inventory during active training while retaining other
+cancellation guards. Starting training still requires ordinary native input.
 The current release workflow is in [RELEASING.md](RELEASING.md).
 Firearm Arsenal, Startup Helper
 (including server joining), and Server Metrics remain paused by the owner. Their
