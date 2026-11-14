@@ -6,7 +6,7 @@ Independent Valheim BepInEx/Jotunn mod. **0.1.3 is [published on Thunderstore](h
 per-character/world kilometres and approximate calories. Gameplay passed
 **775 native assertions**, with zero native errors; all **97 release method bodies**
 and embedded resources match that native-tested build after the version bump.
-Candidate SHA-256: `4666834310d88ae8f52fa9e941c40c36016927fdb60c64c3d348932b7b7a406e`.
+Candidate SHA-256: `dc7b65ec98e6d982d088c0970db93e401f72f8dbca78a204de9b67caf94aa045`.
 Selected packaging verification and extracted-payload lint pass. The marked page
 preview and exact-candidate upload await owner approval; 0.1.3 remains public.
 
@@ -211,7 +211,7 @@ dotnet build mods/Fitness/Fitness.csproj -c Release \
 dotnet run --project tests/Fitness.Tests/Fitness.Tests.csproj -c Release
 ```
 
-The build produces `mods/Fitness/bin/Release/netstandard2.1/Fitness.dll`. No dependency/game assemblies are copied into the output for redistribution. Fitness is also supported by `uv run python tools/release.py check Fitness`, `build Fitness` and `verify dist/Jarki-Fitness-0.1.3.zip`; follow [the release gates](../../docs/RELEASING.md). These commands neither install nor publish it. Existing paused projects are unchanged.
+The build produces `mods/Fitness/bin/Release/netstandard2.1/Fitness.dll`. No dependency/game assemblies are copied into the output for redistribution. Fitness is also supported by `uv run python tools/release.py check Fitness`, `build Fitness` and `verify dist/Jarki-Fitness-0.1.4.zip`; follow [the release gates](../../docs/RELEASING.md). These commands neither install nor publish it. Existing paused projects are unchanged.
 
 ## Verification — 0.1.2 recovery walking and balance
 

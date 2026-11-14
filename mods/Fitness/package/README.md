@@ -26,7 +26,7 @@ Interact to start or stop training. Move or jump to dismount in either phase. Ex
 
 **You can open inventory during either phase**; the workout continues. Other blocking interfaces, damage, death, teleporting or destruction of the treadmill end the session.
 
-The counter shows the current runner's totals; an empty treadmill shows your own. Calories are a rough **70 kcal/km** estimate for an assumed 70 kg runner, not a personalized measurement. Counting starts with this feature; earlier workouts are not backfilled.
+The counter shows the current runner's totals; an empty treadmill shows your own. Calories are a rough **70 kcal/km** estimate for an assumed 70 kg runner, not a personalized measurement.
 
 Only sprinting builds muscle strain, including treadmill running. At a fixed Run skill of 0, the default is **60 cumulative sprint seconds per strain level**; Run 30 takes 100 seconds and Run 50 takes 180 seconds, before accounting for recovery. At Run 75+, no new strain builds by default. Walking or resting while alive heals one load unit per **600 seconds**, including treadmill recovery walking. Short breaks retain unrecovered fatigue; stopping does not immediately clear an injury. Death, teleporting and time offline do not heal strain.
 
