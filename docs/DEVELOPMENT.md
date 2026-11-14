@@ -11,14 +11,15 @@ verification: [PistolMod](../mods/PistolMod/README.md),
 runtime records as fresh verification of a release archive.
 
 **Active development: Fitness, MobThreat, NearbyStore and Rotheart.**
-[Fitness](../mods/Fitness/README.md) **0.1.2 is published**, with automatic treadmill
-recovery walking and revised strain defaults. The public ZIP matches the approved
-candidate; all 91 release method bodies match the gameplay build that passed
-**711 native assertions** on Valheim l-1.0.21 in an isolated disposable instance.
-Its **14 standalone strain scenarios** pass. Two measured cycles used original
-stamina/regen, paused XP while walking and resumed at exactly full stamina.
-Multiplayer and fresh mod-manager ZIP import remain unverified. Existing configs
-keep saved settings; the new defaults are 60/600 seconds and 2× treadmill buildup.
+[Fitness](../mods/Fitness/README.md) **0.1.4 is published**, adding a minimal
+treadmill km/~kcal display with separate saved totals per character/world.
+Gameplay passed **775 native assertions**, zero native errors, on Valheim
+l-1.0.21 in an isolated disposable instance. All **97 release method bodies**
+and embedded resources match the native-tested build; the public ZIP matches
+the approved candidate. Existing icon, video, recipe image and dependencies remain
+unchanged. Multiplayer and fresh mod-manager ZIP import remain unverified.
+Existing configs keep their saved settings; defaults remain 60/600 seconds and
+2× treadmill buildup. No gameplay-profile/server deployment.
 All four active mods have release-wrapper metadata and published releases.
 Rotheart 1.0.0's original Blender art and isolated native-trinket harness are
 documented in its README. Fitness retains inventory-open training and existing

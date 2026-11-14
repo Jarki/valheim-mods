@@ -2,7 +2,7 @@
 
 A source collection of independent Valheim BepInEx plugins under the confirmed
 **Jarki** Thunderstore team.
-**Published: [MobThreat 1.0.1](https://thunderstore.io/c/valheim/p/Jarki/MobThreat/) · [NearbyStore 1.1.4](https://thunderstore.io/c/valheim/p/Jarki/NearbyStore/) · [Rotheart 1.0.0](https://thunderstore.io/c/valheim/p/Jarki/Rotheart/) · [Fitness 0.1.2](https://thunderstore.io/c/valheim/p/Jarki/Fitness/).**
+**Published: [MobThreat 1.0.1](https://thunderstore.io/c/valheim/p/Jarki/MobThreat/) · [NearbyStore 1.1.4](https://thunderstore.io/c/valheim/p/Jarki/NearbyStore/) · [Rotheart 1.0.0](https://thunderstore.io/c/valheim/p/Jarki/Rotheart/) · [Fitness 0.1.4](https://thunderstore.io/c/valheim/p/Jarki/Fitness/).**
 Publication and packaging checks are not fresh clean-profile runtime verification.
 
 ## Packages
@@ -33,14 +33,13 @@ remain paused; their source, tests, assets and historical package definitions ar
 preserved.
 
 
-[Fitness](mods/Fitness/README.md) **0.1.2 is published**: treadmill exhaustion
-switches to walking until native stamina is full, then running resumes automatically.
-Revised strain defaults retain fatigue between ordinary sprints; treadmill running
-builds strain at **2×** the ordinary rate. Existing configs retain saved values.
-Its gameplay passed **14 standalone scenarios and 711 native assertions** on
-Valheim l-1.0.21. All 91 release method bodies match the native-tested build;
-the public ZIP matches the approved candidate. Multiplayer and fresh mod-manager
-ZIP import remain unverified. No gameplay-profile/server deployment.
+[Fitness](mods/Fitness/README.md) **0.1.4 is published**: a minimal treadmill screen
+shows saved per-character/world kilometres and approximate calories. Recovery
+walking adds no distance; estimated calories use a fixed **70 kcal/km**.
+Gameplay passed **775 native assertions**, with zero native errors, on Valheim
+l-1.0.21. All **97 release method bodies** and embedded resources match the
+native-tested build; the downloaded public ZIP matches the approved candidate.
+Multiplayer and fresh mod-manager ZIP import remain unverified. No live deployment.
 
 All packages require `denikson-BepInExPack_Valheim` **5.4.2351**.
 
@@ -49,7 +48,7 @@ All packages require `denikson-BepInExPack_Valheim` **5.4.2351**.
 | `Jarki-MobThreat` | 1.0.1 | Client only | None | **Active** — [MobThreat](mods/MobThreat/README.md) |
 | `Jarki-NearbyStore` | 1.1.4 | Client only | None | **Published; bounded main-thread storage and overlapping ownership waits** — [NearbyStore](mods/NearbyStore/README.md) |
 | `Jarki-Rotheart` | 1.0.0 | Server and every client; multiplayer unverified | `ValheimModding-Jotunn` 2.30.2 | **Published; locally tested** — [Rotheart](mods/Rotheart/README.md) |
-| `Jarki-Fitness` | 0.1.2 | Server and every client; multiplayer unverified | `ValheimModding-Jotunn` 2.30.2 | **Published; automatic recovery walking and revised strain balance** — [Fitness](mods/Fitness/README.md) |
+| `Jarki-Fitness` | 0.1.4 | Server and every client; multiplayer unverified | `ValheimModding-Jotunn` 2.30.2 | **Published; saved treadmill km/~kcal display and automatic recovery walking** — [Fitness](mods/Fitness/README.md) |
 | `Jarki-Firearm_Arsenal` | 1.1.0 | Server and every client; matching versions | `ValheimModding-Jotunn` 2.30.2 | **Paused** — [PistolMod](mods/PistolMod/README.md) |
 | `Jarki-Startup_Helper` | 1.0.0 | Client only; optional, disabled by default | None | **Paused** — [StartupHelper](mods/StartupHelper/README.md) |
 | `Jarki-Server_Metrics` | 1.4.0 | Dedicated server only | None | **Paused** — [ServerMetrics](mods/ServerMetrics/README.md) |

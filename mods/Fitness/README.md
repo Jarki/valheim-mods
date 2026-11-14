@@ -1,14 +1,13 @@
 # Fitness
 
-Independent Valheim BepInEx/Jotunn mod. **0.1.3 is [published on Thunderstore](https://thunderstore.io/c/valheim/p/Jarki/Fitness/).** Adds a buildable wood-frame treadmill with a deer-hide belt and running muscle strain, automatic recovery walking and revised strain defaults. The Valheim-style package/build icons and border-corrected recipe image are published. Gameplay passed 713 isolated native assertions on Valheim l-1.0.21; all 92 method bodies and the embedded icon in the version-bumped release match the tested build. Multiplayer remains unverified. Public ZIP SHA-256: **c6550969c4d3a065c94394ceada839e7f1831a904d0cc0fca0b7a376cc9fa291**, matching the approved candidate. Not deployed to a gameplay profile or server.
+Independent Valheim BepInEx/Jotunn mod. **0.1.4 is [published on Thunderstore](https://thunderstore.io/c/valheim/p/Jarki/Fitness/).** Adds a buildable deer-hide treadmill, running muscle strain and automatic recovery walking. Its small screen shows saved per-character/world kilometres and approximate calories. Gameplay passed **775 isolated native assertions**, with zero native errors, on Valheim l-1.0.21; all **97 release method bodies** and embedded resources match the native-tested build. Multiplayer and fresh mod-manager ZIP import remain unverified. Public ZIP SHA-256: **dc7b65ec98e6d982d088c0970db93e401f72f8dbca78a204de9b67caf94aa045**, matching the approved candidate. No gameplay-profile or server deployment.
 
-**0.1.4 candidate prepared:** the minimal treadmill display shows saved
-per-character/world kilometres and approximate calories. Gameplay passed
-**775 native assertions**, with zero native errors; all **97 release method bodies**
-and embedded resources match that native-tested build after the version bump.
-Candidate SHA-256: `dc7b65ec98e6d982d088c0970db93e401f72f8dbca78a204de9b67caf94aa045`.
-Selected packaging verification and extracted-payload lint pass. The marked page
-preview and exact-candidate upload await owner approval; 0.1.3 remains public.
+The approved 0.1.4 ZIP was published and downloaded byte-for-byte for verification.
+Packaged README/DLL/icon and the public CDN icon match the reviewed inputs.
+The live page contains the approved counter feature and calorie explanation,
+without the owner-removed backfill sentence. Dependencies and existing public
+media are unchanged. Thunderstore lists it as active and **unreviewed**.
+Detailed release evidence: `.dev/release/fitness-0.1.4/`.
 
 [Watch the public six-biome showcase](https://jarki.github.io/valheim-mods/).
 The Thunderstore page uses its thumbnail and the captured native recipe UI;
