@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using TMPro;
+using UnityEngine.UI;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -24,6 +26,45 @@ namespace Fitness
         [SerializeField] private Transform[] rollers = Array.Empty<Transform>();
         private bool counted;
         private float travel;
+        private TextMeshProUGUI distanceText;
+        private long displayedMetres = -1;
+
+        internal void ShowDistance(double metres)
+        {
+            if (!distanceText)
+            {
+                if (!Hud.instance || !Hud.instance.m_healthText || !Hud.instance.m_healthText.font) return;
+                var screen = new GameObject("FitnessDistanceScreen", typeof(RectTransform), typeof(Canvas));
+                screen.transform.SetParent(transform, false);
+                screen.transform.localPosition = new Vector3(0f, 1.87f, .88f);
+                screen.transform.localRotation = Quaternion.Euler(20f, 0f, 0f);
+                screen.transform.localScale = Vector3.one * .0025f;
+                ((RectTransform)screen.transform).sizeDelta = new Vector2(320f, 150f);
+                screen.GetComponent<Canvas>().renderMode = RenderMode.WorldSpace;
+                var panel = screen.AddComponent<Image>();
+                panel.color = new Color(.055f, .045f, .025f, 1f);
+                panel.raycastTarget = false;
+                var text = new GameObject("Kilometres", typeof(RectTransform));
+                text.transform.SetParent(screen.transform, false);
+                var rect = (RectTransform)text.transform;
+                rect.sizeDelta = new Vector2(300f, 140f);
+                distanceText = text.AddComponent<TextMeshProUGUI>();
+                distanceText.font = Hud.instance.m_healthText.font;
+                distanceText.fontSharedMaterial = Hud.instance.m_healthText.fontSharedMaterial;
+                distanceText.fontSize = 36f;
+                distanceText.alignment = TextAlignmentOptions.Center;
+                distanceText.color = new Color(1f, .84f, .45f);
+                distanceText.richText = false;
+                distanceText.raycastTarget = false;
+            }
+            long wholeMetres = (long)Math.Floor(metres);
+            if (displayedMetres == wholeMetres) return;
+            displayedMetres = wholeMetres;
+            // Approximate running energy at 1 kcal/kg/km for a fixed 70 kg runner.
+            double calories = Math.Round(wholeMetres * .07d, MidpointRounding.AwayFromZero);
+            distanceText.text = (wholeMetres / 1000d).ToString("F3", System.Globalization.CultureInfo.InvariantCulture)
+                + " km\n~" + calories.ToString("F0", System.Globalization.CultureInfo.InvariantCulture) + " kcal";
+        }
 
         internal static GameObject Build(GameObject prefab, Material wood, Material hide)
         {

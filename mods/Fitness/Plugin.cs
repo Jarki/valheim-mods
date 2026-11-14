@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace Fitness
 {
-    [BepInPlugin(Guid, "Fitness", "0.1.2")]
+    [BepInPlugin(Guid, "Fitness", "0.1.4")]
     [BepInDependency(Jotunn.Main.ModGuid)]
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.Minor)]
     public sealed class Plugin : BaseUnityPlugin

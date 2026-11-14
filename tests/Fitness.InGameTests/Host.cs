@@ -379,6 +379,28 @@ namespace Fitness.InGameTests
             Check(Get(player, "m_placementStatus").ToString() == "Valid", "real raycast produced valid native placement (status never overwritten)");
             Check(!player.NoCostCheat() && player.HaveRequirements(piece, Player.RequirementMode.CanBuild), "real workbench and inventory satisfy native Hammer requirements");
             placedAt = ghost.transform.position;
+            var recipeIcon = (UnityEngine.UI.Image)Get(Hud.instance, "m_buildIcon");
+            yield return Wait(() => recipeIcon && recipeIcon.isActiveAndEnabled && recipeIcon.sprite == piece.m_icon,
+                "native recipe panel becomes visible with the current selected piece icon", 5f);
+            Check(piece.m_icon && piece.m_icon != Prefab("wood_floor").GetComponent<Piece>().m_icon
+                && recipeIcon, "native recipe UI renders the custom treadmill icon, not the cloned wood-floor icon");
+            Log("RECIPE_ICON sprite=" + recipeIcon.sprite.name + " size="
+                + recipeIcon.sprite.texture.width + "x" + recipeIcon.sprite.texture.height);
+            for (Transform parent = recipeIcon.transform; parent && parent != Hud.instance.transform; parent = parent.parent)
+            {
+                if (!(parent is RectTransform rect)) continue;
+                var corners = new Vector3[4];
+                rect.GetWorldCorners(corners);
+                var canvas = rect.GetComponentInParent<Canvas>();
+                var camera = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
+                Vector2 lower = RectTransformUtility.WorldToScreenPoint(camera, corners[0]);
+                Vector2 upper = RectTransformUtility.WorldToScreenPoint(camera, corners[2]);
+                Log("RECIPE_UI_BOUNDS name=" + parent.name + " left=" + lower.x.ToString("R", CultureInfo.InvariantCulture)
+                    + " bottom=" + lower.y.ToString("R", CultureInfo.InvariantCulture)
+                    + " right=" + upper.x.ToString("R", CultureInfo.InvariantCulture)
+                    + " top=" + upper.y.ToString("R", CultureInfo.InvariantCulture)
+                    + " screen=" + Screen.width + "x" + Screen.height);
+            }
             yield return Capture(label + "-ghost");
             int hideBefore = InventoryCount("DeerHide"), scrapsBefore = InventoryCount("LeatherScraps");
             Check(player.TryPlacePiece(piece), "native TryPlacePiece calls PlacePiece with raycast ghost, creator and placement effects");
@@ -651,6 +673,7 @@ namespace Fitness.InGameTests
                 yield return VideoTraining();
                 yield break;
             }
+            yield return CheckDistance();
             yield return CheckTreadmillConfiguration();
             Stage("02-thin-native-training"); SetSkill(40f); FillStamina();
             yield return Begin();
@@ -691,11 +714,30 @@ namespace Fitness.InGameTests
             fixedSkill = -1f;
             yield return Stop("strain-stage-stop");
             Stage("06-walking-cost-control");
+            // Start the outdoor comparator clear of the treadmill's solid rails.
+            // Its circular target depends on Time.time; an arbitrary post-dismount
+            // position can otherwise send the avatar into the piece instead of walking.
+            var walkBody = player.GetComponent<Rigidbody>();
+            Vector3 clearWalkAt = arena + new Vector3(0f, .2f, 4f);
+            walkBody.position = clearWalkAt; walkBody.linearVelocity = Vector3.zero;
+            player.transform.position = clearWalkAt; Physics.SyncTransforms();
+            yield return new WaitForSeconds(.3f);
+            Check(player.IsOnGround() && !player.IsAttached() && player.CanMove()
+                && (bool)Call(player, "TakeInput"), "walking comparator starts grounded and input-ready on clear floor");
             float walkBefore = player.GetStamina();
-            drive = true; sprint = false;
+            // Use a straight path: a moving circular target can return near its
+            // starting point despite real walking, invalidating endpoint distance.
             Vector3 walkAt = player.transform.position;
-            yield return new WaitForSeconds(1.5f);
-            drive = false; Controls(Vector3.zero);
+            float walkUntil = Time.time + 1.5f;
+            while (Time.time < walkUntil)
+            {
+                player.SetLookDir(Vector3.right);
+                Controls(Vector3.forward);
+                yield return null;
+            }
+            Controls(Vector3.zero);
+            Log("WALK_NATIVE from=" + walkAt + " to=" + player.transform.position
+                + " distance=" + Vector3.Distance(walkAt, player.transform.position));
             Check(Vector3.Distance(walkAt, player.transform.position) > .3f && Level > 0, "walking comparator really moves with native strain active");
             Check(Mathf.Abs(walkBefore - player.GetStamina()) < .1f, "ordinary walking consumes no additional stamina while strained (regeneration disabled)");
             Stage("07-persistence-and-recovery");

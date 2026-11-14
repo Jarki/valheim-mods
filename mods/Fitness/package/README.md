@@ -13,17 +13,20 @@ Train your Run skill on a deer-hide treadmill, but pace yourself: overworked run
 - **Skill-based endurance:** higher Run skill slows strain buildup; at Run **75**, no new strain accumulates by default.
 - **Run–walk training:** exhaustion switches to walking in place; running resumes automatically when native stamina fills. Recovery walking grants no Run XP and lets strain heal.
 - **Harder treadmill workouts:** running on the treadmill builds strain **2× faster** than ordinary sprinting by default; walking recovery is unchanged.
+- **Personal workout counter:** a small treadmill screen shows only cumulative **km** and **~kcal**, saved separately for each character and world. Totals carry across treadmills; recovery walking adds no distance.
 - Separate treadmill **XP, stamina-cost and strain-buildup multipliers**.
 
 ## Build and use
 
 Use **Hammer → Furniture → Treadmill**, near a workbench, with:
 
-![Native Valheim treadmill recipe: 20 Wood, 10 Core wood, 10 Bronze nails, 6 Deer hide, 10 Leather scraps; requires a workbench.](https://jarki.github.io/valheim-mods/fitness-recipe.png)
+![Native Valheim treadmill recipe: 20 Wood, 10 Core wood, 10 Bronze nails, 6 Deer hide, 10 Leather scraps; requires a workbench.](https://jarki.github.io/valheim-mods/fitness-recipe.png?v=0.1.3)
 
 Interact to start or stop training. Move or jump to dismount in either phase. Exhaustion keeps you on the treadmill, walking until stamina reaches its current maximum, then automatically running again. Only the running phase consumes running stamina, grants Run XP and builds strain. Walking uses native regeneration, with no stamina grants or refunds.
 
 **You can open inventory during either phase**; the workout continues. Other blocking interfaces, damage, death, teleporting or destruction of the treadmill end the session.
+
+The counter shows the current runner's totals; an empty treadmill shows your own. Calories are a rough **70 kcal/km** estimate for an assumed 70 kg runner, not a personalized measurement. Counting starts with this feature; earlier workouts are not backfilled.
 
 Only sprinting builds muscle strain, including treadmill running. At a fixed Run skill of 0, the default is **60 cumulative sprint seconds per strain level**; Run 30 takes 100 seconds and Run 50 takes 180 seconds, before accounting for recovery. At Run 75+, no new strain builds by default. Walking or resting while alive heals one load unit per **600 seconds**, including treadmill recovery walking. Short breaks retain unrecovered fatigue; stopping does not immediately clear an injury. Death, teleporting and time offline do not heal strain.
 

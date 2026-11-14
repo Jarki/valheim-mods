@@ -1,5 +1,5 @@
-"""Render the package icon, or transparent build-menu options with -- --piece-variants.
-Run: blender -b -t 2 -P this_file [-- --piece-variants --output-dir PATH].
+"""Render the selected Valheim-style package/build icons, or candidate views.
+Run: blender-3.6 -b -t 2 -P this_file [-- --piece-variants --output-dir PATH].
 Geometry follows TreadmillVisual.cs; all materials are procedural, not game assets.
 """
 from pathlib import Path
@@ -57,7 +57,6 @@ def material(name, dark, light, scale):
 
 wood = material('Weathered warm wood', (0.12,0.055,0.022), (0.43,0.24,0.095), (3,3,0.22))
 hide = material('Original mottled deer hide', (0.025,0.009,0.004), (0.16,0.065,0.024), (2,3,1))
-edge = material('Pale hide edging', (0.25,0.17,0.09), (0.64,0.50,0.31), (2,3,1))
 
 
 def box(name, unity_position, unity_size, mat):
@@ -105,14 +104,6 @@ for i in range(40):
         z,y,angle=1.15+math.sin(theta)*.15,.32-math.cos(theta)*.15,math.pi+theta
     slat=box('Hide belt slat',(0,y,z),(1.42,.055,.115),hide)
     slat.rotation_euler.x=angle
-    # Narrow pale hide edges, not a second invented game texture.
-    for side in (-1,1):
-        trim=box('Hide edge',(side*.68,y+.029,z),(.045,.004,.115),edge)
-        trim.rotation_euler.x=angle
-
-floor=bpy.data.materials.new('Dark forest green ground')
-floor.diffuse_color=(.022,.042,.03,1)
-box('Ground',(0,-.08,0),(200,.1,200),floor)
 
 
 def aim(obj, target):
@@ -137,15 +128,12 @@ for name,location,power,size,color in [
     lamp.data.size=size
     lamp.data.color=color
     aim(lamp,(0,0,.7))
-if args.piece_variants:
+def render_icons():
     # Match the native thumbnails: compact, faceted and weathered, not a softbox product shot.
-    bpy.data.objects['Ground'].hide_render = True
     for obj in scene.objects:
         if obj.type == 'MESH':
             for modifier in obj.modifiers:
                 modifier.show_render = False
-            if obj.name.startswith('Hide edge'):
-                obj.hide_render = True
         elif obj.type == 'LIGHT':
             obj.hide_render = True
     for mat, colors in [
@@ -187,22 +175,30 @@ if args.piece_variants:
     scene.render.image_settings.color_mode = 'RGBA'
     scene.render.resolution_x = scene.render.resolution_y = 128
     scene.cycles.samples = 96
-    output_dir = args.output_dir or Path(__file__).resolve().parents[3] / '.dev/fitness-icon-options'
-    output_dir.mkdir(parents=True, exist_ok=True)
-    for name, position, scale, exposure in [
-        ('A-warm-three-quarter', (3.6, -4.5, 3.4), 3.7, .8),
-        ('B-elevated-belt', (-2.4, -4.6, 4.7), 3.65, .8),
-    ]:
+    if args.piece_variants:
+        output_dir = args.output_dir or Path(__file__).resolve().parents[3] / '.dev/fitness-icon-options'
+        renders = [
+            (output_dir / 'A-warm-three-quarter.png', 128, (3.6, -4.5, 3.4), 3.7, 0),
+            (output_dir / 'B-elevated-belt.png', 128, (-2.4, -4.6, 4.7), 3.65, 0),
+        ]
+    else:
+        output_dir = args.output_dir or Path(__file__).resolve().parents[1]
+        renders = [
+            (output_dir / 'package/icon.png', 256, (-2.4, -4.6, 4.7), 3.65, 0),
+            # Native recipe icons need clearance below the title strip, not edge-to-edge art.
+            (output_dir / 'Assets/treadmill.png', 128, (-2.4, -4.6, 4.7), 5.8, .075),
+        ]
+    for output, size, position, scale, shift in renders:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        scene.render.resolution_x = scene.render.resolution_y = size
         camera.location = position
         camera.data.ortho_scale = scale
+        camera.data.shift_y = shift
         aim(camera, (0, 0, .85))
-        scene.view_settings.exposure = exposure
-        scene.render.filepath = str(output_dir / (name + '.png'))
+        scene.view_settings.exposure = .8
+        scene.render.filepath = str(output)
         bpy.ops.render.render(write_still=True)
-        print(scene.render.filepath)
-else:
-    output = args.output_dir / 'icon.png' if args.output_dir else Path(__file__).resolve().parents[1] / 'package/icon.png'
-    output.parent.mkdir(parents=True, exist_ok=True)
-    scene.render.filepath = str(output)
-    bpy.ops.render.render(write_still=True)
-    print(output)
+        print(output)
+
+
+render_icons()

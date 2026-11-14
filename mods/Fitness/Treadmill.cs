@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using HarmonyLib;
 using Jotunn.Configs;
 using Jotunn.Entities;
@@ -46,6 +47,7 @@ namespace Fitness
         private static readonly Func<Player, float> RunSpeedFactor = AccessTools.MethodDelegate<Func<Player, float>>(
             AccessTools.DeclaredMethod(typeof(Player), "GetRunSpeedFactor"));
         private static CustomPiece registeredPiece;
+        private static Sprite buildIcon;
         private static Treadmill active;
         private static Treadmill pending;
         private static int nextToken;
@@ -96,6 +98,7 @@ namespace Fitness
                 }
             }
             if (!hide) throw new InvalidOperationException("Fitness could not find the native deer-hide rug material.");
+            var icon = LoadBuildIcon();
             var piece = new CustomPiece(PrefabName, "wood_floor", new PieceConfig
             {
                 Name = "Wooden treadmill",
@@ -139,6 +142,7 @@ namespace Fitness
             wear.m_fragmentRoots = new[] { model };
             wear.m_comOffset = new Vector3(0f, 0.65f, 0f);
             piece.Piece.m_usage = Piece.UsageTagFlags.Furniture;
+            piece.Piece.m_icon = icon;
             piece.Piece.m_clipEverything = false;
             piece.Piece.m_clipGround = false;
             piece.Piece.m_noClipping = true;
@@ -155,6 +159,43 @@ namespace Fitness
                 throw new InvalidOperationException("Fitness treadmill registration failed.");
             }
             registeredPiece = piece;
+        }
+
+        private static Sprite LoadBuildIcon()
+        {
+            if (buildIcon) return buildIcon;
+            using (var stream = typeof(Treadmill).Assembly.GetManifestResourceStream("Fitness.Assets.treadmill.png")
+                ?? throw new InvalidDataException("Missing embedded Fitness treadmill icon."))
+            {
+                var bytes = new byte[checked((int)stream.Length)];
+                for (int offset = 0; offset < bytes.Length;)
+                {
+                    int count = stream.Read(bytes, offset, bytes.Length - offset);
+                    if (count == 0) throw new EndOfStreamException("Incomplete Fitness treadmill icon.");
+                    offset += count;
+                }
+                var texture = new Texture2D(2, 2, TextureFormat.RGBA32, false)
+                {
+                    name = "Fitness treadmill icon",
+                    wrapMode = TextureWrapMode.Clamp,
+                    filterMode = FilterMode.Point
+                };
+                try
+                {
+                    if (!ImageConversion.LoadImage(texture, bytes, true))
+                        throw new InvalidDataException("Invalid Fitness treadmill icon.");
+                    // Preserve the transparent inset instead of trimming UI geometry to the artwork.
+                    buildIcon = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
+                        new Vector2(.5f, .5f), 100f, 0, SpriteMeshType.FullRect);
+                    buildIcon.name = PrefabName;
+                    return buildIcon;
+                }
+                catch
+                {
+                    Object.Destroy(texture);
+                    throw;
+                }
+            }
         }
 
         private void Start()
@@ -382,6 +423,19 @@ namespace Fitness
             }
             if (visual && HasOccupant())
                 visual.Advance(runner ? (recovering ? runner.m_walkSpeed : runner.m_runSpeed * RunSpeedFactor(runner)) : 6f, Time.deltaTime);
+            if (visual)
+            {
+                Player shown = Player.m_localPlayer;
+                if (HasOccupant())
+                {
+                    shown = null;
+                    var id = view.GetZDO().GetZDOID(UserKey);
+                    var players = Player.GetAllPlayers();
+                    for (int i = 0; i < players.Count; ++i)
+                        if (players[i].GetZDOID() == id) { shown = players[i]; break; }
+                }
+                visual.ShowDistance(RunDistance.Metres(shown));
+            }
         }
 
         private static bool CanContinueTraining(Player player)
@@ -429,6 +483,7 @@ namespace Fitness
                 }
                 if (!success || !player.HaveStamina()) recovering = true;
             }
+            if (success) RunDistance.Add(player, player.m_runSpeed * RunSpeedFactor(player), dt);
             Running(player) = success && !recovering;
             if (recovering && !success) StrainController.RecoverTraining(player, dt);
             // Character.UpdateWalking writes zero-speed animation/gravity for a fixed
@@ -474,6 +529,7 @@ namespace Fitness
                 player.m_onDeath -= OnRunnerDeath;
                 if (player)
                 {
+                    RunDistance.Persist(player);
                     Running(player) = false;
                     if (player.GetAttachPoint() == attachPoint) player.AttachStop();
                     var animation = player.GetZAnim();
@@ -526,6 +582,12 @@ namespace Fitness
                 registeredPiece = null;
             }
             TreadmillVisual.Shutdown();
+            if (buildIcon)
+            {
+                Object.Destroy(buildIcon.texture);
+                Object.Destroy(buildIcon);
+                buildIcon = null;
+            }
         }
 
         [HarmonyPatch(typeof(Character), nameof(Character.CustomFixedUpdate))]

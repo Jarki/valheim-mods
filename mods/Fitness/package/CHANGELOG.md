@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.1.4
+
+- Add a small treadmill screen showing only cumulative kilometres and approximate calories burned in this server/world; use a fixed estimate of 70 kcal per kilometre.
+- Preserve separate totals per character and world across workouts and character saves. Recovery walking does not add running distance; previous workouts are not backfilled.
+
+## 0.1.3
+
+- Replace the main package icon and inherited wood-floor build icon with the original Valheim-style raised-belt treadmill artwork.
+- Refresh the native recipe screenshot to show the treadmill icon while retaining all ingredient amounts and the workbench requirement.
+- Keep the in-game icon inset below the native recipe title strip, with transparent padding and full-rectangle sprite geometry so the artwork stays inside its allotted slot.
+
 ## 0.1.2
 
 - Stay attached and walk in place on treadmill exhaustion; automatically resume running only when native stamina reaches its current maximum.

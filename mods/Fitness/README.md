@@ -1,27 +1,78 @@
 # Fitness
 
-Independent Valheim BepInEx/Jotunn mod. **0.1.2 is [published on Thunderstore](https://thunderstore.io/c/valheim/p/Jarki/Fitness/).** Adds a buildable wood-frame treadmill with a deer-hide belt and running muscle strain, automatic recovery walking and revised strain defaults. Gameplay passed 711 isolated native assertions on Valheim l-1.0.21; all 91 method bodies in the version-bumped release match the tested build. Multiplayer remains unverified. Public ZIP SHA-256: **df0bba16e0988923a5773897b8e385beaa4f34a1ceb395ffdc6fe3b76c577781**, matching the owner-approved candidate. Not deployed to a gameplay profile or server.
+Independent Valheim BepInEx/Jotunn mod. **0.1.3 is [published on Thunderstore](https://thunderstore.io/c/valheim/p/Jarki/Fitness/).** Adds a buildable wood-frame treadmill with a deer-hide belt and running muscle strain, automatic recovery walking and revised strain defaults. The Valheim-style package/build icons and border-corrected recipe image are published. Gameplay passed 713 isolated native assertions on Valheim l-1.0.21; all 92 method bodies and the embedded icon in the version-bumped release match the tested build. Multiplayer remains unverified. Public ZIP SHA-256: **c6550969c4d3a065c94394ceada839e7f1831a904d0cc0fca0b7a376cc9fa291**, matching the approved candidate. Not deployed to a gameplay profile or server.
+
+**0.1.4 candidate prepared:** the minimal treadmill display shows saved
+per-character/world kilometres and approximate calories. Gameplay passed
+**775 native assertions**, with zero native errors; all **97 release method bodies**
+and embedded resources match that native-tested build after the version bump.
+Candidate SHA-256: `4666834310d88ae8f52fa9e941c40c36016927fdb60c64c3d348932b7b7a406e`.
+Selected packaging verification and extracted-payload lint pass. The marked page
+preview and exact-candidate upload await owner approval; 0.1.3 remains public.
 
 [Watch the public six-biome showcase](https://jarki.github.io/valheim-mods/).
 The Thunderstore page uses its thumbnail and the captured native recipe UI;
 media is hosted separately and is not bundled in the mod ZIP. A fresh
 mod-manager ZIP-import runtime test remains unverified.
 
-The 0.1.2 public ZIP, dependencies, package icon and live page were verified after
-upload; the new in-game icon options remain proposals and are not included.
+The 0.1.3 public ZIP, dependencies, package icon and live page were verified after
+upload. The corrected native recipe image is deployed on GitHub Pages and matches
+the approved capture byte-for-byte. The README uses `?v=0.1.3` to refresh image caches.
 
-The original package icon is reproducible with Blender 3.6:
-`blender -b -t 2 -P mods/Fitness/Tools/build_icon.py`. Materials are procedural;
-no native icon textures or game models are extracted or packaged.
+Regenerate both original icon assets with Blender **3.6**:
+`blender -b -t 2 -P mods/Fitness/Tools/build_icon.py`.
+It writes the **256×256** package icon to `package/icon.png` and the **128×128**
+transparent build icon to `Assets/treadmill.png`. Both use original procedural
+geometry and quantized weathered wood/hide shading, not extracted game textures.
+The build icon is embedded in `Fitness.dll`, assigned to the treadmill's native
+`Piece.m_icon`, and its owned sprite/texture are released during plugin shutdown.
+The in-game artwork has a transparent inset below the native title strip
+(alpha bounds `(30, 38, 98, 110)` within 128×128), while the main package icon keeps
+its original framing. `SpriteMeshType.FullRect` preserves that padding in UI geometry.
 
-Build-menu icon candidates (Blender 3.6, transparent PNGs, no game launch or installation):
-`blender -b -t 2 -P mods/Fitness/Tools/build_icon.py -- --piece-variants`.
-Outputs go to ignored `.dev/fitness-icon-options/`; `--output-dir PATH` overrides
-that destination. Both 128×128 RGBA options use original procedural geometry,
-faceted edges, quantized weathered wood/hide shading and directional lighting,
-guided by native workbench, Hammer and wood-floor thumbnails. The package-icon
-render remains unchanged. These are proposals only; neither is assigned to the
-treadmill prefab, and native UI integration remains unverified.
+`-- --piece-variants` still renders the two camera options to ignored
+`.dev/fitness-icon-options/`; `--output-dir PATH` overrides the output root.
+
+### 0.1.3 visual verification and publication — 2026-11-12
+
+- Release DLL and harness compile; **713 native assertions pass**, `nativeErrors=0`,
+  game exit 0, on Valheim l-1.0.21 / Unity 6000.0.75f1, BepInExPack 5.4.2351 and
+  Jotunn 2.30.2. Native `Hud.m_buildIcon` shows the custom treadmill sprite during
+  initial and replacement construction, not the inherited wood-floor icon.
+  The full walking/recovery, configuration, strain and lifecycle suite also passes.
+- Corrected the owner-reported recipe-border overlap by framing the embedded
+  artwork more loosely and moving it below the native title strip. The native
+  icon RectTransform was not resized, and no game HUD layout was modified.
+  The corrected full frame and recipe crop were inspected after recapture;
+  the main package icon remains byte-identical. The previous oversized capture
+  is retained privately as `.dev/fitness-visual-update/recipe-before-border-fix.png`.
+- Native-tested gameplay DLL SHA-256 before the release-version bump:
+  `9a1b30b43bbb680d7e0ac59054fa7a1286d566d3c49d026d91c4cc2ab8e353ad`.
+  Evidence: `.dev/fitness-lab/runs/20261112221150082754-52993b49/evidence/`.
+  Used a fresh disposable profile/world, private display `:92`, UDP 24888/24889.
+  The owned desktop was stopped after clean game exit; shared Steam was untouched.
+  The 0.1.3 package rebuild has **92 identical method bodies** and an identical
+  embedded icon resource compared with that tested DLL. This metadata-only
+  comparison is not a fresh mod-manager ZIP-import runtime test.
+- `package/screenshots/fitness-recipe.png` is an unmodified **343×139 crop** of the
+  actual native recipe panel, from a **1276×771** original frame. Crop coordinates
+  `(467, 585, 810, 724)` follow the native `SelectedInfo` RectTransform, retaining
+  the icon, description, all five ingredient amounts and workbench requirement.
+  Both original and crop were inspected. This screenshot is hosted-page source,
+  not an extra archive payload; it contains no painted or composited UI.
+- Staging: granted materials/platform, native Hammer selection/placement, fixed
+  midday/camera and diagnostic HP/stamina. The cropped panel does not establish
+  ordinary-resource gameplay or multiplayer correctness. The first fixture run
+  checked before the recipe panel was visible; waiting for the real `m_buildIcon`
+  to bind its selected sprite fixed the harness without changing production code.
+  Failed evidence remains under `.dev/fitness-lab/runs/20261112215246466496-2e5503e6/`.
+  That native capture did not publish or deploy to a gameplay profile/server.
+  After separate owner approvals, the recipe image and 0.1.3 ZIP were uploaded.
+  Public ZIP, packaged README/DLL/icon and hosted recipe bytes match the reviewed
+  inputs. Payload lint passed with 6 files, 0 failures and 0 warnings. The listing
+  is active and unreviewed; dependency/category/NSFW settings are unchanged.
+  Detailed publication records: `.dev/release/fitness-0.1.3/`. Media-only commit:
+  `777dd536056788d6ec9916ef6c6587d59002e1cb`. No gameplay-profile/server deployment.
 
 ## Gameplay
 
@@ -49,6 +100,53 @@ Alive, non-sprinting time recovers one load unit per **600 seconds**. Walking is
 - Move or jump to dismount; interact again to stop, during either running or recovery walking. Blocking/attack inputs use native attachment cancellation too. **Inventory may remain open during the workout**: running still consumes stamina and earns XP/strain, while recovery walking still regenerates stamina and heals strain. Closing inventory does not restart the session. Other native input blockers (escape menu, chat/console focus, text/store/map/barber interfaces, text viewer, free camera and focused build search) still stop it, even with inventory open. Damage, death, teleporting, treadmill destruction and plugin shutdown terminate training. Starting a new session still requires ordinary gameplay input.
 - Original procedural frame, handrails and rollers borrow native wood; the moving belt borrows the native `rug_deer` hide material. Belt UVs use its opaque body rather than the texture's transparent outline. No game assets are redistributed. The placed model, running pose and native status HUD were inspected in actual game screenshots/video.
 - Network-owner reservations prevent simultaneous occupancy, with short renewable leases to release disconnected users. This network path has not been tested in multiplayer.
+
+### Per-player kilometre counter (0.1.4)
+
+The small screen above the treadmill's front rail shows only two lines:
+cumulative treadmill **km** (three decimals) and estimated **~kcal** (whole calories).
+An idle treadmill shows the viewing player's own totals.
+Every treadmill uses the same character total; replacing a piece does not reset it.
+
+Calories are a rough running-energy estimate: **70 kcal per kilometre**, assuming
+a fixed 70 kg runner at approximately 1 kcal/kg/km. They derive from the same
+saved distance, not Valheim food or stamina, and are not personalized measurements.
+
+Distance integrates native running speed over successful treadmill running ticks.
+Recovery walking, dismounted time and ordinary outdoor movement do not count.
+Counting begins with this update; earlier workouts cannot be reconstructed.
+Totals persist with the character under
+`jarki.fitness.treadmillMetres.<world UID>`, separately for each world. Reconnecting
+with the same character retains its saved total; another character starts its own.
+This is character-save persistence, not a server-authoritative anti-cheat ledger.
+Other clients read the occupant's synchronized distance; real multiplayer remains
+unverified.
+
+
+### Counter verification — development build
+
+**Final km/calorie readout run passed 775 native assertions, zero native errors, exit 0.**
+Evidence: `.dev/fitness-lab/runs/20261114101406469955-33012765/evidence/`.
+Inspected the actual screen showing only **0.018 km / ~1 kcal**, backed by
+**18.059992868453264 metres**. Existing strain, recovery, inventory, save/load,
+cancellation, disable/re-enable, destruction and replacement scenarios passed.
+The walking comparator now uses a straight native-control path on clear floor;
+observed displacement was 5.514411m, with no added stamina cost.
+
+- Native single-player counter checks passed on Valheim l-1.0.21:
+  successful running accumulates virtual metres, dismounting and recovery walking
+  add nothing, native character Save/Load retains the exact total, and automatic
+  running resume continues that total. Earlier distance-only screen evidence:
+  `Fitness Lab / 0.017 km / THIS WORLD`, backed by **17.77999297901988 metres**.
+- Evidence: `.dev/fitness-lab/runs/20261114095531345955-3ef376ab/evidence/`.
+  That run reached **348 passing assertions, zero native errors**, then stopped
+  at the broader walking comparator: its time-dependent target sent the avatar
+  against the treadmill rails. The comparator now starts on clear platform floor;
+  no production collision/cancellation rules were changed.
+- Nine simulated production-source checks also passed, including independent
+  character/world totals and persistence when switching world IDs. Actual
+  multiplayer synchronization and reconnecting to a dedicated server remain
+  unverified. Native Save/Load used the same live character, not a process restart.
 
 ## Local gameplay test
 
@@ -113,7 +211,7 @@ dotnet build mods/Fitness/Fitness.csproj -c Release \
 dotnet run --project tests/Fitness.Tests/Fitness.Tests.csproj -c Release
 ```
 
-The build produces `mods/Fitness/bin/Release/netstandard2.1/Fitness.dll`. No dependency/game assemblies are copied into the output for redistribution. Fitness is also supported by `uv run python tools/release.py check Fitness`, `build Fitness` and `verify dist/Jarki-Fitness-0.1.2.zip`; follow [the release gates](../../docs/RELEASING.md). These commands neither install nor publish it. Existing paused projects are unchanged.
+The build produces `mods/Fitness/bin/Release/netstandard2.1/Fitness.dll`. No dependency/game assemblies are copied into the output for redistribution. Fitness is also supported by `uv run python tools/release.py check Fitness`, `build Fitness` and `verify dist/Jarki-Fitness-0.1.3.zip`; follow [the release gates](../../docs/RELEASING.md). These commands neither install nor publish it. Existing paused projects are unchanged.
 
 ## Verification — 0.1.2 recovery walking and balance
 
